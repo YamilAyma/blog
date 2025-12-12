@@ -1,0 +1,128 @@
+---
+import "../styles/base.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE } from "../config";
+import { THEMES, DEFAULT_THEME_ID, CATEGORY_THEMES } from "../config/themes";
+
+export interface Props {
+    title?: string;
+    description?: string;
+    image?: string;
+    category?: string;
+}
+
+const {
+    title = SITE.title,
+    description = SITE.description,
+    image = "/placeholder-social.jpg",
+    category,
+} = Astro.props;
+
+// Serializar temas para el script inline (evita duplicación)
+const themesJSON = JSON.stringify(
+    THEMES.reduce(
+        (acc, theme) => {
+            acc[theme.id] = theme;
+            return acc;
+        },
+        {} as Record<string, (typeof THEMES)[0]>,
+    ),
+);
+const defaultThemeId = DEFAULT_THEME_ID;
+---
+
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
+            rel="stylesheet"
+        />
+
+        <meta name="generator" content={Astro.generator} />
+
+        <title>{title}</title>
+        <meta name="description" content={description} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={Astro.url} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={new URL(image, Astro.url)} />
+
+        <!-- Script de inicialización del tema (evita FOUC) -->
+        <!-- Los temas se inyectan desde themes.ts para evitar duplicación -->
+        <script is:inline define:vars={{ themesJSON, defaultThemeId }}>
+            const THEMES = JSON.parse(themesJSON);
+
+            const pref =
+                localStorage.getItem("blog-theme-preference") || "auto";
+            const isDark =
+                pref === "dark" ||
+                (pref === "auto" &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches);
+            const themeId = isDark ? "dark" : defaultThemeId;
+            const theme = THEMES[themeId];
+            const root = document.documentElement;
+
+            if (isDark) root.classList.add("dark");
+            else root.classList.remove("dark");
+
+            if (theme) {
+                // Colores principales
+                root.style.setProperty("--color-primary", theme.colors.primary);
+                root.style.setProperty(
+                    "--color-background",
+                    theme.colors.background,
+                );
+                root.style.setProperty("--color-text", theme.colors.text);
+                root.style.setProperty("--color-accent", theme.colors.accent);
+                root.style.setProperty("--color-border", theme.colors.border);
+                // Tipografías
+                root.style.setProperty("--font-heading", theme.fonts.heading);
+                root.style.setProperty("--font-body", theme.fonts.body);
+                // UI
+                root.style.setProperty("--ui-site-title", theme.ui.siteTitle);
+                root.style.setProperty("--ui-nav-link", theme.ui.navLink);
+                root.style.setProperty(
+                    "--ui-nav-link-hover",
+                    theme.ui.navLinkHover,
+                );
+                // Markdown
+                root.style.setProperty("--md-h1", theme.markdown.h1);
+                root.style.setProperty("--md-h2", theme.markdown.h2);
+                root.style.setProperty("--md-h3", theme.markdown.h3);
+                root.style.setProperty("--md-p", theme.markdown.p);
+                root.style.setProperty("--md-a", theme.markdown.a);
+                root.style.setProperty("--md-a-hover", theme.markdown.aHover);
+                root.style.setProperty("--md-code", theme.markdown.code);
+                root.style.setProperty("--md-code-bg", theme.markdown.codeBg);
+                root.style.setProperty(
+                    "--md-blockquote",
+                    theme.markdown.blockquote,
+                );
+                root.style.setProperty(
+                    "--md-blockquote-border",
+                    theme.markdown.blockquoteBorder,
+                );
+            }
+        </script>
+    </head>
+    <body class="flex flex-col min-h-screen" data-category={category}>
+        <Header />
+        <main class="flex-grow w-full max-w-3xl mx-auto px-6 py-8">
+            <slot />
+        </main>
+        <Footer />
+        <script>
+            import "../utils/theme";
+        </script>
+    </body>
+</html>

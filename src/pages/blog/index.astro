@@ -1,0 +1,56 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import CategorySticker from "../../components/CategorySticker.astro";
+import { SITE } from "../../config";
+
+// Get all posts sorted by date
+const posts = (await getCollection("blog")).sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<Layout
+    title={`Blog - ${SITE.title}`}
+    description="Explora mis últimos artículos y tutoriales."
+>
+    <section class="max-w-3xl">
+        <h1 class="text-3xl font-bold mb-10 font-heading">Archivo</h1>
+
+        <div class="space-y-6">
+            {
+                posts.map((post) => (
+                    <article class="sm:flex sm:items-baseline gap-6 group">
+                        <time
+                            datetime={post.data.date.toString()}
+                            class="text-sm font-mono w-32 flex-shrink-0 mb-1 sm:mb-0 block"
+                            style="color: var(--md-blockquote);"
+                        >
+                            {post.data.date.toLocaleDateString("es-ES", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                            })}
+                        </time>
+                        <div>
+                            <a
+                                href={`/blog/${post.id.replace(/\.(md|mdx)$/, "")}`}
+                                class="blog-post-link block"
+                            >
+                                <h2 class="blog-post-title text-xl font-bold transition-colors">
+                                    {post.data.title}
+                                </h2>
+                            </a>
+                            <p
+                                class="text-sm mt-2 line-clamp-2"
+                                style="color: var(--md-p); opacity: 0.8;"
+                            >
+                                {post.data.description}
+                            </p>
+                        </div>
+                    </article>
+                ))
+            }
+        </div>
+    </section>
+</Layout>

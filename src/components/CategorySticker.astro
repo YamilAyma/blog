@@ -1,0 +1,25 @@
+---
+/**
+ * CategorySticker - Muestra una imagen circular pequeña según la categoría del post.
+ * Las rutas de imágenes se configuran en src/config/themes.ts
+ */
+import { CATEGORY_IMAGES } from "../config/themes";
+
+export interface Props {
+    category: string;
+}
+
+const { category } = Astro.props;
+
+// Obtener la imagen de la categoría o usar la por defecto
+const imageSrc = CATEGORY_IMAGES[category] || CATEGORY_IMAGES["default"];
+---
+
+<div class="flex items-center">
+    <img
+        src={imageSrc}
+        alt={`Categoría: ${category}`}
+        class="w-30 h-30 rounded-full object-cover shadow-sm border-2"
+        style="border-color: var(--color-accent);"
+    />
+</div>

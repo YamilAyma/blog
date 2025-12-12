@@ -1,0 +1,200 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+@theme {
+  /* Tokens estructurales de Tailwind v4 */
+  --radius-xl: 1.5rem;
+}
+
+:root {
+  /* ========== COLORES PRINCIPALES  ========== */
+  --color-primary: #F2D2BD;
+  --color-background: #FFFDD0;
+  --color-text: #4A403A;
+  --color-accent: #FFB7B2;
+  --color-border: rgba(74, 64, 58, 0.1);
+
+  /* ========== TIPOGRAFÍAS ========== */
+  --font-heading: "Comic Neue", cursive;
+  --font-body: "Balsamiq Sans", sans-serif;
+
+  /* ========== COLORES DE UI ========== */
+  --ui-site-title: #4A403A;
+  --ui-nav-link: #4A403A;
+  --ui-nav-link-hover: #A855F7;
+
+  /* ========== COLORES DE MARKDOWN ========== */
+  --md-h1: #4A403A;
+  --md-h2: #5A504A;
+  --md-h3: #6A605A;
+  --md-h4: #7A706A;
+  --md-h5: #8A807A;
+  --md-h6: #9A908A;
+  --md-p: #4A403A;
+  --md-bold: #4A403A;
+  --md-italic: #6A605A;
+  --md-a: #A855F7;
+  --md-a-hover: #9333EA;
+  --md-code: #C026D3;
+  --md-code-bg: rgba(192, 38, 211, 0.1);
+  --md-blockquote: #6A605A;
+  --md-blockquote-border: #F2D2BD;
+  --md-hr: #E5D5C5;
+}
+
+/* ========== ESTILOS BASE DEL BODY ========== */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-body) !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Tipografía de encabezados globales */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-heading {
+  font-family: var(--font-heading) !important;
+}
+
+/* ========== ESTILOS DE UI ========== */
+
+/* Título del sitio en el header */
+.site-title {
+  color: var(--ui-site-title);
+}
+
+/* Título principal del hero (separado para personalización) */
+.hero-title {
+  color: var(--md-h1);
+}
+
+/* Enlaces de navegación */
+.nav-link {
+  color: var(--ui-nav-link);
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--ui-nav-link-hover);
+}
+
+/* ========== ESTILOS DE LISTADO DE POSTS ========== */
+
+/* Título de entrada de blog en listas */
+.blog-post-title {
+  color: var(--color-text);
+}
+
+/* Hover del enlace de entrada de blog */
+.blog-post-link:hover .blog-post-title {
+  color: var(--md-a-hover);
+}
+
+/* ========== ESTILOS DE CONTENIDO MARKDOWN (prose) ========== */
+
+/* Contenedor base de prosa */
+.prose {
+  font-family: var(--font-body) !important;
+  line-height: 1.75;
+}
+
+/* Encabezados dentro de prosa */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-family: var(--font-heading) !important;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose h1 {
+  font-size: 2.25rem;
+  color: var(--md-h1);
+}
+
+.prose h2 {
+  font-size: 1.75rem;
+  color: var(--md-h2);
+}
+
+.prose h3 {
+  font-size: 1.5rem;
+  color: var(--md-h3);
+}
+
+.prose h4 {
+  font-size: 1.25rem;
+  color: var(--md-h4);
+}
+
+.prose h5 {
+  font-size: 1.125rem;
+  color: var(--md-h5);
+}
+
+.prose h6 {
+  font-size: 1rem;
+  color: var(--md-h6);
+}
+
+/* Párrafos y listas */
+.prose p,
+.prose li,
+.prose blockquote {
+  font-family: var(--font-body) !important;
+}
+
+.prose p {
+  color: var(--md-p);
+}
+
+/* Negritas y cursivas */
+.prose strong,
+.prose b {
+  color: var(--md-bold);
+}
+
+.prose em,
+.prose i {
+  color: var(--md-italic);
+}
+
+/* Enlaces */
+.prose a {
+  color: var(--md-a);
+}
+
+.prose a:hover {
+  color: var(--md-a-hover);
+}
+
+/* Código inline */
+.prose code {
+  color: var(--md-code);
+  background-color: var(--md-code-bg);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+
+/* Citas */
+.prose blockquote {
+  color: var(--md-blockquote);
+  border-left-color: var(--md-blockquote-border);
+}
+
+/* Línea horizontal */
+.prose hr {
+  border-color: var(--md-hr);
+  border-top-width: 1px;
+  margin: 2rem 0;
+}

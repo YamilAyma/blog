@@ -1,0 +1,60 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import CategorySticker from "../components/CategorySticker.astro";
+
+const posts = (await getCollection("blog"))
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+	.slice(0, 5); // Show latest 5
+
+import { SITE } from "../config";
+---
+
+<Layout title={SITE.title}>
+	<section class="mb-16 mt-8">
+		<h1 class="hero-title text-4xl font-bold font-heading mb-4">
+			{SITE.author}
+		</h1>
+		<p
+			class="text-lg max-w-2xl leading-relaxed"
+			style="color: var(--color-text);"
+		>
+			{SITE.description}
+		</p>
+	</section>
+
+	<section>
+		<div
+			class="flex items-center justify-between mb-6 pb-2 border-b border-black/10 dark:border-white/10"
+		>
+			<h2 class="hero-title text-2xl font-bold font-heading">Entradas Recientes</h2>
+			<a href="/blog" class="text-sm font-medium nav-link hover:underline"
+				>Ver archivo &rarr;</a
+			>
+		</div>
+
+		<ul class="space-y-2">
+			{
+				posts.map((post) => (
+					<li>
+						<a
+							href={`/blog/${post.id.replace(/\.(md|mdx)$/, "")}`}
+							class="blog-post-link group flex flex-col md:flex-row md:items-baseline md:justify-between py-2 px-3 -mx-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+						>
+							<span class="blog-post-title text-lg font-medium transition-colors">
+								{post.data.title}
+							</span>
+							<span class="text-xs md:text-sm text-stone-400 font-mono whitespace-nowrap md:ml-4">
+								{post.data.date.toLocaleDateString("es-ES", {
+									year: "numeric",
+									month: "short",
+									day: "numeric",
+								})}
+							</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</section>
+</Layout>

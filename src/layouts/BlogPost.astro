@@ -1,0 +1,62 @@
+---
+import Layout from "./Layout.astro";
+import CategorySticker from "../components/CategorySticker.astro";
+
+export interface Props {
+    frontmatter: {
+        title: string;
+        description: string;
+        date: Date;
+        category: string;
+        image?: string;
+    };
+}
+
+const { frontmatter } = Astro.props;
+// Normalizar fecha a objeto Date
+const postDate =
+    frontmatter.date instanceof Date
+        ? frontmatter.date
+        : new Date(frontmatter.date);
+---
+
+<Layout
+    title={frontmatter.title}
+    description={frontmatter.description}
+    image={frontmatter.image}
+    category={frontmatter.category}
+>
+    <article
+        class="prose prose-lg dark:prose-invert max-w-none prose-headings:font-heading prose-p:font-body"
+    >
+        <div class="mb-10 border-b border-black/5 dark:border-white/5 pb-8">
+            <CategorySticker category={frontmatter.category} />
+            <h1 class="mb-4 text-4xl md:text-5xl font-bold">
+                {frontmatter.title}
+            </h1>
+            <div class="text-stone-500 dark:text-stone-400 text-sm font-mono">
+                <time datetime={postDate.toISOString()}>
+                    {
+                        postDate.toLocaleDateString("es-ES", {
+                            dateStyle: "long",
+                        })
+                    }
+                </time>
+            </div>
+        </div>
+
+        {
+            frontmatter.image && (
+                <img
+                    src={frontmatter.image}
+                    alt={frontmatter.title}
+                    class="w-full h-auto rounded-3xl shadow-lg mb-8"
+                />
+            )
+        }
+
+        <div class="mt-8">
+            <slot />
+        </div>
+    </article>
+</Layout>

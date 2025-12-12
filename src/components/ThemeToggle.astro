@@ -1,0 +1,177 @@
+---
+/**
+ * ThemeToggle - Componente de menú desplegable para seleccionar el tema.
+ * Opciones: Auto (según sistema), Claro, Oscuro
+ */
+import { THEME_KEY } from "../utils/theme";
+---
+
+<div class="relative">
+    <!-- Botón del dropdown -->
+    <button
+        id="theme-toggle"
+        class="theme-toggle-btn p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+        aria-label="Cambiar tema"
+        aria-haspopup="true"
+        aria-expanded="false"
+    >
+        <!-- Icono Sol (visible en modo oscuro) -->
+        <svg
+            id="sun-icon"
+            class="w-6 h-6 hidden dark:block"
+            style="color: var(--ui-nav-link);"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+            ></path>
+        </svg>
+        <!-- Icono Luna (visible en modo claro) -->
+        <svg
+            id="moon-icon"
+            class="w-6 h-6 block dark:hidden"
+            style="color: var(--ui-nav-link);"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+            ></path>
+        </svg>
+    </button>
+
+    <!-- Menú desplegable -->
+    <div
+        id="theme-menu"
+        class="hidden absolute right-0 mt-2 py-2 w-36 bg-white dark:bg-stone-800 rounded-lg shadow-lg border border-black/10 dark:border-white/10 z-50"
+        role="menu"
+    >
+        <button
+            data-theme="auto"
+            class="theme-option w-full text-left px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2"
+            role="menuitem"
+        >
+            <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                ></path>
+            </svg>
+            Auto
+        </button>
+        <button
+            data-theme="light"
+            class="theme-option w-full text-left px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2"
+            role="menuitem"
+        >
+            <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                ></path>
+            </svg>
+            Claro
+        </button>
+        <button
+            data-theme="dark"
+            class="theme-option w-full text-left px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2"
+            role="menuitem"
+        >
+            <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                ></path>
+            </svg>
+            Oscuro
+        </button>
+    </div>
+</div>
+
+<script>
+    import { getThemePreference, setThemePreference } from "../utils/theme";
+
+    const toggle = document.getElementById("theme-toggle");
+    const menu = document.getElementById("theme-menu");
+    const options = document.querySelectorAll(".theme-option");
+
+    // Mostrar/ocultar menú
+    toggle?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = menu?.classList.toggle("hidden");
+        toggle.setAttribute("aria-expanded", isOpen ? "false" : "true");
+    });
+
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener("click", () => {
+        menu?.classList.add("hidden");
+        toggle?.setAttribute("aria-expanded", "false");
+    });
+
+    // Manejar selección de opción
+    options.forEach((option) => {
+        option.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const theme = (option as HTMLElement).dataset.theme;
+            if (theme === "auto" || theme === "light" || theme === "dark") {
+                setThemePreference(theme);
+            }
+            menu?.classList.add("hidden");
+            toggle?.setAttribute("aria-expanded", "false");
+        });
+    });
+
+    // Marcar la opción actual
+    function updateActiveOption() {
+        const current = getThemePreference();
+        options.forEach((opt) => {
+            const optEl = opt as HTMLElement;
+            if (optEl.dataset.theme === current) {
+                optEl.classList.add(
+                    "font-bold",
+                    "text-purple-600",
+                    "dark:text-purple-400",
+                );
+            } else {
+                optEl.classList.remove(
+                    "font-bold",
+                    "text-purple-600",
+                    "dark:text-purple-400",
+                );
+            }
+        });
+    }
+
+    updateActiveOption();
+    window.addEventListener("theme-change", updateActiveOption);
+</script>

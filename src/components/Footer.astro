@@ -1,0 +1,27 @@
+---
+import { SITE, SOCIALS } from "../config";
+const today = new Date();
+---
+
+<footer
+    class="w-full py-8 text-center text-sm text-stone-500 dark:text-stone-400 mt-auto border-t border-black/5 dark:border-white/5"
+>
+    <div class="mb-4 flex justify-center gap-4">
+        {
+            SOCIALS.map((social) => (
+                <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hover:text-stone-800 dark:hover:text-stone-200 transition-colors"
+                >
+                    {social.name}
+                </a>
+            ))
+        }
+    </div>
+    <p>
+        &copy; {today.getFullYear()}
+        {SITE.author}.
+    </p>
+</footer>
