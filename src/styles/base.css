@@ -205,3 +205,95 @@ h6,
   border-radius: 1rem;
   box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 }
+
+/* ========== BLOQUES DE CÓDIGO ========== */
+
+/* Contenedor del bloque de código */
+.prose pre {
+  position: relative;
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  /* Fondo suave para light mode */
+  background: #f6f8fa !important;
+}
+
+/* Tema oscuro para bloques de código */
+.dark .prose pre {
+  background: #cbd2d8 !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Código dentro del pre (reset estilos inline) */
+.prose pre code {
+  background: transparent !important;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: inherit;
+}
+
+/* Código inline (mantener estilos originales) */
+.prose :not(pre)>code {
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 0.85em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.375rem;
+  background-color: var(--md-code-bg);
+  color: var(--md-code);
+}
+
+/* Botón de copiar código */
+.code-copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  color: #57606a;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.prose pre:hover .code-copy-btn {
+  opacity: 1;
+}
+
+.code-copy-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.code-copy-btn.copied {
+  background: #2da44e;
+  color: white;
+  border-color: #2da44e;
+}
+
+/* Tema oscuro para botón de copiar */
+.dark .code-copy-btn {
+  background: rgba(45, 50, 58, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #adbac7;
+}
+
+.dark .code-copy-btn:hover {
+  background: rgba(55, 62, 73, 1);
+}
+
+.dark .code-copy-btn.copied {
+  background: #2da44e;
+  color: white;
+}
