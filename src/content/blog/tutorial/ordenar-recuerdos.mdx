@@ -1,0 +1,235 @@
+---
+title: '[Tutorial] - ¿Como puedes ordenar tus recuerdos automaticamente?'
+description: 'Usaremos Google Apps Script para orquestar la automatización de Google Drive '
+date: '2025-12-11'
+category: 'Tutorial'
+tags: ['google-apps-script', 'google-drive', 'tutorial']
+image: 'https://raw.githubusercontent.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/main/img/banner.png'
+---
+
+
+Este sistema automatiza la organización de tus fotos y archivos en Google Drive, renombrándolos con formato de fecha y moviéndolos a carpetas organizadas por año y mes.
+
+---
+
+## Flujo de operaciones
+
+![Flujo de operaciones](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/diagrama.png)
+
+## Prerrequisitos
+
+El sistema funciona con **2 cuentas** para que sea efectivo.
+
+1.  **Cuenta A (Tu cuenta principal):** Aquí es donde subes las fotos desde tu celular o PC a la carpeta de "bandeja de entrada".
+2.  **Cuenta B (La nueva de almacenamiento):** Aquí es donde vivirá el script, donde se guardarán los archivos permanentemente y la que pondrá el espacio de 15GB.
+
+---
+
+## Configuración Inicial
+
+### Paso 1: Configuración de Carpetas
+
+#### 1.1 En tu Cuenta A:
+
+*   Crea una carpeta llamada `BANDEJA_RECUERDOS`.
+![Paso 1.1](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/1.png)
+*   Haz clic derecho -> **Compartir** -> Escribe el correo de tu **Cuenta B**.
+![Paso 1.2](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/2.png)
+*   **IMPORTANTE:** Asegúrate de que tenga permiso de **Editor**.
+*   Copia el ID de esta carpeta (está en la URL después de `folders/`).
+![Paso 1.3](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/3.png)
+
+#### 1.2 En tu Cuenta B:
+
+*   Crea una carpeta llamada `MIS_RECUERDOS_GUARDADOS` (recomiendo ponerlo con el sufijo de año ej: MIS_RECUERDOS_GUARDADOS_2026).
+![Paso 1.4](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/4.png)
+*   Copia el ID de esta carpeta. Ver imagen anterior de como encontrarlo
+
+
+---
+
+### Paso 2: El Script Principal
+
+Entra a [script.google.com](https://script.google.com) con la **Cuenta B**, crea un "Nuevo Proyecto" y pega este código:
+
+![Paso 2.1](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/5.png)
+
+```javascript
+// ==========================================
+// CONFIGURACIÓN (RELLENA ESTOS DATOS)
+// ==========================================
+const ID_CARPETA_ENTRADA = 'ESCRIBE_AQUI_EL_ID_DE_LA_CUENTA_A';
+const ID_CARPETA_DESTINO_FINAL = 'ESCRIBE_AQUI_EL_ID_DE_LA_CUENTA_B';
+// ==========================================
+
+function ejecutarOrganizacion() {
+  const bandejaEntrada = DriveApp.getFolderById(ID_CARPETA_ENTRADA);
+  const destinoRaiz = DriveApp.getFolderById(ID_CARPETA_DESTINO_FINAL);
+  const archivos = bandejaEntrada.getFiles();
+
+  const meses = ["01-Enero", "02-Febrero", "03-Marzo", "04-Abril", "05-Mayo", "06-Junio", 
+                 "07-Julio", "08-Agosto", "09-Septiembre", "10-Octubre", "11-Noviembre", "12-Diciembre"];
+  
+  const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+  while (archivos.hasNext()) {
+    let archivo = archivos.next();
+    let fecha = archivo.getDateCreated();
+    
+    // 1. Datos de la fecha
+    let anio = fecha.getFullYear();
+    let mesNum = ("0" + (fecha.getMonth() + 1)).slice(-2);
+    let diaNum = ("0" + fecha.getDate()).slice(-2);
+    let nombreDia = diasSemana[fecha.getDay()];
+    let semanaMes = Math.ceil(fecha.getDate() / 7);
+
+    // 2. Crear nuevo nombre según tu plantilla
+    let fechaFormato = anio + "-" + mesNum + "-" + diaNum;
+    let nombreOriginal = archivo.getName();
+    let nuevoNombre = `[${fechaFormato}] - ${nombreDia} - Sem.${semanaMes} - ${nombreOriginal}`;
+
+    // 3. Organizar carpetas
+    let nombreMes = meses[fecha.getMonth()];
+    let carpetaAnio = obtenerOCrear(destinoRaiz, anio.toString());
+    let carpetaMes = obtenerOCrear(carpetaAnio, nombreMes);
+
+    // 4. TRASPASAR PROPIEDAD (Copia a B y borra de A)
+    // Al hacer copia desde la Cuenta B, el nuevo archivo le pertenece a B
+    let copia = archivo.makeCopy(nuevoNombre, carpetaMes);
+    
+    console.log("Archivo procesado y movido: " + nuevoNombre);
+  }
+}
+
+function obtenerOCrear(padre, nombre) {
+  let carpetas = padre.getFoldersByName(nombre);
+  return carpetas.hasNext() ? carpetas.next() : padre.createFolder(nombre);
+}
+```
+
+![Paso 2.2](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/6.png)
+
+
+---
+
+### Paso 2.5: Script de Limpieza
+
+Seguiremos usando el script de la **Cuenta B** para copiar y organizar (porque así la Cuenta B se adueña del espacio), pero crearemos un mini-script en la **Cuenta A** que solo se encargue de limpiar la bandeja de entrada una vez que los archivos ya fueron copiados.
+
+Entra a [script.google.com](https://script.google.com) desde tu **Cuenta Principal (A)** y pega esto:
+
+
+```javascript
+function limpiarBandejaEntrada() {
+  const ID_BANDEJA = 'TU_ID_DE_BANDEJA_DE_ENTRADA'; 
+  const carpeta = DriveApp.getFolderById(ID_BANDEJA);
+  const archivos = carpeta.getFiles();
+  
+  while (archivos.hasNext()) {
+    let archivo = archivos.next();
+    // Como este script corre en la Cuenta A, aquí SÍ tiene permiso para borrar
+    archivo.setTrashed(true);
+    console.log("Eliminado de la bandeja: " + archivo.getName());
+  }
+}
+```
+
+![Paso 2.5](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/7.png)
+
+---
+
+### Paso 3: Autorización y Prueba
+
+1.  En el editor de la Cuenta B, dale al botón **Ejecutar**.
+2.  Te pedirá permisos. **Es vital que aceptes todos** (Configuración avanzada -> Ir a proyecto no seguro).
+3.  Si tenías algún archivo de prueba en la Cuenta A, verás cómo desaparece de ahí y aparece mágicamente en la Cuenta B con el nuevo nombre.
+
+![Paso 3.1](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/8.png)
+
+---
+
+### Paso 4: Automatización
+
+#### 4.1 Activador para el Script de la Cuenta B
+
+En el menú de la izquierda (el reloj), añade un **Activador**:
+*   Función: `ejecutarOrganizacion`
+*   Fuente: `Según tiempo`
+*   Tipo: `Temporizador de día`
+*   Hora: `De 2 a 3 AM` (así se procesa mientras duermes).
+
+![Paso 4.1](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/9.png)
+
+![Paso 4.2](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/10.png)
+
+#### 4.2 Activador para el Script de la Cuenta A
+
+En el script de la **Cuenta A**, añade un activador para que se ejecute **una hora después** que el script de la Cuenta B.
+*   Si el de la Cuenta B corre a las 2:00 AM, pon este a las 3:00 AM.
+
+![Paso 4.3](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/11.png)
+
+---
+
+### Paso 5: El Toque Final
+
+Para que no tengas que estar entrando a la Cuenta B para ver tus fotos:
+
+1.  En la **Cuenta B**, haz clic derecho en la carpeta `MIS_RECUERDOS_GUARDADOS` -> **Compartir**.
+2.  Pon el correo de tu **Cuenta A** (con permiso de **Lector**).
+3.  Entra a tu **Cuenta A** (en la web o PC).
+4.  Ve a "Compartido conmigo", busca esa carpeta, haz clic derecho y selecciona **"Añadir acceso directo a Drive"**.
+
+
+![Paso 5.1](https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script/raw/main/img/steps/12.png)
+
+---
+
+## Manual de Actualización Anual
+
+> **Ejemplo: Pasando de 2026 a 2027**
+
+### 1. En la Cuenta del año que termina (Cuenta 2026)
+
+1. Entra a script.google.com.
+2. Ve al icono del Reloj (Activadores).
+3. Haz clic en los tres puntos y elige **Eliminar activador**.
+4. Listo, esta cuenta ya no tocará nada de la bandeja de entrada.
+
+
+### 2. En la Cuenta del año nuevo (Cuenta 2027)
+
+1. Crea tu nueva carpeta `MIS_RECUERDOS_2027`.
+2. Copia el Script de la cuenta anterior y pégalo en un nuevo proyecto de esta cuenta.
+3. Actualiza el ID de la carpeta destino (el de `MIS_RECUERDOS_2027`). El ID de la bandeja de entrada sigue siendo el mismo de siempre.
+4. Dale a **Ejecutar** una vez para autorizar los permisos.
+5. Crea el Activador (Reloj) para que corra cada madrugada.
+6. Comparte la carpeta `MIS_RECUERDOS_2027` con tu Cuenta Principal (A).
+
+
+### 3. En tu Cuenta Principal (A)
+
+1. Ve a "Compartido conmigo", busca la nueva carpeta de 2027 y crea el **Acceso directo** en tu unidad principal.
+2. (Recomendable) Borra el acceso directo del año anterior si ya no quieres verlo ahí, aunque no estorba.
+
+---
+
+## Notas Importantes
+
+### Sobre las fechas
+
+Como acordamos que el script usará la fecha de Subida/Creación en Drive:
+
+*   Si subes algo el 2 de enero, pero la foto era del 30 de diciembre, el script la pondrá en Enero.
+*   **Consejo:** Si tienes fotos acumuladas de fin de año, deja que el script de 2026 corra hasta el 2 o 3 de enero antes de apagarlo, para que termine de procesar los "resquicios" del año anterior.
+
+### Sobre el cambio de año
+
+Cuando termine el año (ej. el 31 de diciembre o 1 de enero):
+
+1. Entras a los Activadores (el reloj) de la Cuenta 2026 y eliminas el activador. El script se queda ahí, pero ya no "despierta" cada noche.
+2. Configuras el script en la Cuenta 2027 y activas su reloj.
+
+---
+
+> Animate a darle una ⭐ en Github: https://github.com/YamilAyma/setup-recuerdos-gdrive-automatico-script
