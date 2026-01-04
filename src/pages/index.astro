@@ -27,7 +27,9 @@ import { SITE } from "../config";
 		<div
 			class="flex items-center justify-between mb-6 pb-2 border-b border-black/10 dark:border-white/10"
 		>
-			<h2 class="hero-title text-2xl font-bold font-heading">Entradas Recientes</h2>
+			<h2 class="hero-title text-2xl font-bold font-heading">
+				Entradas Recientes
+			</h2>
 			<a href="/blog" class="text-sm font-medium nav-link hover:underline"
 				>Ver archivo &rarr;</a
 			>
@@ -49,6 +51,7 @@ import { SITE } from "../config";
 									year: "numeric",
 									month: "short",
 									day: "numeric",
+									timeZone: "UTC",
 								})}
 							</span>
 						</a>
