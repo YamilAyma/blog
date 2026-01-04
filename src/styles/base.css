@@ -229,7 +229,7 @@ h6,
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Código dentro del pre (reset estilos inline) */
+/* Código dentro del pre */
 .prose pre code {
   background: transparent !important;
   padding: 0;
@@ -239,7 +239,7 @@ h6,
   font-size: inherit;
 }
 
-/* Código inline (mantener estilos originales) */
+/* Código inline */
 .prose :not(pre)>code {
   font-family: "JetBrains Mono", monospace !important;
   font-size: 0.85em;

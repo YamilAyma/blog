@@ -1,6 +1,7 @@
 ---
 import Layout from "./Layout.astro";
 import CategorySticker from "../components/CategorySticker.astro";
+import FloatingNavbar from "../components/FloatingNavbar.astro";
 
 export interface Props {
     frontmatter: {
@@ -26,6 +27,7 @@ const postDate =
     image={frontmatter.image}
     category={frontmatter.category}
 >
+    <FloatingNavbar />
     <article
         class="prose prose-lg dark:prose-invert max-w-none prose-headings:font-heading prose-p:font-body"
     >

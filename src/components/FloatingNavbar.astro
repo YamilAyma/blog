@@ -1,0 +1,197 @@
+---
+/**
+ * FloatingNavbar - Barra de navegación flotante tipo pill que aparece
+ * cuando el header principal sale del viewport.
+ * Solo se muestra en páginas de blog posts.
+ * Posición: centro inferior de la página.
+ */
+import { SITE } from "../config";
+
+const navItems = [
+    { href: "/sobre-mi", label: "Sobre Mí" },
+    { href: "/blog", label: "Blog" },
+    { href: "/galeria", label: "Galería" },
+    { href: "/contacto", label: "Contacto" },
+];
+---
+
+<div
+    id="floating-navbar"
+    class="floating-navbar fixed bottom-10 left-1/2 z-50 opacity-0 translate-y-4 pointer-events-none transition-all duration-300"
+    aria-hidden="true"
+>
+    <nav
+        class="floating-navbar-inner flex items-center gap-1 px-3 py-2 rounded-full shadow-lg"
+    >
+        <!-- Logo/Título -->
+        <a
+            href="/"
+            class="floating-nav-item font-heading font-bold text-sm px-3 py-1.5 rounded-full transition-colors"
+            style="color: var(--ui-site-title);"
+        >
+            {SITE.title}
+        </a>
+
+        <!-- Separador -->
+        <div class="floating-separator w-px h-5 opacity-20"></div>
+
+        <!-- Links de navegación -->
+        {
+            navItems.map((item) => (
+                <a
+                    href={item.href}
+                    class="floating-nav-item text-sm font-medium px-3 py-1.5 rounded-full transition-colors"
+                    style="color: var(--ui-nav-link);"
+                >
+                    {item.label}
+                </a>
+            ))
+        }
+
+        <!-- Separador -->
+        <div class="floating-separator w-px h-5 opacity-20"></div>
+
+        <!-- Theme Toggle Button (simplificado para evitar conflicto de IDs) -->
+        <button
+            id="floating-theme-toggle"
+            class="floating-nav-item p-2 rounded-full transition-colors"
+            aria-label="Cambiar tema"
+        >
+            <!-- Icono Sol  -->
+            <svg
+                class="floating-sun-icon w-5 h-5 hidden dark:block"
+                style="color: var(--ui-nav-link);"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                ></path>
+            </svg>
+            <!-- Icono Luna -->
+            <svg
+                class="floating-moon-icon w-5 h-5 block dark:hidden"
+                style="color: var(--ui-nav-link);"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                ></path>
+            </svg>
+        </button>
+    </nav>
+</div>
+
+<style>
+    /* Contenedor del navbar flotante */
+    .floating-navbar-inner {
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        backdrop-filter: blur(12px);
+    }
+
+    /* Separador usando color del tema */
+    .floating-separator {
+        background-color: var(--color-text);
+    }
+
+    /* Estado visible - viene desde abajo */
+    .floating-navbar.visible {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        pointer-events: auto;
+    }
+
+    /* Hover sutil tipo pill en los items */
+    .floating-nav-item:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .dark .floating-nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Sombra con más elevación */
+    .floating-navbar-inner {
+        box-shadow:
+            0 8px 30px rgba(0, 0, 0, 0.12),
+            0 4px 12px rgba(0, 0, 0, 0.08),
+            0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    .dark .floating-navbar-inner {
+        box-shadow:
+            0 8px 30px rgba(0, 0, 0, 0.5),
+            0 4px 12px rgba(0, 0, 0, 0.4),
+            0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    /* Ocultar en móvil */
+    @media (max-width: 768px) {
+        .floating-navbar {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    import { setThemePreference, getThemePreference } from "../utils/theme";
+
+    function initFloatingNavbar() {
+        const floatingNav = document.getElementById("floating-navbar");
+        const mainHeader = document.querySelector("header");
+        const themeToggle = document.getElementById("floating-theme-toggle");
+
+        if (!floatingNav || !mainHeader) return;
+
+        // Manejar clic en el botón de tema
+        themeToggle?.addEventListener("click", () => {
+            const current = getThemePreference();
+            // Toggle simple: si está en dark -> light, si está en light/auto -> dark
+            const isDark =
+                current === "dark" ||
+                (current === "auto" &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+            setThemePreference(isDark ? "light" : "dark");
+        });
+
+        // Usar Intersection Observer para detectar cuando el header sale del viewport
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        // Header visible - ocultar floating navbar
+                        floatingNav.classList.remove("visible");
+                        floatingNav.setAttribute("aria-hidden", "true");
+                    } else {
+                        // Header fuera del viewport - mostrar floating navbar
+                        floatingNav.classList.add("visible");
+                        floatingNav.setAttribute("aria-hidden", "false");
+                    }
+                });
+            },
+            {
+                threshold: 0,
+                rootMargin: "0px",
+            },
+        );
+
+        observer.observe(mainHeader);
+    }
+
+    // Ejecutar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", initFloatingNavbar);
+
+    // También ejecutar en navegación de Astro (View Transitions)
+    document.addEventListener("astro:page-load", initFloatingNavbar);
+</script>
