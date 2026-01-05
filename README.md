@@ -1,6 +1,6 @@
 # Blog
 
-<!-- Espacio para banner -->
+![BlogView](https://i.imgur.com/nu6wh19.png)
 
 Blog personal construido con Astro 5, TailwindCSS v4 y MDX.
 
@@ -94,4 +94,8 @@ Los archivos estáticos se generan en `dist/`
 
 ## Deploy
 
-El sitio está configurado para GitHub Pages. Sube los cambios a `main` y configura GitHub Pages para usar la carpeta `dist/` o GitHub Actions.
+```bash
+npm run deploy
+```
+
+El sitio está configurado para GitHub Pages. Sube los cambios a `main` y configura GitHub Pages para usar la carpeta `dist/` o GitHub Actions. ¡Esto ultimo funciona en local para el creador!

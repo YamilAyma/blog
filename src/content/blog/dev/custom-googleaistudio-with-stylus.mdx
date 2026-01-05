@@ -1,0 +1,89 @@
+---
+title: 'Personalizando Google AI Studio con Stylus'
+description: 'Las interfaces que usamos pueden tener su toque personal, especialmente apps favoritas.'
+date: '2026-03-05'
+category: 'Dev'
+tags: ['dev', 'custom', 'google', 'ia']
+image: 'https://camo.githubusercontent.com/f969917bdf7a63e9381e88a23c74ec851d9f404981df374cfc40ccdd2fb59737/68747470733a2f2f692e696d6775722e636f6d2f73774b7141536c2e706e67'
+---
+
+
+Últimamente, y raramente me pregunté si pudiera cambiar el color o 
+letra de uno de las apps web de IA que uso.
+
+En mi búsqueda encontré una extensión de navegador llamado Stylus.
+Era justo lo que necesitaba para convertir lo que veía en algo que **quería** ver.
+
+_Jeje, intentaré no profundizar demasiado en lo técnico ya que sería redundante más adelante,
+te dejaré el recurso para que también puedas personalizarlo, aunque si tienes prisa, aquí te dejo el 
+enlace: https://github.com/YamilAyma/CustomizeGoogleAIStudio-Template_
+
+### La tarea
+
+Soy nuevo usando este tipo de Herramienta, y a simple vista me interesó muchisimo
+porque trae varias características que alguien amante de la personalización buscaría (para sitios web)
+
+![Imagen de características de Stylus|Spoiler](https://i.imgur.com/QuVsKhU.png)
+
+Por lo que veo, inyecta el código CSS escrito al cargar la página.
+
+![Muestreo de como Stylus carga el código CSS](https://i.imgur.com/59MrY1F.png)
+
+`m=_b` contiene todo el código CSS compilado del sitio de [Google AI Studio](https://aistudio.google.com/)
+
+pero antes de crearlo quería investigar si alguien ya lo había hecho.
+
+Hubieron buenos intentos, pero no encontré algo ajustado o flexible de personalizar, y me propuse crear el mío esta tarde.
+
+![Vamos!, busca el mío y haz el tuyo](https://i.imgur.com/hputge3.png)
+
+#### Entonces..
+
+Debemos buscar los selectores CSS que modifican lo importante, gracias a las herramientas
+de inspección esto pasó de modo pesadilla a modo filtros.
+
+Fue a ensayo y error poder saber como estaban usados los colores, ya que algunos 
+no eran muy explicitos en nombre o confundían, para ello he comentado su responsabilidad
+en el archivo principal.
+
+Noté que se usaba una función `light-dark(color1, color2)` para poder manejar el tema de color
+según ajuste, así que estaba genial, **podría personalizar el tema para ambos modos en un solo archivo, un solo código CSS**.
+
+Al acabar con lo importante pasé a ver sobre el tema de código, las IA como Gemini
+pueden generar código, y lo vemos muy a menudo, merecía su pastel de personalización.
+
+Noté que se usa la clase `hljs` para el código (es presencia de [highlightjs.js](https://highlightjs.org/))
+así que fue más sencillo modificarlo.
+
+Luego descubrimos el tema de color que usa Google AI Studio para el código (en `m=_b` gracias a **Editor de Estilos**)
+así que lo coloqué también en mi archivo para poder reemplazarlo o tenerlo de plantilla.
+
+
+#### de plantilla...
+
+Pero este trabajo puede servirle a alguien más quien tenga mismos objetivos, no puede quedarse en local y menciono que olvidé tomar captura de las pruebas que hice (aunque mejor no verlas jeje).
+
+Por lo que entonces ví como publicar esta plantilla de estilos, (tuve que mejorar los comentarios y traducirla al inglés 🫠)
+fue muy sencillo y el proceso terminó relajado.
+
+Aquí se encuentran las plantillas por si lo andabas buscando, los comentarios están en los respectivos idiomas:
+
+--- 
+
+- Inglés: https://userstyles.world/style/25942/google-ai-studio-template
+- Español: https://userstyles.world/style/25943/google-ai-studio-plantilla
+
+---
+
+Luego lo preparamos en un repositorio con algunos extras, como un vídeo y código de [highlightjs.js](https://highlightjs.org/) para que puedas editarlo.
+
+### ¡Listo!
+
+Había terminado creando una plantilla para estilos en lugar de haber personalizado mi interfaz...
+Ahora tengo una semilla, podré crear varios temas y tú también ✨
+
+Te dejo el enlace al repositorio donde se encuentran los recursos, no olvides dejar una estrella para que pueda saber si te ayudó.
+
+## 👉 [CustomizeGoogleAIStudio-Template](https://github.com/YamilAyma/CustomizeGoogleAIStudio-Template)
+
+*Nota: El sitio puede cambiar, cuando suceda actualizaré los estilos, aunque dudo que cambien mucho ✅*
