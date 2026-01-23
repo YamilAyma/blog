@@ -7,8 +7,13 @@ function initCopyButtons() {
   const codeBlocks = document.querySelectorAll('.prose pre');
   
   codeBlocks.forEach((pre) => {
-    // Evitar duplicados si ya existe un botón
-    if (pre.querySelector('.code-copy-btn')) return;
+    // Evitar duplicados si ya existe un wrapper
+    if (pre.parentElement?.classList.contains('code-block-wrapper')) return;
+    
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+    pre.parentNode?.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
     
     const button = document.createElement('button');
     button.className = 'code-copy-btn';
@@ -37,7 +42,8 @@ function initCopyButtons() {
       }
     });
     
-    pre.appendChild(button);
+    // El botón va en el wrapper, no en el pre
+    wrapper.appendChild(button);
   });
 }
 

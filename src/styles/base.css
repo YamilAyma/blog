@@ -249,14 +249,22 @@ h6,
   color: var(--md-code);
 }
 
+/* Wrapper del bloque de código */
+.code-block-wrapper {
+  position: relative;
+}
+
 /* Botón de copiar código */
 .code-copy-btn {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  padding: 0.375rem 0.625rem;
-  border-radius: 0.375rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  top: 1.5rem;
+  /* Coincidir con margin-top del pre */
+  right: 0;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0 0.65rem 0 0.5rem;
+  border: none;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.9);
   color: #57606a;
   font-family: "JetBrains Mono", monospace;
@@ -265,9 +273,10 @@ h6,
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s ease, background 0.2s ease;
+  z-index: 10;
 }
 
-.prose pre:hover .code-copy-btn {
+.code-block-wrapper:hover .code-copy-btn {
   opacity: 1;
 }
 
