@@ -1,0 +1,253 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import PostCard from "../../components/PostCard.astro";
+import PostModal from "../../components/PostModal.astro";
+import { SITE } from "../../config";
+
+// Obtener todos los posts ordenados por fecha (más reciente primero)
+const posts = (await getCollection("posts")).sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+// Preparar posts con su contenido renderizado
+const postsWithContent = await Promise.all(
+    posts.map(async (post) => {
+        const { Content, remarkPluginFrontmatter } = await render(post);
+        // Extraer texto plano del body para usar como copy (si no hay copy en frontmatter)
+        const rawBody = post.body || "";
+        return { post, Content, rawBody };
+    }),
+);
+
+// Asignar variantes para el bento grid (patrón más equilibrado)
+const getVariant = (index: number): "large" | "small" | "wide" => {
+    const patternIndex = index % 5;
+    if (patternIndex === 0) return "wide"; // Más ancho pero menos alto que antes
+    if (patternIndex === 3) return "wide";
+    return "small";
+};
+
+// Generar ID único para cada post
+const getPostId = (post: (typeof posts)[0], index: number) =>
+    `post-${post.id.replace(/[^a-zA-Z0-9]/g, "-")}-${index}`;
+---
+
+<Layout
+    title={`Posts - ${SITE.title}`}
+    description="Mis últimos posts y contenido visual."
+>
+    <section class="posts-section">
+        <h1 class="text-3xl font-bold mb-10 font-heading">Posts</h1>
+
+        <!-- Vista Desktop: Bento Grid -->
+        <div class="bento-grid">
+            {
+                postsWithContent.map(({ post, rawBody }, index) => (
+                    <div class={`bento-item bento-item--${getVariant(index)}`}>
+                        <PostCard
+                            post={post}
+                            variant={getVariant(index)}
+                            postId={getPostId(post, index)}
+                            rawBody={rawBody}
+                        />
+                    </div>
+                ))
+            }
+        </div>
+
+        <!-- Vista Mobile: Lista vertical -->
+        <div class="posts-slider">
+            {
+                postsWithContent.map(({ post, rawBody }, index) => (
+                    <div class="posts-slider__item">
+                        <PostCard
+                            post={post}
+                            variant="small"
+                            postId={getPostId(post, index)}
+                            rawBody={rawBody}
+                        />
+                    </div>
+                ))
+            }
+        </div>
+
+        <!-- Modales para cada post -->
+        {
+            postsWithContent.map(({ post, Content, rawBody }, index) => (
+                <PostModal
+                    post={post}
+                    postId={getPostId(post, index)}
+                    rawBody={rawBody}
+                >
+                    <Content />
+                </PostModal>
+            ))
+        }
+    </section>
+</Layout>
+
+<style>
+    .posts-section {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* === BENTO GRID (Desktop) === */
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+
+    .bento-item--wide {
+        grid-column: span 2;
+    }
+
+    .bento-item--small {
+        grid-column: span 1;
+    }
+
+    /* Ocultar slider en desktop */
+    .posts-slider {
+        display: none;
+    }
+
+    /* === SLIDER (Mobile) === */
+    @media (max-width: 768px) {
+        .bento-grid {
+            display: none;
+        }
+
+        .posts-slider {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .posts-slider__item {
+            width: 100%;
+        }
+
+        /* Aplicar estilo mobile a las cards */
+        .posts-slider__item :global(.post-card) {
+            display: flex;
+            flex-direction: row;
+            border-radius: 1rem;
+        }
+
+        .posts-slider__item :global(.post-card__image-container) {
+            width: 35%;
+            min-width: 100px;
+            max-width: 140px;
+            aspect-ratio: 1;
+            flex-shrink: 0;
+            border-radius: 1rem 0 0 1rem;
+        }
+
+        .posts-slider__item :global(.post-card__content) {
+            flex: 1;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+        }
+
+        .posts-slider__item :global(.post-card__overlay) {
+            display: none;
+        }
+
+        .posts-slider__item :global(.post-card__copy) {
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .posts-slider__item :global(.post-card__socials) {
+            gap: 0.5rem;
+        }
+
+        .posts-slider__item :global(.post-card__social-link) {
+            width: 1.75rem;
+            height: 1.75rem;
+        }
+    }
+
+    /* Responsive intermedio */
+    @media (max-width: 1024px) and (min-width: 769px) {
+        .bento-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .bento-item--wide {
+            grid-column: span 2;
+        }
+    }
+</style>
+
+<script>
+    // Manejar apertura/cierre de modales
+    function initModals() {
+        const triggers = document.querySelectorAll("[data-modal-trigger]");
+        const modals = document.querySelectorAll(".post-modal");
+
+        triggers.forEach((trigger) => {
+            // Click handler
+            trigger.addEventListener("click", (e) => {
+                // No abrir modal si se clickeó un link de redes sociales
+                const target = e.target as HTMLElement;
+                if (target.closest(".post-card__social-link")) return;
+
+                e.preventDefault();
+                const postId = trigger.getAttribute("data-modal-trigger");
+                const modal = document.getElementById(`modal-${postId}`);
+                if (modal) {
+                    modal.setAttribute("aria-hidden", "false");
+                    document.body.style.overflow = "hidden";
+                }
+            });
+
+            // Keyboard handler para accesibilidad
+            trigger.addEventListener("keydown", (e) => {
+                const keyEvent = e as KeyboardEvent;
+                if (keyEvent.key === "Enter" || keyEvent.key === " ") {
+                    e.preventDefault();
+                    const postId = trigger.getAttribute("data-modal-trigger");
+                    const modal = document.getElementById(`modal-${postId}`);
+                    if (modal) {
+                        modal.setAttribute("aria-hidden", "false");
+                        document.body.style.overflow = "hidden";
+                    }
+                }
+            });
+        });
+
+        modals.forEach((modal) => {
+            // Cerrar con botón X
+            const closeBtn = modal.querySelector(".post-modal__close");
+            closeBtn?.addEventListener("click", () => {
+                modal.setAttribute("aria-hidden", "true");
+                document.body.style.overflow = "";
+            });
+
+            // Cerrar con backdrop
+            const backdrop = modal.querySelector(".post-modal__backdrop");
+            backdrop?.addEventListener("click", () => {
+                modal.setAttribute("aria-hidden", "true");
+                document.body.style.overflow = "";
+            });
+        });
+
+        // Cerrar con tecla Escape
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                modals.forEach((modal) => {
+                    modal.setAttribute("aria-hidden", "true");
+                });
+                document.body.style.overflow = "";
+            }
+        });
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", initModals);
+    // También para navegación de Astro (view transitions)
+    document.addEventListener("astro:page-load", initModals);
+</script>

@@ -22,4 +22,21 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { blog, pages };
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
+  schema: z.object({
+    image: z.string(),
+    copy: z.string().optional(),
+    date: z.coerce.date(),
+    category: z.string().default('General'), // Uso interno
+    socials: z.object({
+      twitter: z.string().optional(),
+      instagram: z.string().optional(),
+      linkedin: z.string().optional(),
+      facebook: z.string().optional(),
+      tiktok: z.string().optional(),
+    }).optional(),
+  }),
+});
+
+export const collections = { blog, pages, posts };
