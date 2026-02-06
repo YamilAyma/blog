@@ -5,9 +5,14 @@ import CategorySticker from "../../components/CategorySticker.astro";
 import { SITE } from "../../config";
 
 // Get all posts sorted by date
-const posts = (await getCollection("blog")).sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const now = new Date();
+const posts = (await getCollection("blog"))
+    .filter((post) => {
+        if (!post.data.published) return false;
+        if (post.data.date > now) return false;
+        return true;
+    })
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
 <Layout

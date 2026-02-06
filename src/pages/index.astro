@@ -3,7 +3,13 @@ import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import CategorySticker from "../components/CategorySticker.astro";
 
+const now = new Date();
 const posts = (await getCollection("blog"))
+	.filter((post) => {
+		if (!post.data.published) return false;
+		if (post.data.date > now) return false;
+		return true;
+	})
 	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 	.slice(0, 5); // Show latest 5
 

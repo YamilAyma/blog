@@ -5,10 +5,19 @@ import PostCard from "../../components/PostCard.astro";
 import PostModal from "../../components/PostModal.astro";
 import { SITE } from "../../config";
 
-// Obtener todos los posts ordenados por fecha (más reciente primero)
-const posts = (await getCollection("posts")).sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+// Fecha actual para filtrar posts programados
+const now = new Date();
+
+// Obtener posts publicados (published: true Y fecha <= hoy), ordenados por fecha
+const posts = (await getCollection("posts"))
+    .filter((post) => {
+        // Si published es false, no mostrar nunca
+        if (!post.data.published) return false;
+        // Si la fecha es futura, no mostrar aún
+        if (post.data.date > now) return false;
+        return true;
+    })
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 // Preparar posts con su contenido renderizado
 const postsWithContent = await Promise.all(

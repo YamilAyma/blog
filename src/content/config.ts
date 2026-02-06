@@ -7,6 +7,7 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
+    published: z.boolean().default(true), // Control de publicación
     category: z.string().default('General'),
     image: z.string().optional(),
     tags: z.array(z.string()).optional(),
@@ -28,6 +29,7 @@ const posts = defineCollection({
     image: z.string(),
     copy: z.string().optional(),
     date: z.coerce.date(),
+    published: z.boolean().default(true), // Control de publicación
     category: z.string().default('General'), // Uso interno
     socials: z.object({
       twitter: z.string().optional(),
