@@ -37,12 +37,31 @@ src/
 ├── config/         # Configuración de temas
 ├── content/
 │   ├── blog/       # Entradas del blog (.mdx)
+│   ├── posts/      # Posts visuales (.mdx)
 │   └── pages/      # Páginas estáticas (.mdx)
 ├── layouts/        # Layouts (Layout, BlogPost)
 ├── pages/          # Rutas del sitio
 ├── styles/         # Estilos CSS
 └── utils/          # Utilidades (tema)
 ```
+
+### Crear un nuevo post
+
+1. Crear archivo en `src/content/posts/mi-post.mdx`:
+
+```mdx
+---
+image: /images/posts/mi-imagen.png
+date: 2026-02-10
+published: true  # false para ocultar
+socials:
+  linkedin: https://linkedin.com/...
+---
+
+Contenido del post con saltos de línea...
+```
+
+2. El post aparece en `/posts` si `published: true` y `date <= hoy`
 
 ### Crear una nueva entrada
 
@@ -98,4 +117,8 @@ Los archivos estáticos se generan en `dist/`
 npm run deploy
 ```
 
-El sitio está configurado para GitHub Pages. Sube los cambios a `main` y configura GitHub Pages para usar la carpeta `dist/` o GitHub Actions. ¡Esto ultimo funciona en local para el creador!
+El sitio está configurado para GitHub Pages. Sube los cambios a `main` y configura GitHub Pages para usar la carpeta `dist/` o GitHub Actions.
+
+### Deploy programado (Posts)
+
+El workflow `.github/workflows/scheduled-deploy.yml` ejecuta un build automatico cada día a las 5:00 AM UTC, permitiendo que los posts con fecha programada aparezcan automáticamente sin intervención manual.
