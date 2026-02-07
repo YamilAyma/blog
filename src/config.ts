@@ -21,6 +21,11 @@ export const SOCIALS = [
     icon: 'github',
   },
   {
+    name: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/yamilayma/',
+    icon: 'linkedin',
+  },
+  {
     name: 'Email',
     href: 'mailto:yamilaymadev@gmail.com',
     icon: 'mail',
