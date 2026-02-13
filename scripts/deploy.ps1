@@ -41,7 +41,7 @@ Write-Host "Subiendo cambios a GitHub..." -ForegroundColor Magenta
 git add .
 $date = Get-Date -Format "yyyy-MM-dd HH:mm"
 # Si no hay cambios, el script no fallará gracias a "|| echo"
-git commit -m "Deploy Manual: $date" || echo "No hay cambios que aplicar"
+git commit -m "Deploy Manual: $date"
 
 Write-Host "Enviando a GitHub..." -ForegroundColor Cyan
 git push origin main
