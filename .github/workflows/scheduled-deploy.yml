@@ -1,26 +1,14 @@
 name: Scheduled Deploy
 
 on:
-  # Ejecutar cada día a las 5:00 AM UTC (medianoche en Lima/Bogotá)
   schedule:
+    # Se ejecuta a las 5:00 AM UTC (Medianoche en Lima/Bogotá)
     - cron: '0 5 * * *'
   
-  # También permitir ejecución manual desde GitHub
   workflow_dispatch:
 
-# Permisos para GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Evitar deploys concurrentes
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -38,18 +26,13 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v3
+      - name: Pushing to target repository
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
-          path: ./dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          source-directory: 'dist'
+          destination-github-username: 'yamilayma'
+          destination-repository-name: 'yamilayma.github.io'
+          user-email: yamilaymadev@gmail.com
+          target-branch: main
