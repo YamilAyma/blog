@@ -1,7 +1,10 @@
 ---
 import Layout from "./Layout.astro";
+import { Image } from "astro:assets";
 import CategorySticker from "../components/CategorySticker.astro";
 import FloatingNavbar from "../components/FloatingNavbar.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import TableOfContents from "../components/TableOfContents.astro";
 
 export interface Props {
     frontmatter: {
@@ -11,9 +14,15 @@ export interface Props {
         category: string;
         image?: string;
     };
+    headings?: any[];
+    content?: string;
 }
 
-const { frontmatter } = Astro.props;
+const { frontmatter, headings = [], content = "" } = Astro.props;
+
+// Calcular tiempo de lectura (promedio de 200 palabras por minuto)
+const words = content.split(/\s+/).length;
+const readingTime = Math.ceil(words / 200);
 // Normalizar fecha a objeto Date
 const postDate =
     frontmatter.date instanceof Date
@@ -30,9 +39,17 @@ const postDate =
     type="article"
 >
     <FloatingNavbar />
+
     <article
         class="prose prose-lg dark:prose-invert max-w-none prose-headings:font-heading prose-p:font-body"
     >
+        <Breadcrumbs
+            items={[
+                { label: "Blog", href: "/blog" },
+                { label: frontmatter.title },
+            ]}
+        />
+
         <div class="mb-10 border-b border-black/5 dark:border-white/5 pb-8">
             <CategorySticker category={frontmatter.category} />
             <h1 class="mb-4 text-4xl md:text-5xl font-bold">
@@ -47,18 +64,29 @@ const postDate =
                         })
                     }
                 </time>
+                <span class="mx-2">•</span>
+                <span>{readingTime} min de lectura</span>
             </div>
         </div>
 
         {
-            frontmatter.image && (
-                <img
-                    src={frontmatter.image}
-                    alt={frontmatter.title}
-                    class="w-full h-auto rounded-3xl shadow-lg mb-8"
-                />
-            )
+            frontmatter.image &&
+                (typeof frontmatter.image === "string" ? (
+                    <img
+                        src={frontmatter.image}
+                        alt={frontmatter.title}
+                        class="w-full h-auto rounded-3xl shadow-lg mb-8"
+                    />
+                ) : (
+                    <Image
+                        src={frontmatter.image}
+                        alt={frontmatter.title}
+                        class="w-full h-auto rounded-3xl shadow-lg mb-8"
+                    />
+                ))
         }
+
+        <TableOfContents headings={headings} />
 
         <div class="mt-8">
             <slot />
