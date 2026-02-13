@@ -2,6 +2,7 @@
 import "../styles/base.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import SEO from "../components/SEO.astro";
 import { SITE } from "../config";
 import { THEMES, DEFAULT_THEME_ID, CATEGORY_THEMES } from "../config/themes";
 
@@ -10,13 +11,17 @@ export interface Props {
     description?: string;
     image?: string;
     category?: string;
+    publishDate?: Date;
+    type?: "website" | "article";
 }
 
 const {
     title = SITE.title,
     description = SITE.description,
-    image = "/placeholder-social.jpg",
+    image,
     category,
+    publishDate,
+    type,
 } = Astro.props;
 
 // Serializar temas para el script inline (evita duplicación)
@@ -41,9 +46,15 @@ const defaultThemeId = DEFAULT_THEME_ID;
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-        <!-- Google Search Console -->        
-        <meta name="google-site-verification" content="k-_sWHzd3ipl87K3Kjudew21zEEV9NgTspGXBL8vvao" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <!-- Google Search Console -->
+        <meta
+            name="google-site-verification"
+            content="k-_sWHzd3ipl87K3Kjudew21zEEV9NgTspGXBL8vvao"
+        />
         <!-- Autodescubrimiento RSS -->
         <link
             rel="alternate"
@@ -54,15 +65,13 @@ const defaultThemeId = DEFAULT_THEME_ID;
 
         <meta name="generator" content={Astro.generator} />
 
-        <title>{title}</title>
-        <meta name="description" content={description} />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={Astro.url} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content={new URL(image, Astro.url)} />
-        <meta property="og:logo" content={new URL("/favicon.svg", Astro.url)} />
+        <SEO
+            title={title}
+            description={description}
+            image={image}
+            publishDate={publishDate}
+            type={type}
+        />
 
         <!-- Script de inicialización del tema (evita FOUC) -->
         <!-- Los temas se inyectan desde themes.ts para evitar duplicación -->
