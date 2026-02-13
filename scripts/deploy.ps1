@@ -14,7 +14,7 @@ Set-Location $DeployDir
 
 # Traer cambios (debido a que el bot publica según tiempo).
 git fetch origin
-git pull origin main --rebase 
+git reset --hard origin/main
 
 # Construir el blog en la carpeta de origen
 Write-Host "Construyendo el blog (Astro)..." -ForegroundColor Cyan
