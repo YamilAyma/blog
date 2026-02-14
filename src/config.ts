@@ -5,7 +5,7 @@
 export const SITE = {
   name: 'Inicio', // Nombre corto visual (Header)
   title: 'Yamil Ayma — Desarrollo de Software y Blog Personal', // Título largo para SEO
-  description: 'Blog personal sobre ideas, proyectos y aprendizaje.',
+  description: 'Blog de Yamil Ayma: Tutoriales de desarrollo de software, proyectos de IA, automatización. Ideas y aprendizaje. Publicaciones',
   author: 'Yamil Ayma',
   url: 'https://yamilayma.github.io',
   repo: 'https://github.com/yamilayma/blog',
