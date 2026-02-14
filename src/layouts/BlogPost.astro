@@ -5,6 +5,7 @@ import CategorySticker from "../components/CategorySticker.astro";
 import FloatingNavbar from "../components/FloatingNavbar.astro";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import TableOfContents from "../components/TableOfContents.astro";
+import SocialShare from "../components/SocialShare.astro";
 
 export interface Props {
     frontmatter: {
@@ -91,5 +92,10 @@ const postDate =
         <div class="mt-8">
             <slot />
         </div>
+
+        <SocialShare
+            title={frontmatter.title}
+            url={new URL(Astro.url.pathname, Astro.site).toString()}
+        />
     </article>
 </Layout>

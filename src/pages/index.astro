@@ -18,15 +18,29 @@ import { SITE } from "../config";
 
 <Layout title={SITE.title}>
 	<section class="mb-16 mt-8">
-		<h1 class="hero-title text-4xl font-bold font-heading mb-4">
+		<h1 class="hero-title text-4xl md:text-4xl font-bold font-heading mb-6">
 			{SITE.author}
 		</h1>
-		<p
-			class="text-lg max-w-2xl leading-relaxed"
+		<div
+			class="text-md max-w-2xl leading-relaxed space-y-4"
 			style="color: var(--color-text);"
 		>
-			{SITE.description}
-		</p>
+			<p>
+				¡Bienvenido! Este espacio es mi bitácora digital donde documento mis
+				<strong>proyectos</strong>, tutoriales sobre diversos temas como <strong>Inteligencia
+					Artificial, Automatización, Desarrollo y más</strong> asimismo guías prácticas sobre <strong>desarrollo
+					de software</strong>.
+			</p>
+			<p>
+				Fuera del mundo de los <strong>procesos y la
+				automatización</strong>, me gusta explorar y aprender para tener una visión
+				más amplia del mundo y conseguir que las personas con las que vivo y
+				trabajo sean alegres, crezcan y aprendamos juntos.
+			</p>
+			<p>
+				¡Espero que te vaya bien! 👋
+			</p>
+		</div>
 	</section>
 
 	<section>
@@ -37,7 +51,7 @@ import { SITE } from "../config";
 				Entradas Recientes
 			</h2>
 			<a href="/blog" class="text-sm font-medium nav-link hover:underline"
-				>Ver archivo &rarr;</a
+				>Explorar todos los artículos del blog &rarr;</a
 			>
 		</div>
 
