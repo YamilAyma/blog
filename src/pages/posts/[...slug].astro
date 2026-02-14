@@ -23,27 +23,34 @@ const description = copy || "Post visual del blog de Yamil Ayma";
 
     <article class="max-w-2xl mx-auto pt-10 px-4">
         <div
-            class="bg-white dark:bg-stone-900 rounded-[2rem] border-4 border-white dark:border-stone-800 shadow-xl overflow-hidden"
+            class="rounded-[2rem] border-4 shadow-xl overflow-hidden"
+            style="background-color: var(--color-background); border-color: var(--color-border);"
         >
             <div class="aspect-square w-full">
                 <img
                     src={image}
                     alt=""
-                    class="w-full h-full object-contain bg-stone-100 dark:bg-stone-950"
+                    class="w-full h-full object-contain"
+                    style="background-color: rgba(var(--color-primary-rgb, 0,0,0), 0.05);"
                 />
             </div>
 
             <div class="p-8">
                 <div
-                    class="prose prose-stone dark:prose-invert max-w-none mb-6"
+                    class="prose max-w-none mb-6"
+                    style="color: var(--color-text); font-family: var(--font-body);"
                 >
                     <Content />
                 </div>
 
                 <div
-                    class="flex items-center justify-between pt-6 border-t border-stone-100 dark:border-stone-800"
+                    class="flex items-center justify-between pt-6 border-t"
+                    style="border-color: var(--color-border);"
                 >
-                    <p class="text-sm font-mono text-stone-500 italic">
+                    <p
+                        class="text-sm font-mono opacity-60 italic"
+                        style="color: var(--color-text);"
+                    >
                         Publicado el {
                             date.toLocaleDateString("es-ES", {
                                 year: "numeric",

@@ -143,12 +143,16 @@ const socialIcons: Record<string, string> = {
         max-width: 800px;
         max-height: 90vh;
         width: 90%;
-        background: white;
+        background: var(--color-background);
+        border: 1px solid var(--color-border);
         border-radius: 1.5rem;
         overflow: hidden;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         transform: scale(0.95);
-        transition: transform 0.3s ease;
+        transition:
+            transform 0.3s ease,
+            background-color 0.3s ease,
+            border-color 0.3s ease;
     }
 
     .post-modal[aria-hidden="false"] .post-modal__container {
@@ -166,18 +170,21 @@ const socialIcons: Record<string, string> = {
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.9);
-        border: none;
+        background: var(--color-background);
+        opacity: 0.9;
+        border: 1px solid var(--color-border);
         cursor: pointer;
-        color: #333;
+        color: var(--color-text);
         transition:
             background 0.2s ease,
-            transform 0.2s ease;
+            transform 0.2s ease,
+            color 0.2s ease;
     }
 
     .post-modal__close:hover {
-        background: white;
+        background: var(--color-primary);
         transform: scale(1.1);
+        opacity: 1;
     }
 
     .post-modal__content {
@@ -194,7 +201,8 @@ const socialIcons: Record<string, string> = {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #f5f5f5;
+        background: var(--color-background);
+        opacity: 0.95;
     }
 
     .post-modal__image {
@@ -217,13 +225,15 @@ const socialIcons: Record<string, string> = {
     .post-modal__copy {
         font-size: 1rem;
         line-height: 1.7;
-        color: #333;
+        color: var(--color-text);
+        font-family: var(--font-body);
         margin: 0 0 1rem 0;
     }
 
     .post-modal__date {
         font-size: 0.85rem;
-        color: #888;
+        color: var(--color-text);
+        opacity: 0.6;
         margin: 0 0 1rem 0;
         font-style: italic;
     }
@@ -234,7 +244,7 @@ const socialIcons: Record<string, string> = {
         flex-wrap: wrap;
         margin-top: auto;
         padding-top: 1rem;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        border-top: 1px solid var(--color-border);
     }
 
     .post-modal__social-link {
@@ -244,8 +254,8 @@ const socialIcons: Record<string, string> = {
         width: 2.5rem;
         height: 2.5rem;
         border-radius: 50%;
-        background: rgba(0, 0, 0, 0.08);
-        color: #333;
+        background: var(--color-border);
+        color: var(--color-text);
         transition:
             background 0.2s ease,
             color 0.2s ease,
