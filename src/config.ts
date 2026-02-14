@@ -3,7 +3,8 @@
  * Modifica estos valores para personalizar tu blog.
  */
 export const SITE = {
-  title: 'Blog',
+  name: 'Inicio', // Nombre corto visual (Header)
+  title: 'Yamil Ayma — Desarrollo de Software y Blog Personal', // Título largo para SEO
   description: 'Blog personal sobre ideas, proyectos y aprendizaje.',
   author: 'Yamil Ayma',
   url: 'https://yamilayma.github.io',
@@ -29,6 +30,11 @@ export const SOCIALS = [
     name: 'Email',
     href: 'mailto:yamilaymadev@gmail.com',
     icon: 'mail',
+  },
+  {
+    name: 'Pinterest',
+    href: 'https://es.pinterest.com/yamilaymaing/',
+    icon: 'pinterest',
   },
 ];
 
