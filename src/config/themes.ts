@@ -13,12 +13,28 @@ export interface Theme {
   id: string;
   name: string;
   type: 'light' | 'dark';
+  /**
+   * Colores tradicionales para texto, fondo sólido, etc.
+   */
   colors: {
-    background: string;   // Color de fondo
+    background: string;   // Color de fondo (sólido)
     text: string;         // Color del texto principal
     primary: string;      // Color primario/acento
     accent: string;       // Color de acento secundario
     border: string;       // Color de bordes
+  };
+  /**
+   * Opcional: datos para un fondo temático cuando la bandera está activada.
+   * - color: color base para el fondo
+   * - image: valor CSS para background-image (p.ej. `url("...")` o data URI)
+   * - repeat/size/position: parámetros CSS adicionales (repeat por defecto)
+   */
+  background?: {
+    color?: string;
+    image?: string;
+    repeat?: string;
+    size?: string;
+    position?: string;
   };
   fonts: {
     heading: string;      // Fuente para títulos (h1-h6)
@@ -63,6 +79,12 @@ export const THEMES: Theme[] = [
       primary: '#F2D2BD',
       accent: '#FFB7B2',
       border: 'rgba(74, 64, 58, 0.1)',
+    },
+    background: {
+      color: '#fffbef',
+      image: 'url("/bg/soft-bg.svg")',
+      repeat: 'repeat',
+      size: 'auto',
     },
     fonts: {
       heading: '"Comic Neue", cursive',
@@ -199,3 +221,11 @@ export const CATEGORY_IMAGES: Record<string, string> = {
   'General': baseStickerPath + 'general.png',
   'default': baseStickerPath + 'default.png',
 };
+
+/**
+ * Ruta por defecto para el fondo personalizado del sitio (usada sólo
+ * si ningún tema provee una imagen).
+ * El valor se mantiene para compatibilidad, pero ahora cada tema
+ * puede definir su propio `background`.
+ */
+export const SITE_BACKGROUND_IMAGE = '/images/blog/background.jpg';

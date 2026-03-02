@@ -2,6 +2,8 @@ import { THEMES, DEFAULT_THEME_ID, CATEGORY_THEMES, type Theme } from '../config
 
 /** Clave para almacenar la preferencia de tema en localStorage */
 export const THEME_KEY = 'blog-theme-preference';
+/** Clave para almacenar si el fondo personalizado está activo */
+export const BACKGROUND_KEY = 'blog-bg-enabled';
 
 /** Preferencias de tema disponibles */
 export type ThemePreference = 'auto' | 'light' | 'dark';
@@ -24,6 +26,20 @@ export function getThemePreference(): ThemePreference {
 export function setThemePreference(pref: ThemePreference) {
   localStorage.setItem(THEME_KEY, pref);
   window.dispatchEvent(new Event('theme-change'));
+}
+
+/** Obtiene si el fondo personalizado está activado en localStorage */
+export function getBackgroundEnabled(): boolean {
+  if (typeof localStorage !== 'undefined' && localStorage.getItem(BACKGROUND_KEY)) {
+    return localStorage.getItem(BACKGROUND_KEY) === 'true';
+  }
+  return false;
+}
+
+/** Activa/desactiva el fondo personalizado y notifica el cambio */
+export function setBackgroundEnabled(enabled: boolean) {
+  localStorage.setItem(BACKGROUND_KEY, enabled ? 'true' : 'false');
+  window.dispatchEvent(new Event('background-change'));
 }
 
 /**
@@ -69,6 +85,36 @@ export function applyTheme(category?: string) {
   if (!theme) return;
 
   const root = document.documentElement;
+
+  // Fondo personalizado: si el usuario lo activó, usar los datos del tema
+  const bgEnabled = typeof window !== 'undefined' && getBackgroundEnabled();
+  if (bgEnabled && theme.background) {
+    // color sólido de fondo puede venir de background.color o del color normal
+    if (theme.background.color) {
+      root.style.setProperty('--color-background', theme.background.color);
+    }
+    // imagen (cadena CSS completa, p.ej. url('...'))
+    if (theme.background.image) {
+      root.style.setProperty('--site-background-image', theme.background.image);
+    } else {
+      root.style.setProperty('--site-background-image', 'none');
+    }
+    // parámetros adicionales (repeat, size, position)
+    root.style.setProperty('--site-background-repeat', theme.background.repeat || 'repeat');
+    if (theme.background.size) {
+      root.style.setProperty('--site-background-size', theme.background.size);
+    }
+    if (theme.background.position) {
+      root.style.setProperty('--site-background-position', theme.background.position);
+    }
+    root.classList.add('bg-image');
+  } else {
+    root.style.setProperty('--site-background-image', 'none');
+    root.style.setProperty('--site-background-repeat', 'no-repeat');
+    root.style.setProperty('--site-background-size', 'cover');
+    root.style.setProperty('--site-background-position', 'center');
+    root.classList.remove('bg-image');
+  }
 
   // Colores principales
   root.style.setProperty('--color-primary', theme.colors.primary);
@@ -116,4 +162,6 @@ if (typeof window !== 'undefined') {
     
     // Escuchar cambios manuales de tema
     window.addEventListener('theme-change', () => applyTheme(category));
+    // Escuchar cambios del fondo personalizado
+    window.addEventListener('background-change', () => applyTheme(category));
 }

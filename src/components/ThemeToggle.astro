@@ -3,7 +3,7 @@
  * ThemeToggle - Componente de menú desplegable para seleccionar el tema.
  * Opciones: Auto (según sistema), Claro, Oscuro
  */
-import { THEME_KEY } from "../utils/theme";
+// imports handled in <script>
 ---
 
 <div class="relative">
@@ -95,11 +95,11 @@ import { THEME_KEY } from "../utils/theme";
             </svg>
             Claro
         </button>
-        <button
-            data-theme="dark"
-            class="theme-option w-full text-left px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2"
-            role="menuitem"
-        >
+            <button
+                data-theme="dark"
+                class="theme-option w-full text-left px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2"
+                role="menuitem"
+            >
             <svg
                 class="w-4 h-4"
                 fill="none"
@@ -115,15 +115,30 @@ import { THEME_KEY } from "../utils/theme";
             </svg>
             Oscuro
         </button>
+        <!-- Divider -->
+        <div class="border-t border-black/5 dark:border-white/5 my-1"></div>
+        <!-- Toggle para fondo personalizado -->
+        <button
+            id="bg-toggle"
+            class="w-full text-left px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2"
+            role="menuitem"
+            aria-pressed="false"
+        >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+            </svg>
+            Fondo personalizado
+        </button>
     </div>
 </div>
 
 <script>
-    import { getThemePreference, setThemePreference } from "../utils/theme";
+    import { getThemePreference, setThemePreference, getBackgroundEnabled, setBackgroundEnabled } from "../utils/theme";
 
     const toggle = document.getElementById("theme-toggle");
     const menu = document.getElementById("theme-menu");
     const options = document.querySelectorAll(".theme-option");
+    const bgToggle = document.getElementById("bg-toggle");
 
     // Mostrar/ocultar menú
     toggle?.addEventListener("click", (e) => {
@@ -151,6 +166,15 @@ import { THEME_KEY } from "../utils/theme";
         });
     });
 
+    // Manejar toggle de fondo personalizado
+    bgToggle?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const enabled = getBackgroundEnabled();
+        setBackgroundEnabled(!enabled);
+        menu?.classList.add("hidden");
+        toggle?.setAttribute("aria-expanded", "false");
+    });
+
     // Marcar la opción actual
     function updateActiveOption() {
         const current = getThemePreference();
@@ -174,4 +198,18 @@ import { THEME_KEY } from "../utils/theme";
 
     updateActiveOption();
     window.addEventListener("theme-change", updateActiveOption);
+    // Actualizar estado del botón de fondo
+    function updateBackgroundButton() {
+        const enabled = getBackgroundEnabled();
+        if (!bgToggle) return;
+        bgToggle.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+        if (enabled) {
+            bgToggle.classList.add('font-bold', 'text-purple-600', 'dark:text-purple-400');
+        } else {
+            bgToggle.classList.remove('font-bold', 'text-purple-600', 'dark:text-purple-400');
+        }
+    }
+
+    updateBackgroundButton();
+    window.addEventListener('background-change', updateBackgroundButton);
 </script>

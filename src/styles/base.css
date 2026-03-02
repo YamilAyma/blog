@@ -40,11 +40,17 @@
   --md-blockquote: #6A605A;
   --md-blockquote-border: #F2D2BD;
   --md-hr: #E5D5C5;
+  /* Imagen de fondo del sitio (por defecto 'none'). Se controla por JS/flag. */
+  --site-background-image: none;
 }
 
 /* ========== ESTILOS BASE DEL BODY ========== */
 body {
   background-color: var(--color-background);
+  background-image: var(--site-background-image);
+  background-size: var(--site-background-size, cover);
+  background-position: var(--site-background-position, center);
+  background-repeat: var(--site-background-repeat, no-repeat);
   color: var(--color-text);
   font-family: var(--font-body) !important;
   transition: background-color 0.3s ease, color 0.3s ease;
