@@ -20,28 +20,38 @@ export async function GET(context) {
         description: 'Posts visuales sobre automatización, marketing y SEO.',
         site: context.site,
         items: publishedPosts.map((post) => {
-            const title = post.data.copy 
-                ? (post.data.copy.length > 60 
-                    ? post.data.copy.substring(0, 57) + '...' 
+            // 1. Título: Titular optimizado (priorizar title, fallback a copy truncado)
+            const itemTitle = post.data.title || (post.data.copy 
+                ? (post.data.copy.length > 80 
+                    ? post.data.copy.substring(0, 77) + '...' 
                     : post.data.copy)
-                : 'Post Visual';
+                : 'Post Visual');
+
+            // 2. Descripción: El 'copy' ligero para redes rápidas
+            const itemSummary = post.data.copy || 'Post visual del blog';
+
+            // 3. Contenido extenso: Cuerpo MDX con delimitador <br/> para Make
+            const bodyContent = post.body ? post.body.trim() : itemSummary;
+            const contentWithDelimiters = bodyContent.replace(/\n/g, '<br/>');
 
             return {
-                title: title,
+                title: itemTitle,
                 pubDate: post.data.date,
-                description: post.data.copy || 'Post visual del blog',
+                description: itemSummary,
                 link: `/posts/${post.id.replace(/\.(md|mdx)$/, "")}`,
-                // Añadir imagen para Pinterest/LinkedIn (usando customData para el namespace de media)
-                customData: `<media:content 
-                    url="${new URL(post.data.image, SITE.url)}" 
-                    medium="image" 
-                    type="image/png" 
-                >${post.data.imageAlt ? `\n                    <media:description type="plain">${post.data.imageAlt}</media:description>` : ''}
-                </media:content>`,
+                customData: `
+                    <content:encoded><![CDATA[${contentWithDelimiters}]]></content:encoded>
+                    <media:content 
+                        url="${new URL(post.data.image, SITE.url)}" 
+                        medium="image" 
+                        type="image/png" 
+                    >${post.data.imageAlt ? `\n                        <media:description type="plain">${post.data.imageAlt}</media:description>` : ''}
+                    </media:content>`,
             };
         }),
         xmlns: {
             media: 'http://search.yahoo.com/mrss/',
+            content: 'http://purl.org/rss/1.0/modules/content/',
         },
     });
 }

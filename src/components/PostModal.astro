@@ -58,11 +58,8 @@ const socialIcons: Record<string, string> = {
             </div>
 
             <div class="post-modal__info">
-                <div class="post-modal__copy prose prose-sm">
-                    <slot>
-                        {/* Fallback: si no hay slot, mostrar copy o rawBody */}
-                        {copy || rawBody}
-                    </slot>
+                <div class="post-modal__copy prose prose-sm whitespace-pre-line">
+                    {copy || <slot>{rawBody}</slot>}
                 </div>
 
                 <p class="post-modal__date">Publicado el {formattedDate}</p>

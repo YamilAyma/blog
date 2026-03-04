@@ -28,6 +28,7 @@ const posts = defineCollection({
   schema: z.object({
     image: z.string(),
     imageAlt: z.string().optional(),
+    title: z.string().optional(),
     copy: z.string().optional(),
     date: z.coerce.date(),
     published: z.boolean().default(true), // Control de publicación
