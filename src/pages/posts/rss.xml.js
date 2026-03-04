@@ -36,7 +36,8 @@ export async function GET(context) {
                     url="${new URL(post.data.image, SITE.url)}" 
                     medium="image" 
                     type="image/png" 
-                />`,
+                >${post.data.imageAlt ? `\n                    <media:description type="plain">${post.data.imageAlt}</media:description>` : ''}
+                </media:content>`,
             };
         }),
         xmlns: {

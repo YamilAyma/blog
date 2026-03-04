@@ -10,7 +10,7 @@ interface Props {
 }
 
 const { post, variant = "small", postId, rawBody = "" } = Astro.props;
-const { image, copy, socials } = post.data;
+const { image, imageAlt, copy, socials } = post.data;
 
 // Usar copy del frontmatter o rawBody del MDX (sin markdown)
 const textContent = copy || rawBody.replace(/[#*_`>\[\]]/g, "").trim();
@@ -44,12 +44,12 @@ const socialIcons: Record<string, string> = {
             typeof image === "string" ? (
                 <img
                     src={image}
-                    alt=""
+                    alt={imageAlt || ""}
                     class="post-card__image"
                     loading="lazy"
                 />
             ) : (
-                <Image src={image} alt="" class="post-card__image" />
+                <Image src={image} alt={imageAlt || ""} class="post-card__image" />
             )
         }
         <div class="post-card__overlay"></div>

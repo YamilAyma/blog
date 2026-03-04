@@ -27,6 +27,7 @@ const posts = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
   schema: z.object({
     image: z.string(),
+    imageAlt: z.string().optional(),
     copy: z.string().optional(),
     date: z.coerce.date(),
     published: z.boolean().default(true), // Control de publicación

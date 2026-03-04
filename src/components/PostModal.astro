@@ -8,7 +8,7 @@ interface Props {
 }
 
 const { post, postId, rawBody = "" } = Astro.props;
-const { image, copy, socials, date } = post.data;
+const { image, imageAlt, copy, socials, date } = post.data;
 
 // Formatear fecha
 const formattedDate = date.toLocaleDateString("es-ES", {
@@ -54,7 +54,7 @@ const socialIcons: Record<string, string> = {
 
         <div class="post-modal__content">
             <div class="post-modal__image-container">
-                <img src={image} alt="" class="post-modal__image" />
+                <img src={image} alt={imageAlt || ""} class="post-modal__image" />
             </div>
 
             <div class="post-modal__info">
