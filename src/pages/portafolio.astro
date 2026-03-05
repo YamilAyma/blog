@@ -119,29 +119,26 @@ import ContactSlide from "../components/portfolio/ContactSlide.astro";
                     .to("#intro-socials", { opacity: 1, y: 0 }, "-=0.8");
             }
 
-            // About Slide Animations
+            // About Slide Entrance Sequence
             if (id === "about") {
-                gsap.to("#about-title, #about-description", {
+                const aboutTl = gsap.timeline({
                     scrollTrigger: {
                         trigger: slide,
                         start: "top 60%",
                     },
-                    opacity: 1,
-                    x: 0,
-                    duration: 1,
-                    stagger: 0.2,
-                    ease: "power3.out",
+                    defaults: { ease: "power3.out", duration: 1 },
                 });
-                gsap.to("#about-box", {
-                    scrollTrigger: {
-                        trigger: slide,
-                        start: "top 60%",
-                    },
-                    opacity: 1,
-                    scale: 1,
-                    duration: 1.2,
-                    ease: "back.out(1.7)",
-                });
+
+                aboutTl
+                    .to("#about-title", { opacity: 1, x: 0 })
+                    .to("#about-description", { opacity: 1, x: 0 }, "-=0.7")
+                    .to("#about-cv-mobile", { opacity: 1, y: 0 }, "-=0.7")
+                    .to("#about-visual-box", { opacity: 1, scale: 1 }, "-=0.8")
+                    .to(
+                        "#about-cv-desktop",
+                        { opacity: 1, y: 0, from: { y: 20 } },
+                        "-=0.7",
+                    );
             }
 
             // Projects Slide Animations

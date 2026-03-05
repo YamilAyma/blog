@@ -1,23 +1,35 @@
 ---
-
+/**
+ * AboutSlide - Sección "Sobre Mí" del portafolio.
+ * Incluye: Título, Biografía, Imagen/Ilustración y Botón de Descarga de CV.
+ * Refinado: Botón de CV en mobile movido arriba de la imagen para evitar colapso con el nav.
+ */
 ---
 
 <section
     id="about"
-    class="portfolio-slide h-screen w-full flex flex-col items-center justify-center p-10 relative overflow-hidden bg-white/5"
+    class="portfolio-slide w-full flex flex-col items-center justify-center p-6 relative overflow-hidden"
 >
+    <!-- Contenedor principal -->
     <div
-        class="slide-content grid md:grid-cols-2 gap-12 items-center max-w-5xl"
+        class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center max-w-5xl mx-auto z-10 px-4 md:px-12"
     >
-        <div class="about-text">
+        <!-- Left Side: Content Box (Order 1 on mobile) -->
+        <div
+            class="about-content flex flex-col items-center lg:items-start text-center lg:text-left order-1"
+        >
+            <!-- Heading -->
             <h2
-                class="text-4xl md:text-6xl font-bold font-heading mb-6 opacity-0 -translate-x-10"
+                class="text-4xl md:text-6xl lg:text-7xl font-black font-heading tracking-tighter mb-6 opacity-0 -translate-x-10 leading-none"
                 id="about-title"
+                style="color: var(--md-h1);"
             >
                 Sobre Mí
             </h2>
+
+            <!-- Biography -->
             <div
-                class="space-y-4 text-lg opacity-0 -translate-x-10"
+                class="space-y-4 text-base md:text-lg lg:text-xl text-text/90 opacity-0 -translate-x-10 max-w-xl mx-auto lg:mx-0 mb-8"
                 id="about-description"
             >
                 <p>
@@ -26,17 +38,119 @@
                 </p>
                 <p>
                     Mi enfoque es crear soluciones que no solo funcionen, sino
-                    que también cautiven.
+                    que también cautiven. Construyendo el futuro línea por
+                    línea.
                 </p>
             </div>
-        </div>
-        <div class="about-visual relative">
+
+            <!-- Download CV Button Mobile (New Position: Above Illustration) -->
             <div
-                class="w-full aspect-square bg-primary/10 rounded-2xl border-2 border-primary/20 flex items-center justify-center opacity-0 scale-90"
-                id="about-box"
+                class="lg:hidden flex justify-center mb-8 opacity-0 -translate-y-5"
+                id="about-cv-mobile"
             >
-                <span class="text-6xl">🚀</span>
+                <a
+                    href="#"
+                    class="download-cv-btn px-7 py-2.5 rounded-full text-xs font-bold tracking-wide shadow-lg active:scale-95 flex items-center gap-2"
+                    style="background-color: var(--ui-nav-link); color: white;"
+                >
+                    <svg
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        viewBox="0 0 24 24"
+                        ><path
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        ></path></svg
+                    >
+                    Descargar CV
+                </a>
+            </div>
+
+            <!-- Download CV Button Desktop -->
+            <div class="hidden lg:block opacity-0" id="about-cv-desktop">
+                <a
+                    href="#"
+                    class="download-cv-btn px-8 py-3 rounded-full text-sm font-bold tracking-wide transition-all duration-300 hover:brightness-110 hover:shadow-xl active:scale-95 flex items-center gap-2"
+                    style="background-color: var(--ui-nav-link); color: white;"
+                >
+                    <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        viewBox="0 0 24 24"
+                        ><path
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        ></path></svg
+                    >
+                    Descargar CV
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Side: Visual Box (Redimensionado para "respirar") -->
+        <div class="about-visual relative w-full flex justify-center order-2">
+            <div
+                class="visual-card w-[320px] h-[240px] sm:w-[400px] sm:h-[300px] md:w-[480px] md:h-[480px] flex items-center justify-center p-2 opacity-0 scale-60"
+                id="about-visual-box"
+            >
+                <div
+                    class="relative w-full h-full flex items-center justify-center group"
+                >
+                    <img
+                        src="/images/portfolio/about.png"
+                        alt="Ilustración Sobre Mí"
+                        class="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    />
+                    <div
+                        class="hidden absolute inset-0 text-text/40 font-bold text-center p-4 items-center justify-center flex-col gap-2"
+                    >
+                        <svg
+                            class="w-12 h-12 opacity-20"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            ><path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            ></path></svg
+                        >
+                        <span class="text-xs">Ilustración</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Background Decoration sutil -->
+    <div class="absolute inset-0 z-0 pointer-events-none">
+        <div
+            class="absolute top-[15%] left-[5%] w-64 h-64 bg-primary/5 rounded-full blur-[80px]"
+        >
+        </div>
+        <div
+            class="absolute bottom-[10%] right-[15%] w-72 h-72 bg-accent/5 rounded-full blur-[90px]"
+        >
+        </div>
+    </div>
 </section>
+
+<style>
+    .portfolio-slide {
+        background-color: transparent;
+        min-height: 100vh;
+    }
+
+    .visual-card {
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .visual-card:hover {
+        transform: rotate(-1deg) scale(1.02);
+    }
+</style>
