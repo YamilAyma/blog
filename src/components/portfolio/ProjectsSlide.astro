@@ -1,35 +1,139 @@
 ---
-
+/**
+ * ProjectsSlide - Sección de carrusel de proyectos.
+ * Incluye: Fondo de código con efecto DOF (Blur), 
+ * Carrusel horizontal suave, Cards animadas y puntos indicadores.
+ * Refinado: Cards más pequeñas, colores más claros y botones compactos.
+ */
+import { projects } from "../../data/projects";
+import ProjectModal from "./ProjectModal.astro";
 ---
 
 <section
     id="projects"
-    class="portfolio-slide h-screen w-full flex flex-col items-center justify-center p-10 relative overflow-hidden"
+    class="portfolio-slide w-full min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden"
 >
-    <div class="w-full max-w-6xl">
+    <!-- Background Code Layer with DOF (Blur) Effect -->
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-background">
+        <div 
+            class="absolute inset-0 opacity-20 dark:opacity-10 grayscale mix-blend-overlay scale-110 bg-cover bg-center"
+            style="background-image: url('/images/portfolio/project-bg.png');"
+        ></div>
+
+        <div class="code-bg-overlay absolute inset-0 opacity-40 md:opacity-30">
+        </div>
+        <div class="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-background to-transparent z-10"></div>
+        <div class="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-background to-transparent z-10"></div>
+    </div>
+
+    <div class="slide-content w-full max-w-7xl mx-auto z-10 py-10">
         <h2
-            class="text-4xl md:text-6xl font-bold font-heading mb-12 text-center opacity-0 translate-y-10"
+            class="text-4xl md:text-6xl lg:text-7xl font-black font-heading tracking-tighter mb-8 text-center opacity-0 translate-y-10"
             id="projects-title"
+            style="color: var(--md-h1);"
         >
             Mis Proyectos
         </h2>
 
-        <div class="grid md:grid-cols-3 gap-8">
+        <!-- Projects Carousel Container -->
+        <div class="relative w-full overflow-hidden" id="projects-carousel-wrapper">
+            <div 
+                class="projects-carousel flex gap-4 md:gap-6 px-4 md:px-12 py-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+                id="projects-carousel"
+            >
+                {
+                    projects.map((project, i) => (
+                        <div
+                            class="project-card flex-shrink-0 w-[260px] sm:w-[300px] md:w-[320px] bg-white/80 dark:bg-white/5 backdrop-blur-lg border border-text/10 dark:border-white/5 rounded-[2.5rem] p-6 snap-center shadow-xl opacity-0 translate-y-20 flex flex-col items-center text-center group transition-all duration-500 hover:-translate-y-2 hover:border-primary/50"
+                            id={`project-card-${project.id}`}
+                        >
+                            <!-- Illustration/Image Container -->
+                            <div class="w-full aspect-video rounded-[1.5rem] bg-stone-50 dark:bg-stone-800/30 mb-6 flex items-center justify-center relative overflow-hidden group-hover:bg-stone-100 dark:group-hover:bg-stone-800/50 transition-colors border border-text/5">
+                                <!-- Premium Placeholder SVG -->
+                                <div class="absolute inset-0 flex items-center justify-center opacity-20 group-hover:scale-110 transition-transform duration-700">
+                                    <svg class="w-20 h-20 text-text/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                </div>
+                                <img 
+                                    src={project.image} 
+                                    alt={project.title}
+                                    class="absolute inset-0 w-full h-full object-cover p-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                    onerror="this.style.display='none';"
+                                />
+                            </div>
+                            
+                            <h3 class="text-xl md:text-2xl font-bold font-heading mb-3 text-text">{project.title}</h3>
+                            <p class="text-xs md:text-sm text-text/70 mb-6 max-w-[240px] line-clamp-3 font-medium">
+                                {project.description}
+                            </p>
+                            
+                            <button 
+                                data-project-id={project.id}
+                                class="project-btn-details px-6 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-300 hover:brightness-110 shadow-md active:scale-95 whitespace-nowrap cursor-pointer"
+                                style="background-color: var(--ui-nav-link); color: white;"
+                            >
+                                Ver Detalles
+                            </button>
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+
+        <!-- Carousel Indicators -->
+        <div class="flex justify-center gap-2 mt-8 opacity-0 translate-y-10" id="projects-indicators">
             {
-                [1, 2, 3].map((i) => (
-                    <div
-                        class="project-card p-6 bg-white/5 border border-black/10 dark:border-white/10 rounded-xl hover:border-primary/50 transition-colors opacity-0 translate-y-10"
-                        id={`project-${i}`}
-                    >
-                        <div class="h-40 bg-primary/20 rounded-lg mb-4" />
-                        <h3 class="text-xl font-bold mb-2">Proyecto {i}</h3>
-                        <p class="text-sm opacity-80">
-                            Descripción breve del proyecto realizado con las
-                            mejores tecnologías.
-                        </p>
-                    </div>
+                projects.map((_, i) => (
+                    <button 
+                        class="w-2 h-2 rounded-full bg-text/20 transition-all duration-300 hover:bg-primary"
+                        aria-label={`Ver proyecto ${i + 1}`}
+                        data-index={i}
+                    ></button>
                 ))
             }
         </div>
     </div>
 </section>
+
+<!-- Project Details Modal -->
+<ProjectModal />
+
+<style>
+    .projects-carousel {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Simulation of Code Background Pattern */
+    .bg-code-pattern {
+        background-image: 
+            linear-gradient(90deg, transparent 5%, var(--md-h1) 5.5%, transparent 6%),
+            linear-gradient(var(--color-bg) 0.5px, transparent 0.5px);
+        background-size: 100px 30px;
+        mask-image: linear-gradient(to right, black, transparent);
+        filter: blur(20px);
+    }
+
+    @keyframes drift {
+        from { transform: translateY(0); }
+        to { transform: translateY(-50%); }
+    }
+
+    .animate-drift {
+        animation: drift 60s linear infinite;
+    }
+
+    .dark .bg-code-pattern {
+        filter: blur(15px) contrast(1.2) brightness(0.8);
+    }
+
+    .project-card {
+        box-shadow: 0 30px 60px -15px rgba(0,0,0,0.08);
+    }
+</style>

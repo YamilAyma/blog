@@ -141,29 +141,30 @@ import ContactSlide from "../components/portfolio/ContactSlide.astro";
                     );
             }
 
-            // Projects Slide Animations
+            // Projects Slide Entrance Sequence
             if (id === "projects") {
-                gsap.to("#projects-title", {
+                const projectsTl = gsap.timeline({
                     scrollTrigger: {
                         trigger: slide,
                         start: "top 60%",
                     },
-                    opacity: 1,
-                    y: 0,
-                    duration: 1,
-                    ease: "power3.out",
+                    defaults: { ease: "power3.out", duration: 1 },
                 });
-                gsap.to(".project-card", {
-                    scrollTrigger: {
-                        trigger: slide,
-                        start: "top 60%",
-                    },
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    stagger: 0.2,
-                    ease: "power3.out",
-                });
+
+                projectsTl
+                    .to("#projects-title", { opacity: 1, y: 0 })
+                    .to(
+                        ".project-card",
+                        {
+                            opacity: 1,
+                            y: 0,
+                            stagger: 0.15,
+                            duration: 1.2,
+                            ease: "back.out(1.2)",
+                        },
+                        "-=0.7",
+                    )
+                    .to("#projects-indicators", { opacity: 1, y: 0 }, "-=1");
             }
 
             // Contact Slide Animations

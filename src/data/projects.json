@@ -1,0 +1,84 @@
+[
+  {
+    "id": 1,
+    "title": "Platform Web App",
+    "description": "Plataforma inteligente para la optimización de flujos de trabajo utilizando modelos de lenguaje avanzados.",
+    "descripcionLarga": "Esta plataforma optimiza flujos de trabajo con una interfaz intuitiva y análisis en tiempo real. Utiliza algoritmos avanzados para predecir cuellos de botella y sugerir mejoras automáticas en la asignación de tareas.",
+    "periodo": "Enero 2024 - Junio 2024",
+    "image": "/images/portfolio/project-1.png",
+    "imagenes": [
+      "/images/portfolio/project-1-detail-1.png",
+      "/images/portfolio/project-1-detail-2.png",
+      "/images/portfolio/project-1-detail-3.png"
+    ],
+    "tecnologias": ["react", "nodejs", "supabase", "tailwind"],
+    "links": [
+      { "type": "github", "url": "https://github.com/yamilayma/proyecto-1" },
+      { "type": "demo", "url": "https://demo.vis.io/yamil-p1" }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "E-commerce Premium",
+    "description": "Tienda online de alto rendimiento con diseño minimalista y experiencia de usuario fluida.",
+    "descripcionLarga": "Una solución de comercio electrónico completa que se centra en la velocidad de carga y la conversión. Incluye un panel de administración personalizado y un sistema de gestión de inventario sincronizado en tiempo real.",
+    "periodo": "Marzo 2024 - Agosto 2024",
+    "image": "/images/portfolio/project-2.png",
+    "imagenes": [
+      "/images/portfolio/project-2.png",
+      "/images/portfolio/project-2-detail-1.png"
+    ],
+    "tecnologias": ["astro", "typescript", "stripe", "postgresql"],
+    "links": [
+      { "type": "github", "url": "https://github.com/yamilayma/ecommerce-premium" },
+      { "type": "demo", "url": "https://premium-shop-demo.com" }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Dashboard Analítico",
+    "description": "Visualización de datos complejos en tiempo real con una interfaz limpia y profesional.",
+    "descripcionLarga": "Dashboard interactivo para la visualización de métricas críticas de negocio. Implementa WebSockets para actualizaciones en tiempo vivo y bibliotecas de gráficos avanzadas para un renderizado suave.",
+    "periodo": "Septiembre 2024 - Diciembre 2024",
+    "image": "/images/portfolio/project-3.png",
+    "imagenes": [
+      "/images/portfolio/project-3.png",
+      "/images/portfolio/project-3-detail-1.png"
+    ],
+    "tecnologias": ["vue", "d3", "firebase", "fastapi"],
+    "links": [
+      { "type": "github", "url": "https://github.com/yamilayma/analytic-dashboard" }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "App Móvil Fitness",
+    "description": "Aplicación de seguimiento deportivo con rutinas personalizadas y análisis de progreso.",
+    "descripcionLarga": "App móvil diseñada para entusiastas del fitness. Permite la creación de planes de entrenamiento personalizados, seguimiento de nutrición y una comunidad activa para compartir logros.",
+    "periodo": "Diciembre 2024 - Actualidad",
+    "image": "/images/portfolio/project-4.png",
+    "imagenes": [
+      "/images/portfolio/project-4.png"
+    ],
+    "tecnologias": ["react", "capacitor", "mongodb", "node"],
+    "links": [
+      { "type": "github", "url": "https://github.com/yamilayma/fitness-app" },
+      { "type": "demo", "url": "https://fit-app-track.com" }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Portal de Noticias",
+    "description": "Plataforma de contenido optimizada para SEO con carga ultrarrápida y diseño adaptativo.",
+    "descripcionLarga": "Un CMS personalizado enfocado en la entrega de contenido de noticias. Utiliza renderizado estático incremental para asegurar que los artículos estén siempre actualizados con el mejor rendimiento posible.",
+    "periodo": "Junio 2024 - Octubre 2024",
+    "image": "/images/portfolio/project-5.png",
+    "imagenes": [
+      "/images/portfolio/project-5.png"
+    ],
+    "tecnologias": ["nextjs", "contentful", "vercel", "markdown"],
+    "links": [
+      { "type": "github", "url": "https://github.com/yamilayma/news-portal" }
+    ]
+  }
+]
