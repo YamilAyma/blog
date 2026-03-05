@@ -1,0 +1,308 @@
+---
+import "../styles/base.css";
+import ThemeToggle from "../components/ThemeToggle.astro";
+import { SITE } from "../config";
+import { THEMES, DEFAULT_THEME_ID } from "../config/themes";
+
+export interface Props {
+    title?: string;
+}
+
+const { title = `${SITE.name} | Portfolio` } = Astro.props;
+
+const themesJSON = JSON.stringify(
+    THEMES.reduce(
+        (acc, theme) => {
+            acc[theme.id] = theme;
+            return acc;
+        },
+        {} as Record<string, (typeof THEMES)[0]>,
+    ),
+);
+const defaultThemeId = DEFAULT_THEME_ID;
+
+const navItems = [
+    { id: "intro", label: "Home", icon: "home" },
+    { id: "about", label: "Sobre Mí", icon: "user" },
+    { id: "projects", label: "Proyectos", icon: "folder" },
+    { id: "contact", label: "Contacto", icon: "envelope" },
+];
+---
+
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <title>{title}</title>
+
+        <script is:inline define:vars={{ themesJSON, defaultThemeId }}>
+            const THEMES = JSON.parse(themesJSON);
+            const pref =
+                localStorage.getItem("blog-theme-preference") || "auto";
+            const bgEnabled =
+                localStorage.getItem("blog-bg-enabled") === "true";
+            const isDark =
+                pref === "dark" ||
+                (pref === "auto" &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches);
+            const themeId = isDark ? "dark" : defaultThemeId;
+            const theme = THEMES[themeId];
+            const root = document.documentElement;
+
+            if (isDark) root.classList.add("dark");
+            else root.classList.remove("dark");
+
+            if (theme) {
+                // background logic
+                if (bgEnabled && theme.background) {
+                    if (theme.background.color)
+                        root.style.setProperty(
+                            "--color-background",
+                            theme.background.color,
+                        );
+                    if (theme.background.image)
+                        root.style.setProperty(
+                            "--site-background-image",
+                            theme.background.image,
+                        );
+                    root.style.setProperty(
+                        "--site-background-repeat",
+                        theme.background.repeat || "repeat",
+                    );
+                    if (theme.background.size)
+                        root.style.setProperty(
+                            "--site-background-size",
+                            theme.background.size,
+                        );
+                    if (theme.background.position)
+                        root.style.setProperty(
+                            "--site-background-position",
+                            theme.background.position,
+                        );
+                    root.classList.add("bg-image");
+                } else {
+                    root.style.setProperty(
+                        "--color-background",
+                        theme.colors.background,
+                    );
+                    root.style.setProperty("--site-background-image", "none");
+                    root.classList.remove("bg-image");
+                }
+
+                root.style.setProperty("--color-primary", theme.colors.primary);
+                root.style.setProperty("--color-text", theme.colors.text);
+                root.style.setProperty("--color-accent", theme.colors.accent);
+                root.style.setProperty("--color-border", theme.colors.border);
+                root.style.setProperty("--font-heading", theme.fonts.heading);
+                root.style.setProperty("--font-body", theme.fonts.body);
+
+                // Optimized Navbar Variables for synchronization
+                if (theme.type === "dark") {
+                    root.style.setProperty("--nav-pill-bg", "rgba(0,0,0,0.8)");
+                    root.style.setProperty(
+                        "--nav-pill-border",
+                        "rgba(255,255,255,0.1)",
+                    );
+                } else {
+                    root.style.setProperty(
+                        "--nav-pill-bg",
+                        "rgba(255,255,255,0.95)",
+                    );
+                    root.style.setProperty(
+                        "--nav-pill-border",
+                        "rgba(0,0,0,0.05)",
+                    );
+                }
+            }
+        </script>
+    </head>
+    <body
+        class="bg-background text-text selection:bg-primary/30 overflow-hidden min-h-screen"
+    >
+        <!-- Header (Desktop) -->
+        <header
+            class="fixed top-0 left-0 w-full z-50 p-6 flex justify-between items-start pointer-events-none"
+        >
+            <div class="flex flex-col gap-8 pointer-events-auto">
+                <a
+                    href="/"
+                    class="text-2xl font-bold font-heading hover:text-primary transition-colors"
+                >
+                    {SITE.name}
+                </a>
+
+                <!-- Desktop Sidebar Navigation -->
+                <nav class="hidden md:flex flex-col gap-4">
+                    {
+                        navItems.map((item) => (
+                            <a
+                                href={`#${item.id}`}
+                                id={`side-link-${item.id}`}
+                                class="portfolio-side-link text-sm font-medium hover:text-primary transition-all duration-300 py-1"
+                            >
+                                {item.label}
+                            </a>
+                        ))
+                    }
+                </nav>
+            </div>
+
+            <div class="pointer-events-auto">
+                <ThemeToggle />
+            </div>
+        </header>
+
+        <!-- Floating Mobile Navbar (Variable-Driven Theme) -->
+        <nav
+            id="mobile-pill-nav"
+            class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden backdrop-blur-xl rounded-full px-5 py-3 flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border"
+            style="background-color: var(--nav-pill-bg); border-color: var(--nav-pill-border);"
+        >
+            {
+                navItems.map((item) => (
+                    <a
+                        href={`#${item.id}`}
+                        class="portfolio-mobile-link flex flex-col items-center gap-1 transition-all duration-300 group relative px-2"
+                        aria-label={item.label}
+                    >
+                        <div class="mobile-nav-indicator absolute inset-x-0 inset-y-0.5 -mx-1 bg-primary/10 rounded-xl scale-0 transition-all duration-300 opacity-0 group-[.active]:scale-100 group-[.active]:opacity-100" />
+
+                        <div class="relative z-10 transition-colors duration-300 group-[.active]:text-primary text-gray-400">
+                            {item.icon === "home" && (
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                    />
+                                </svg>
+                            )}
+                            {item.icon === "user" && (
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    />
+                                </svg>
+                            )}
+                            {item.icon === "folder" && (
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                                    />
+                                </svg>
+                            )}
+                            {item.icon === "envelope" && (
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                    />
+                                </svg>
+                            )}
+                        </div>
+
+                        <span class="text-[9px] font-bold tracking-tight relative z-10 transition-colors duration-300 group-[.active]:text-primary text-gray-400">
+                            {item.label}
+                        </span>
+                    </a>
+                ))
+            }
+        </nav>
+
+        <main class="w-full h-full relative z-0">
+            <slot />
+        </main>
+
+        <script>
+            import "../utils/theme";
+        </script>
+    </body>
+</html>
+
+<style is:global>
+    :root {
+        --color-background: #fffbef;
+        --color-text: #4a403a;
+        --color-primary: #f2d2bd;
+        --nav-pill-bg: rgba(255, 255, 255, 0.95);
+        --nav-pill-border: rgba(0, 0, 0, 0.05);
+    }
+
+    .dark {
+        --nav-pill-bg: rgba(0, 0, 0, 0.8) !important;
+        --nav-pill-border: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        background-color: var(--color-background);
+        color: var(--color-text);
+        font-family: var(--font-body);
+        transition:
+            background-color 0.3s ease,
+            color 0.3s ease;
+    }
+
+    .portfolio-side-link.active {
+        color: var(--color-primary);
+        font-weight: 700;
+        transform: translateX(4px);
+    }
+
+    .portfolio-mobile-link.active {
+        color: var(--color-primary);
+    }
+
+    @media (max-width: 768px) {
+        #nav-dot-container,
+        .portfolio-dot-navigation,
+        nav.fixed.right-6 {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    }
+</style>
