@@ -20,17 +20,17 @@ export async function GET(context) {
         description: 'Posts visuales sobre automatización, marketing y SEO.',
         site: context.site,
         items: publishedPosts.map((post) => {
-            // 1. Título: Titular optimizado (priorizar title, fallback a copy truncado)
+            // Titular optimizado (priorizar title, fallback a copy truncado)
             const itemTitle = post.data.title || (post.data.copy 
                 ? (post.data.copy.length > 80 
                     ? post.data.copy.substring(0, 77) + '...' 
                     : post.data.copy)
                 : 'Post Visual');
 
-            // 2. Descripción: El 'copy' ligero para redes rápidas
+            // El 'copy' ligero para redes rápidas
             const itemSummary = post.data.copy || 'Post visual del blog';
 
-            // 3. Contenido extenso: Cuerpo MDX con delimitador <br/> para Make
+            // Contenido extenso: Cuerpo MDX con delimitador <br/> para Make
             const bodyContent = post.body ? post.body.trim() : itemSummary;
             const contentWithDelimiters = bodyContent.replace(/\n/g, '<br/>');
 
