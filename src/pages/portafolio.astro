@@ -103,29 +103,20 @@ import ContactSlide from "../components/portfolio/ContactSlide.astro";
                 },
             });
 
-            // Intro Slide Animations
+            // Intro Slide Entrance Sequence
             if (id === "intro") {
-                gsap.to("#intro-title", {
-                    opacity: 1,
-                    y: 0,
-                    duration: 1,
-                    ease: "power3.out",
+                const introTl = gsap.timeline({
                     delay: 0.5,
+                    defaults: { ease: "power4.out", duration: 1.2 },
                 });
-                gsap.to("#intro-description", {
-                    opacity: 1,
-                    y: 0,
-                    duration: 1,
-                    ease: "power3.out",
-                    delay: 0.8,
-                });
-                gsap.to("#blob-1, #blob-2", {
-                    scale: 1.2,
-                    duration: 4,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut",
-                });
+
+                introTl
+                    .to("#intro-profile", { opacity: 1, y: 0 })
+                    .to("#intro-name", { opacity: 1, y: 0 }, "-=0.8")
+                    .to("#intro-role", { opacity: 1, y: 0 }, "-=1")
+                    .to("#intro-description", { opacity: 1, y: 0 }, "-=1")
+                    .to("#intro-cta", { opacity: 1, y: 0, scale: 1 }, "-=0.9")
+                    .to("#intro-socials", { opacity: 1, y: 0 }, "-=0.8");
             }
 
             // About Slide Animations

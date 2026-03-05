@@ -30,7 +30,7 @@ const profileImage =
     >
         <!-- Profile Image from Config -->
         <div
-            class="profile-img-container mb-6 w-36 h-36 md:w-48 md:h-48 rounded-full border-4 border-primary/20 p-1.5 opacity-100 transition-all duration-700 hover:border-primary/40"
+            class="profile-img-container mb-6 w-36 h-36 md:w-48 md:h-48 rounded-full border-4 border-primary/20 p-1.5 opacity-0 translate-y-10 transition-all duration-700 hover:border-primary/40"
             id="intro-profile"
         >
             <div
@@ -53,14 +53,14 @@ const profileImage =
         <!-- Title & Subtitle -->
         <div class="text-group mb-4">
             <h1
-                class="text-4xl sm:text-6xl md:text-7xl font-black font-heading tracking-tighter opacity-100 leading-none"
+                class="text-4xl sm:text-6xl md:text-7xl font-black font-heading tracking-tighter opacity-0 translate-y-10 leading-none"
                 id="intro-name"
                 style="color: var(--md-h1);"
             >
                 {SITE.author}
             </h1>
             <h2
-                class="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-text opacity-100 mt-2 leading-tight"
+                class="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-text opacity-0 translate-y-10 mt-2 leading-tight"
                 id="intro-role"
             >
                 Desarrollador Web & <span style="color: var(--md-h1);"
@@ -71,7 +71,7 @@ const profileImage =
 
         <!-- Description -->
         <p
-            class="text-base sm:text-lg max-w-xl mx-auto opacity-90 mb-8 text-text/80 leading-relaxed px-4"
+            class="text-base sm:text-lg max-w-xl mx-auto opacity-0 translate-y-10 mb-8 text-text/80 leading-relaxed px-4"
             id="intro-description"
         >
             {SITE.description.split(".")[0]}. Descubre mi trabajo y cómo puedo
@@ -80,7 +80,7 @@ const profileImage =
 
         <!-- Dual CTA Button -->
         <div
-            class="dual-cta-container flex items-center bg-white/30 dark:bg-black/20 backdrop-blur-md p-1 rounded-full border border-white/40 shadow-xl opacity-100 mb-8 scale-90 sm:scale-100"
+            class="dual-cta-container flex items-center bg-white/30 dark:bg-black/20 backdrop-blur-md p-1 rounded-full border border-white/40 shadow-xl opacity-0 translate-y-10 mb-8 scale-90 sm:scale-100"
             id="intro-cta"
         >
             <a
@@ -101,7 +101,7 @@ const profileImage =
 
         <!-- Social Icons Dynamic from Config -->
         <div
-            class="social-icons flex items-center gap-5 opacity-80"
+            class="social-icons flex items-center gap-5 opacity-0 translate-y-10"
             id="intro-socials"
         >
             {
