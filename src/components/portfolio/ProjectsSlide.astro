@@ -3,10 +3,12 @@
  * ProjectsSlide - Sección de carrusel de proyectos.
  * Incluye: Fondo de código con efecto DOF (Blur), 
  * Carrusel horizontal suave, Cards animadas y puntos indicadores.
- * Refinado: Cards más pequeñas, colores más claros y botones compactos.
+ * Ahora usa Content Collection y enlaza a páginas dedicadas.
  */
-import { projects } from "../../data/projects";
-import ProjectModal from "./ProjectModal.astro";
+import { getCollection } from "astro:content";
+
+const allProjects = await getCollection("projects");
+const projects = allProjects.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
 ---
 
 <section
@@ -37,48 +39,65 @@ import ProjectModal from "./ProjectModal.astro";
 
         <!-- Projects Carousel Container -->
         <div class="relative w-full overflow-hidden" id="projects-carousel-wrapper">
+            <!-- Left Arrow -->
+            <button
+                id="carousel-prev"
+                class="carousel-arrow hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full items-center justify-center border border-border shadow-lg transition-all hover:scale-110 active:scale-95"
+                style="background-color: var(--color-background); color: var(--color-text);"
+                aria-label="Proyecto anterior"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+
             <div 
                 class="projects-carousel flex gap-4 md:gap-6 px-4 md:px-12 py-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
                 id="projects-carousel"
             >
                 {
-                    projects.map((project, i) => (
+                    projects.map((project) => (
                         <div
-                            class="project-card flex-shrink-0 w-[260px] sm:w-[300px] md:w-[320px] bg-white/80 dark:bg-white/5 backdrop-blur-lg border border-text/10 dark:border-white/5 rounded-[2.5rem] p-6 snap-center shadow-xl opacity-0 translate-y-20 flex flex-col items-center text-center group transition-all duration-500 hover:-translate-y-2 hover:border-primary/50"
-                            id={`project-card-${project.id}`}
+                            class="project-card flex-shrink-0 w-[260px] sm:w-[300px] md:w-[320px] bg-white/80 backdrop-blur-lg border border-text/10 rounded-[2.5rem] p-6 snap-center shadow-xl opacity-0 translate-y-20 flex flex-col items-center text-center group transition-all duration-500 hover:-translate-y-2 hover:border-primary/50"
                         >
-                            <!-- Illustration/Image Container -->
-                            <div class="w-full aspect-video rounded-[1.5rem] bg-stone-50 dark:bg-stone-800/30 mb-6 flex items-center justify-center relative overflow-hidden group-hover:bg-stone-100 dark:group-hover:bg-stone-800/50 transition-colors border border-text/5">
-                                <!-- Premium Placeholder SVG -->
-                                <div class="absolute inset-0 flex items-center justify-center opacity-20 group-hover:scale-110 transition-transform duration-700">
-                                    <svg class="w-20 h-20 text-text/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                                    </svg>
-                                </div>
+                            <!-- Project Image -->
+                            <div class="project-card-image w-full aspect-video rounded-[1.5rem] bg-stone-100 mb-6 flex items-center justify-center relative overflow-hidden group-hover:bg-stone-200 transition-colors border border-text/5">
                                 <img 
-                                    src={project.image} 
-                                    alt={project.title}
-                                    class="absolute inset-0 w-full h-full object-cover p-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                    src={project.data.image} 
+                                    alt={project.data.title}
+                                    class="absolute inset-0 w-full h-full object-cover p-2"
                                     onerror="this.style.display='none';"
                                 />
                             </div>
                             
-                            <h3 class="text-xl md:text-2xl font-bold font-heading mb-3 text-text">{project.title}</h3>
+                            <h3 class="text-xl md:text-2xl font-bold font-heading mb-3 text-text">{project.data.title}</h3>
                             <p class="text-xs md:text-sm text-text/70 mb-6 max-w-[240px] line-clamp-3 font-medium">
-                                {project.description}
+                                {project.data.description}
                             </p>
                             
-                            <button 
-                                data-project-id={project.id}
-                                class="project-btn-details px-6 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-300 hover:brightness-110 shadow-md active:scale-95 whitespace-nowrap cursor-pointer"
+                            <a 
+                                href={`/projects/${project.id.replace(/\.(md|mdx)$/, "")}`}
+                                class="px-6 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-300 hover:brightness-110 shadow-md active:scale-95 whitespace-nowrap inline-block no-underline"
                                 style="background-color: var(--ui-nav-link); color: white;"
                             >
                                 Ver Detalles
-                            </button>
+                            </a>
                         </div>
                     ))
                 }
             </div>
+
+            <!-- Right Arrow -->
+            <button
+                id="carousel-next"
+                class="carousel-arrow hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full items-center justify-center border border-border shadow-lg transition-all hover:scale-110 active:scale-95"
+                style="background-color: var(--color-background); color: var(--color-text);"
+                aria-label="Siguiente proyecto"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
         </div>
 
         <!-- Carousel Indicators -->
@@ -96,8 +115,36 @@ import ProjectModal from "./ProjectModal.astro";
     </div>
 </section>
 
-<!-- Project Details Modal -->
-<ProjectModal />
+<script>
+    const carousel = document.getElementById("projects-carousel");
+    const prevBtn = document.getElementById("carousel-prev");
+    const nextBtn = document.getElementById("carousel-next");
+
+    if (carousel && prevBtn && nextBtn) {
+        const scrollAmount = 340; // card width + gap
+
+        prevBtn.addEventListener("click", () => {
+            carousel.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+        });
+
+        nextBtn.addEventListener("click", () => {
+            carousel.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        });
+
+        // Update arrow visibility based on scroll position
+        function updateArrows() {
+            const atStart = carousel!.scrollLeft <= 10;
+            const atEnd = carousel!.scrollLeft + carousel!.clientWidth >= carousel!.scrollWidth - 10;
+            prevBtn!.style.opacity = atStart ? "0.3" : "1";
+            prevBtn!.style.pointerEvents = atStart ? "none" : "auto";
+            nextBtn!.style.opacity = atEnd ? "0.3" : "1";
+            nextBtn!.style.pointerEvents = atEnd ? "none" : "auto";
+        }
+
+        carousel.addEventListener("scroll", updateArrows);
+        updateArrows();
+    }
+</script>
 
 <style>
     .projects-carousel {
@@ -135,5 +182,20 @@ import ProjectModal from "./ProjectModal.astro";
 
     .project-card {
         box-shadow: 0 30px 60px -15px rgba(0,0,0,0.08);
+    }
+
+    /* Dark mode card overrides */
+    :global(.dark) .project-card {
+        background-color: rgba(28, 25, 23, 0.85);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    :global(.dark) .project-card-image {
+        background-color: rgba(41, 37, 36, 0.6);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    :global(.dark) .project-card:hover .project-card-image {
+        background-color: rgba(68, 64, 60, 0.5);
     }
 </style>

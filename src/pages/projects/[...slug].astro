@@ -1,0 +1,21 @@
+---
+import { getCollection, render } from "astro:content";
+import ProjectLayout from "../../layouts/ProjectLayout.astro";
+
+export async function getStaticPaths() {
+    const projects = await getCollection("projects");
+    return projects.map((project) => ({
+        params: { slug: project.id.replace(/\.(md|mdx)$/, "") },
+        props: { project },
+    }));
+}
+
+const { project } = Astro.props;
+const rendered = await render(project);
+const { Content } = rendered;
+const headings = rendered.headings;
+---
+
+<ProjectLayout frontmatter={project.data} headings={headings}>
+    <Content />
+</ProjectLayout>

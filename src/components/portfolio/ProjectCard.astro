@@ -1,0 +1,186 @@
+---
+/**
+ * ProjectCard.astro - Card premium para listar proyectos.
+ * Diseño: Contenedor blanco redondeado con sombra, imagen cabecera,
+ * título azul, fecha gris, descripción, badges tecnológicos y botón naranja.
+ */
+interface Props {
+    title: string;
+    description: string;
+    image: string;
+    periodo: string;
+    tags?: string[];
+    href: string;
+}
+
+const { title, description, image, periodo, tags, href } = Astro.props;
+---
+
+<a href={href} class="project-card-link group no-underline block">
+    <article class="project-card">
+        <!-- Image Header -->
+        <div class="project-card__image">
+            <img
+                src={image}
+                alt={title}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+        </div>
+
+        <!-- Content -->
+        <div class="project-card__body">
+            <!-- Title -->
+            <h3 class="project-card__title">{title}</h3>
+
+            <!-- Period -->
+            <p class="project-card__period">{periodo}</p>
+
+            <!-- Description -->
+            <p class="project-card__desc">{description}</p>
+
+            <!-- Tags -->
+            {
+                tags && tags.length > 0 && (
+                    <div class="project-card__tags">
+                        {tags.map((tag) => (
+                            <span class="project-card__tag">{tag}</span>
+                        ))}
+                    </div>
+                )
+            }
+
+            <!-- CTA Button -->
+            <div class="project-card__cta-wrapper">
+                <span class="project-card__cta">Ver proyecto</span>
+            </div>
+        </div>
+    </article>
+</a>
+
+<style>
+    .project-card {
+        border-radius: 1.5rem;
+        overflow: hidden;
+        background-color: #fff;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        transition:
+            transform 0.3s,
+            box-shadow 0.3s;
+    }
+
+    .project-card-link:hover .project-card {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    :global(.dark) .project-card {
+        background-color: rgba(28, 25, 23, 0.7);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    :global(.dark) .project-card-link:hover .project-card {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ── Image ── */
+    .project-card__image {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    :global(.dark) .project-card__image {
+        background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    /* ── Body ── */
+    .project-card__body {
+        padding: 1.25rem 1.5rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    /* ── Title ── */
+    .project-card__title {
+        font-family: var(--font-heading);
+        font-size: 1.15rem;
+        font-weight: 800;
+        line-height: 1.3;
+        color: #0088cc;
+        margin: 0 0 0.25rem;
+    }
+
+    /* ── Period ── */
+    .project-card__period {
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--color-text);
+        opacity: 0.35;
+        margin: 0 0 0.75rem;
+    }
+
+    /* ── Description ── */
+    .project-card__desc {
+        font-size: 0.8rem;
+        line-height: 1.6;
+        color: var(--color-text);
+        opacity: 0.7;
+        margin: 0 0 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* ── Tags ── */
+    .project-card__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .project-card__tag {
+        display: inline-block;
+        padding: 3px 12px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        border: 1.5px solid #0088cc;
+        color: #0088cc;
+    }
+
+    /* ── CTA ── */
+    .project-card__cta-wrapper {
+        margin-top: auto;
+    }
+
+    .project-card__cta {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+        border-radius: 999px;
+        background-color: var(--ui-nav-link);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        transition:
+            filter 0.2s,
+            box-shadow 0.2s;
+    }
+
+    .project-card-link:hover .project-card__cta {
+        filter: brightness(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+</style>
