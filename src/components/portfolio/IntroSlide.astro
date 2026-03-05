@@ -4,7 +4,7 @@ import { SITE, SOCIALS } from "../../config";
 /**
  * IntroSlide - Sección de bienvenida del portafolio.
  * Incluye: Foto de perfil dinámica, Título principal, Descripción,
- * Botones de acción dual y Redes Sociales desde config.ts.
+ * Botones de acción dual, Redes Sociales y Fondo Animado de Cuadrados.
  */
 
 const profileImage =
@@ -13,18 +13,16 @@ const profileImage =
 
 <section
     id="intro"
-    class="portfolio-slide w-full flex flex-col items-center justify-center p-4 relative overflow-visible"
+    class="portfolio-slide w-full flex flex-col items-center justify-center p-4 relative overflow-hidden"
 >
-    <!-- Background Decoration -->
+    <!-- Background Decoration: Animated Squares -->
     <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div
-            class="absolute -top-12 -right-12 w-64 h-64 md:w-96 md:h-96 bg-primary/10 rounded-full blur-[100px]"
-        >
-        </div>
-        <div
-            class="absolute -bottom-12 -left-12 w-64 h-64 md:w-96 md:h-96 bg-accent/10 rounded-full blur-[100px]"
-        >
-        </div>
+        <div class="floating-square sq-1"></div>
+        <div class="floating-square sq-2"></div>
+        <div class="floating-square sq-3"></div>
+        <div class="floating-square sq-4"></div>
+        <div class="floating-square sq-5"></div>
+        <div class="floating-square sq-6"></div>
     </div>
 
     <div
@@ -182,5 +180,87 @@ const profileImage =
 
     .social-link svg {
         filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.03));
+    }
+
+    /* Floating Squares Styles */
+    .floating-square {
+        position: absolute;
+        background-color: var(--md-h1);
+        opacity: 0.2;
+        border-radius: 2rem;
+        z-index: -1;
+        animation: float 20s infinite linear;
+    }
+
+    .dark .floating-square {
+        opacity: 0.08;
+    }
+
+    .sq-1 {
+        width: 300px;
+        height: 300px;
+        top: -10%;
+        left: -5%;
+        animation-duration: 25s;
+        filter: blur(40px);
+    }
+    .sq-2 {
+        width: 200px;
+        height: 200px;
+        top: 60%;
+        right: -5%;
+        background-color: var(--color-accent);
+        animation-duration: 30s;
+        filter: blur(30px);
+        animation-direction: reverse;
+    }
+    .sq-3 {
+        width: 150px;
+        height: 150px;
+        bottom: 10%;
+        left: 15%;
+        animation-duration: 22s;
+        filter: blur(20px);
+    }
+    .sq-4 {
+        width: 250px;
+        height: 250px;
+        top: 15%;
+        right: 10%;
+        background-color: var(--color-accent);
+        animation-duration: 28s;
+        filter: blur(50px);
+    }
+    .sq-5 {
+        width: 100px;
+        height: 100px;
+        top: 40%;
+        left: 10%;
+        animation-duration: 18s;
+        filter: blur(15px);
+        animation-direction: reverse;
+    }
+    .sq-6 {
+        width: 180px;
+        height: 180px;
+        bottom: -5%;
+        right: 20%;
+        animation-duration: 35s;
+        filter: blur(35px);
+    }
+
+    @keyframes float {
+        0% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+        }
+        33% {
+            transform: translate(30px, -50px) rotate(10deg) scale(1.05);
+        }
+        66% {
+            transform: translate(-20px, 20px) rotate(-10deg) scale(0.95);
+        }
+        100% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+        }
     }
 </style>
