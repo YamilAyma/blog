@@ -9,6 +9,7 @@ export const SITE = {
   author: 'Yamil Ayma',
   url: 'https://yamilayma.github.io',
   repo: 'https://github.com/yamilayma/blog',
+  celebration: true, // Activa la animación de confeti al visitar el sitio por primera vez cada día
 };
 
 /**

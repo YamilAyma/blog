@@ -3,6 +3,7 @@ import "../styles/base.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import SEO from "../components/SEO.astro";
+import Celebration from "../components/Celebration.astro";
 import { SITE } from "../config";
 import { THEMES, DEFAULT_THEME_ID, CATEGORY_THEMES } from "../config/themes";
 
@@ -137,6 +138,7 @@ const defaultThemeId = DEFAULT_THEME_ID;
             <slot />
         </main>
         <Footer />
+        <Celebration />
         <script>
             import "../utils/theme";
             import "../utils/copyCode";

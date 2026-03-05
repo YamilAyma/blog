@@ -1,0 +1,50 @@
+---
+import { SITE } from "../config";
+
+const isEnabled = SITE.celebration;
+---
+
+{isEnabled && (
+  <script is:inline src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script is:inline>
+    (function() {
+      const STORAGE_KEY = 'last_celebration_date';
+      const today = new Date().toLocaleDateString();
+      const lastCelebration = localStorage.getItem(STORAGE_KEY);
+
+      if (lastCelebration !== today) {
+        window.addEventListener('load', () => {
+          if (typeof confetti === 'function') {
+            // Primera ráfaga
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ['#a855f7', '#ec4899', '#3b82f6', '#10b981', '#f59e0b']
+            });
+
+            // Ráfagas laterales tras un pequeño retraso
+            setTimeout(() => {
+              confetti({
+                particleCount: 50,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#a855f7', '#3b82f6']
+              });
+              confetti({
+                particleCount: 50,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#ec4899', '#f59e0b']
+              });
+            }, 250);
+
+            localStorage.setItem(STORAGE_KEY, today);
+          }
+        });
+      }
+    })();
+  </script>
+)}
