@@ -167,22 +167,27 @@ import ContactSlide from "../components/portfolio/ContactSlide.astro";
                     .to("#projects-indicators", { opacity: 1, y: 0 }, "-=1");
             }
 
-            // Contact Slide Animations
+            // Contact Slide Entrance Sequence
             if (id === "contact") {
-                gsap.to(
-                    "#contact-title, #contact-description, #contact-buttons",
-                    {
-                        scrollTrigger: {
-                            trigger: slide,
-                            start: "top 60%",
-                        },
-                        opacity: 1,
-                        scale: 1,
-                        duration: 1,
-                        stagger: 0.2,
-                        ease: "power3.out",
+                const contactTl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: slide,
+                        start: "top 60%",
                     },
-                );
+                    defaults: { ease: "power3.out", duration: 1 },
+                });
+
+                contactTl
+                    .to("#contact-visual", { opacity: 1, scale: 1 })
+                    .to("#contact-title", { opacity: 1, y: 0 }, "-=0.7")
+                    .to("#contact-subtitle", { opacity: 1, y: 0 }, "-=0.8")
+                    .to("#contact-description", { opacity: 1, y: 0 }, "-=0.8")
+                    .to(
+                        "#contact-buttons",
+                        { opacity: 1, y: 0, ease: "back.out(1.2)" },
+                        "-=0.7",
+                    )
+                    .to("#contact-socials", { opacity: 1, y: 0 }, "-=0.7");
             }
         });
 
