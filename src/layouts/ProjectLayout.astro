@@ -34,6 +34,7 @@ const images = frontmatter.imagenes?.length
     description={frontmatter.description}
     image={frontmatter.image}
     type="article"
+    fullWidth
 >
     <article class="max-w-4xl mx-auto px-4 py-8 md:py-16">
         <!-- Breadcrumb + Back -->
@@ -77,6 +78,7 @@ const images = frontmatter.imagenes?.length
                                     i === 0 ? "w-6 bg-white" : "bg-white/40",
                                 ]}
                                 data-slide={i}
+                                aria-label={`Slide ${i + 1}`}
                             />
                         ))}
                     </div>
@@ -246,7 +248,7 @@ const images = frontmatter.imagenes?.length
         <!-- Back to Portfolio -->
         <div class="mt-16 pt-8 border-t border-border">
             <a
-                href="/portafolio#projects"
+                href="/proyectos"
                 class="inline-flex items-center gap-2 text-sm font-bold opacity-60 hover:opacity-100 transition-opacity"
                 style="color: var(--md-h1);"
             >

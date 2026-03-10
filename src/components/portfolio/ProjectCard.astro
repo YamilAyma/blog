@@ -16,7 +16,11 @@ interface Props {
 const { title, description, image, periodo, tags, href } = Astro.props;
 ---
 
-<a href={href} class="project-card-link group no-underline block">
+<a
+    href={href}
+    class="project-card-link group no-underline block"
+    aria-label={`Ver proyecto: ${title}`}
+>
     <article class="project-card">
         <!-- Image Header -->
         <div class="project-card__image">

@@ -14,6 +14,7 @@ export interface Props {
     category?: string;
     publishDate?: Date;
     type?: "website" | "article";
+    fullWidth?: boolean;
 }
 
 const {
@@ -23,6 +24,7 @@ const {
     category,
     publishDate,
     type,
+    fullWidth = false,
 } = Astro.props;
 
 // Serializar temas para el script inline (evita duplicación)
@@ -131,10 +133,30 @@ const defaultThemeId = DEFAULT_THEME_ID;
                 );
             }
         </script>
+
+        <!-- Google tag (gtag.js) -->
+        <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-BS5GZL7KJF"
+        ></script>
+        <script is:inline>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-BS5GZL7KJF");
+        </script>
     </head>
     <body class="flex flex-col min-h-screen" data-category={category}>
         <Header />
-        <main class="flex-grow w-full max-w-3xl mx-auto px-6 py-8">
+        <main
+            class:list={[
+                "flex-grow w-full px-6 py-8 mx-auto",
+                !fullWidth && "max-w-3xl",
+            ]}
+        >
             <slot />
         </main>
         <Footer />

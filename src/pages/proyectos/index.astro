@@ -13,15 +13,16 @@ const projects = allProjects.sort(
 <Layout
     title={`Proyectos — ${SITE.author}`}
     description="Conoce mis proyectos de desarrollo de software, automatización y contenido digital."
+    fullWidth
 >
     <main class="max-w-6xl mx-auto px-4 md:px-8 py-10 md:py-16">
         <!-- Hero Section -->
         <div class="text-center mb-12 md:mb-16">
-            <h2
+            <p
                 class="text-sm font-bold tracking-widest uppercase opacity-40 mb-4"
             >
                 {SITE.author}
-            </h2>
+            </p>
             <h1
                 class="text-3xl md:text-5xl lg:text-6xl font-black font-heading tracking-tighter leading-tight mb-4"
                 style="color: var(--md-h1);"
@@ -40,8 +41,9 @@ const projects = allProjects.sort(
             <div class="w-[240px] md:w-[320px] mx-auto mt-8">
                 <img
                     src="/images/portfolio/projects-hero.png"
-                    alt="Proyectos"
+                    alt="Ilustración de proyectos"
                     class="w-full h-auto object-contain"
+                    onerror="this.parentElement.style.display='none';"
                 />
             </div>
         </div>
@@ -56,7 +58,7 @@ const projects = allProjects.sort(
                         image={project.data.image}
                         periodo={project.data.periodo}
                         tags={project.data.tags}
-                        href={`/projects/${project.id.replace(/\.(md|mdx)$/, "")}`}
+                        href={`/proyectos/${project.id.replace(/\.(md|mdx)$/, "")}`}
                     />
                 ))
             }
