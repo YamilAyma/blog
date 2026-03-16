@@ -4,7 +4,7 @@ import { SITE } from "../config";
 export interface Props {
     title?: string;
     description?: string;
-    image?: string;
+    image?: any;
     canonicalURL?: URL;
     type?: "website" | "article";
     publishDate?: Date;
@@ -19,7 +19,8 @@ const {
     publishDate,
 } = Astro.props;
 
-const socialImageURL = new URL(image || "/placeholder-social.jpg", Astro.url);
+const imageSrc = typeof image === "string" ? image : image?.src;
+const socialImageURL = new URL(imageSrc || "/placeholder-social.jpg", Astro.url);
 
 // Estructura de JSON-LD
 const schema = type === "article" 

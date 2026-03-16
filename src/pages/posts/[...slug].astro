@@ -2,8 +2,10 @@
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import FloatingNavbar from "../../components/FloatingNavbar.astro";
+import { Image } from "astro:assets";
 
 export async function getStaticPaths() {
+// ... (omitting unchanged lines for brevity or just replacing the whole block if needed)
     const posts = await getCollection("posts");
     return posts.map((post) => ({
         params: { slug: post.id.replace(/\.(md|mdx)$/, "") },
@@ -21,7 +23,7 @@ const description = post.body?.trim() || copy || "Post visual del blog de Yamil 
 const pageTitle = title || (copy ? (copy.length > 60 ? copy.substring(0, 57) + "..." : copy) : "Post Visual");
 ---
 
-<Layout title={`${pageTitle} | ${category}`} description={description} image={image}>
+<Layout title={`${pageTitle} | ${category}`} description={description} image={image.src}>
     <FloatingNavbar />
 
     <article class="max-w-2xl mx-auto pt-10 px-4">
@@ -30,9 +32,9 @@ const pageTitle = title || (copy ? (copy.length > 60 ? copy.substring(0, 57) + "
             style="background-color: var(--color-background); border-color: var(--color-border);"
         >
             <div class="aspect-square w-full">
-                <img
+                <Image
                     src={image}
-                    alt=""
+                    alt={imageAlt || ""}
                     class="w-full h-full object-contain"
                     style="background-color: rgba(var(--color-primary-rgb, 0,0,0), 0.05);"
                 />

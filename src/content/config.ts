@@ -25,8 +25,8 @@ const pages = defineCollection({
 
 const posts = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
-  schema: z.object({
-    image: z.string(),
+  schema: ({ image }) => z.object({
+    image: image(),
     imageAlt: z.string().optional(),
     title: z.string().optional(),
     copy: z.string().optional(),

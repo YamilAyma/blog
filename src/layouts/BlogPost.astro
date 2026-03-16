@@ -13,7 +13,8 @@ export interface Props {
         description: string;
         date: Date;
         category: string;
-        image?: string;
+        image?: any;
+        imageAlt?: string;
     };
     headings?: any[];
     content?: string;
@@ -81,7 +82,7 @@ const postDate =
                 ) : (
                     <Image
                         src={frontmatter.image}
-                        alt={frontmatter.title}
+                        alt={frontmatter.imageAlt || frontmatter.title}
                         class="w-full h-auto rounded-3xl shadow-lg mb-8"
                     />
                 ))

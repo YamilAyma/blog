@@ -20,16 +20,13 @@ export async function GET(context) {
         description: 'Posts visuales sobre automatización, marketing y SEO.',
         site: context.site,
         items: publishedPosts.map((post) => {
-            // Titular optimizado (priorizar title, fallback a copy truncado)
             const itemTitle = post.data.title || (post.data.copy 
                 ? (post.data.copy.length > 80 
                     ? post.data.copy.substring(0, 77) + '...' 
                     : post.data.copy)
                 : 'Post Visual');
 
-            // El 'copy' ligero para redes rápidas
             const itemSummary = post.data.copy || 'Post visual del blog';
-
             // Contenido extenso: Cuerpo MDX con delimitador <br/> para Make
             const bodyContent = post.body ? post.body.trim() : itemSummary;
             const contentWithDelimiters = bodyContent.replace(/\n/g, '<br/>');
@@ -42,7 +39,7 @@ export async function GET(context) {
                 customData: `
                     <content:encoded><![CDATA[${contentWithDelimiters}]]></content:encoded>
                     <media:content 
-                        url="${new URL(post.data.image, SITE.url)}" 
+                        url="${new URL(post.data.image.src, SITE.url)}" 
                         medium="image" 
                         type="image/png" 
                     >${post.data.imageAlt ? `\n                        <media:description type="plain">${post.data.imageAlt}</media:description>` : ''}
