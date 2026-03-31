@@ -4,6 +4,40 @@
 @theme {
   /* Tokens estructurales de Tailwind v4 */
   --radius-xl: 1.5rem;
+
+  /* Alías para que Tailwind v4 reconozca los colores dinámicos y soporte opacidad (/80) */
+  --color-primary: var(--color-primary);
+  --color-background: var(--color-background);
+  --color-text: var(--color-text);
+  --color-accent: var(--color-accent);
+  --color-border: var(--color-border);
+
+  /* Mapeo de colores markdown para utilidades Tailwind (text-md-h1, etc) */
+  --color-md-h1: var(--md-h1);
+  --color-md-h2: var(--md-h2);
+  --color-md-h3: var(--md-h3);
+  --color-md-h4: var(--md-h4);
+  --color-md-h5: var(--md-h5);
+  --color-md-h6: var(--md-h6);
+  --color-md-p: var(--md-p);
+  --color-md-bold: var(--md-bold);
+  --color-md-italic: var(--md-italic);
+  --color-md-a: var(--md-a);
+  --color-md-a-hover: var(--md-a-hover);
+  --color-md-code: var(--md-code);
+  --color-md-code-bg: var(--md-code-bg);
+  --color-md-blockquote: var(--md-blockquote);
+  --color-md-blockquote-border: var(--md-blockquote-border);
+  --color-md-hr: var(--md-hr);
+
+  /* Colores de UI */
+  --color-ui-site-title: var(--ui-site-title);
+  --color-ui-nav-link: var(--ui-nav-link);
+  --color-ui-nav-link-hover: var(--ui-nav-link-hover);
+
+  /* Mapeo de fuentes */
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
 }
 
 :root {
@@ -181,7 +215,8 @@ h6,
 }
 
 .prose li::marker {
-  color: var(--md-bold); /*Color de resalte según la paleta*/
+  color: var(--md-bold);
+  /*Color de resalte según la paleta*/
 }
 
 .prose p {

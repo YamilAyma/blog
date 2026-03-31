@@ -16,6 +16,10 @@ const { Content } = rendered;
 const headings = rendered.headings;
 ---
 
-<ProjectLayout frontmatter={project.data} headings={headings}>
+<ProjectLayout 
+    frontmatter={project.data} 
+    headings={headings} 
+    projectSlug={project.id.replace(/\.(md|mdx)$/, "")}
+>
     <Content />
 </ProjectLayout>

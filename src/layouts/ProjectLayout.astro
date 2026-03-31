@@ -1,6 +1,7 @@
 ---
 import Layout from "./Layout.astro";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
+import ProjectJournal from "../components/ProjectJournal.astro";
 
 /**
  * ProjectLayout.astro - Layout dedicado para páginas de proyectos.
@@ -21,9 +22,10 @@ export interface Props {
         links?: { type: string; url: string }[];
     };
     headings?: any[];
+    projectSlug?: string;
 }
 
-const { frontmatter, headings = [] } = Astro.props;
+const { frontmatter, headings = [], projectSlug } = Astro.props;
 const images = frontmatter.imagenes?.length
     ? frontmatter.imagenes
     : [frontmatter.image];
@@ -98,7 +100,7 @@ const images = frontmatter.imagenes?.length
             <div class="flex-1">
                 <h1
                     class="text-3xl md:text-5xl font-black font-heading tracking-tighter leading-tight mb-2"
-                    style="color: var(--md-h1);"
+                    style="color: var(--color-md-h1);"
                 >
                     {frontmatter.title}
                 </h1>
@@ -209,7 +211,7 @@ const images = frontmatter.imagenes?.length
                 >
                     <h3
                         class="text-xs font-black uppercase tracking-[0.25em] mb-4"
-                        style="color: var(--md-h1);"
+                        style="color: var(--color-md-h1);"
                     >
                         Características
                     </h3>
@@ -250,7 +252,7 @@ const images = frontmatter.imagenes?.length
             <a
                 href="/proyectos"
                 class="inline-flex items-center gap-2 text-sm font-bold opacity-60 hover:opacity-100 transition-opacity"
-                style="color: var(--md-h1);"
+                style="color: var(--color-md-h1);"
             >
                 <svg
                     class="w-4 h-4"
@@ -267,6 +269,9 @@ const images = frontmatter.imagenes?.length
                 Volver al Portafolio
             </a>
         </div>
+
+        {/* Bitácora de Proyecto */}
+        {projectSlug && <ProjectJournal projectSlug={projectSlug} />}
     </article>
 </Layout>
 
@@ -365,7 +370,7 @@ const images = frontmatter.imagenes?.length
 
     /* Prose overrides for project pages */
     .project-prose :global(h2) {
-        color: var(--md-h2);
+        color: var(--color-md-h2);
     }
 
     .project-prose :global(p) {

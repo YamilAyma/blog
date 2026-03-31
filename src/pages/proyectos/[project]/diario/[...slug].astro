@@ -1,0 +1,109 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "../../../../layouts/Layout.astro";
+import Breadcrumbs from "../../../../components/Breadcrumbs.astro";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+
+export async function getStaticPaths() {
+    const journalEntries = await getCollection("journal");
+    const projects = await getCollection("projects");
+
+    return journalEntries.map((entry) => {
+        const projectSlug = entry.data.project;
+        const entrySlug = entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, "");
+        
+        return {
+            params: { 
+                project: projectSlug,
+                slug: entrySlug 
+            },
+            props: { entry },
+        };
+    });
+}
+
+const { entry } = Astro.props;
+const { project, slug } = Astro.params;
+const { Content, headings } = await render(entry);
+
+// Obtener datos del proyecto para los breadcrumbs
+const allProjects = await getCollection("projects");
+const projectData = allProjects.find(p => p.id.replace(/\.(md|mdx)$/, "") === project);
+---
+
+<Layout 
+    title={`${entry.data.title} | Bitácora de ${projectData?.data.title || project}`}
+    description={entry.data.description}
+    image={entry.data.image}
+>
+    <article class="max-w-3xl mx-auto px-4 py-12 md:py-20">
+        <Breadcrumbs 
+            items={[
+                { label: "Portafolio", href: "/portafolio" },
+                { label: projectData?.data.title || project, href: `/proyectos/${project}` },
+                { label: "Bitácora", href: `/proyectos/${project}#journal` },
+                { label: entry.data.title }
+            ]}
+        />
+
+        <header class="mt-10 mb-12">
+            <time class="text-xs font-bold uppercase tracking-[0.2em] text-primary/60 mb-4 block">
+                {format(entry.data.date, "dd 'de' MMMM, yyyy", { locale: es })}
+            </time>
+            <h1 class="text-4xl md:text-6xl font-black font-heading tracking-tight mb-6 leading-tight">
+                {entry.data.title}
+            </h1>
+            {entry.data.description && (
+                <p class="text-xl text-text/60 font-medium leading-relaxed">
+                    {entry.data.description}
+                </p>
+            )}
+        </header>
+
+        {entry.data.image && (
+            <div class="mb-12 rounded-[2rem] overflow-hidden shadow-2xl aspect-video">
+                <img 
+                    src={entry.data.image.src} 
+                    alt={entry.data.title}
+                    class="w-full h-full object-cover"
+                />
+            </div>
+        )}
+
+        <div class="prose prose-lg dark:prose-invert max-w-none prose-headings:font-heading prose-p:font-body journal-prose">
+            <Content />
+        </div>
+
+        <footer class="mt-20 pt-10 border-t border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-widest opacity-40">Volver al proyecto</p>
+                    <a href={`/proyectos/${project}`} class="text-lg font-bold font-heading hover:text-primary transition-colors">
+                        {projectData?.data.title || project}
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </article>
+</Layout>
+
+<style>
+    @reference "../../../../styles/base.css";
+
+    .journal-prose :global(h2) {
+        @apply text-3xl font-black mt-12 mb-6;
+    }
+    .journal-prose :global(p) {
+        @apply mb-6 leading-relaxed;
+        color: color-mix(in srgb, var(--color-text) 80%, transparent);
+    }
+    .journal-prose :global(img) {
+        @apply rounded-2xl shadow-lg my-8;
+    }
+</style>

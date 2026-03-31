@@ -4,14 +4,17 @@ import { getCollection } from "astro:content";
 import CategorySticker from "../components/CategorySticker.astro";
 
 const now = new Date();
-const posts = (await getCollection("blog"))
+const blogPosts = await getCollection("blog");
+const journalEntries = (await getCollection("journal" as any)) as any[];
+
+const posts = [...blogPosts, ...journalEntries]
 	.filter((post) => {
-		if (!post.data.published) return false;
-		if (post.data.date > now) return false;
+		if (!post.data?.published) return false;
+		if (post.data?.date > now) return false;
 		return true;
 	})
-	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-	.slice(0, 5); // Show latest 5
+	.sort((a, b) => (b.data?.date?.valueOf() || 0) - (a.data?.date?.valueOf() || 0))
+	.slice(0, 5);
 
 import { SITE } from "../config";
 ---
@@ -57,26 +60,40 @@ import { SITE } from "../config";
 
 		<ul class="space-y-2">
 			{
-				posts.map((post) => (
-					<li>
-						<a
-							href={`/blog/${post.id.replace(/\.(md|mdx)$/, "")}`}
-							class="blog-post-link group flex flex-col md:flex-row md:items-baseline md:justify-between py-2 px-3 -mx-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-						>
-							<span class="blog-post-title text-lg font-medium transition-colors">
-								{post.data.title}
-							</span>
-							<span class="text-xs md:text-sm text-stone-400 font-mono whitespace-nowrap md:ml-4">
-								{post.data.date.toLocaleDateString("es-ES", {
-									year: "numeric",
-									month: "short",
-									day: "numeric",
-									timeZone: "UTC",
-								})}
-							</span>
-						</a>
-					</li>
-				))
+				posts.map((post) => {
+					const isJournal = "project" in post.data;
+					const href = isJournal 
+						? `/proyectos/${post.data.project}/diario/${post.id.split('/').pop()?.replace(/\.(md|mdx)$/, "")}`
+						: `/blog/${post.id.replace(/\.(md|mdx)$/, "")}`;
+					
+					return (
+						<li>
+							<a
+								href={href}
+								class="blog-post-link group flex flex-col md:flex-row md:items-baseline md:justify-between py-2 px-3 -mx-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+							>
+								<div class="flex flex-col">
+									<span class="blog-post-title text-lg font-medium transition-colors">
+										{post.data.title}
+									</span>
+									{isJournal && (
+										<span class="text-[10px] font-black uppercase tracking-widest text-primary/60">
+											Bitácora de Proyecto
+										</span>
+									)}
+								</div>
+								<span class="text-xs md:text-sm text-stone-400 font-mono whitespace-nowrap md:ml-4">
+									{post.data.date.toLocaleDateString("es-ES", {
+										year: "numeric",
+										month: "short",
+										day: "numeric",
+										timeZone: "UTC",
+									})}
+								</span>
+							</a>
+						</li>
+					);
+				})
 			}
 		</ul>
 	</section>
