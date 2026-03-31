@@ -1,0 +1,27 @@
+---
+/**
+ * Sidebar.astro - Contenedor lateral para contenido fijo en Desktop. 
+ * Estructura: Sticky, 30% del ancho, oculto en mobile por defecto o reorganizado.
+ */
+import NavigationCards from "./NavigationCards.astro";
+import { SITE } from "../config";
+import { Image } from "astro:assets";
+
+---
+
+<aside class="sidebar-container sticky top-24 space-y-10 py-4 overflow-hidden">
+    <!-- Navegación Principal (Cards) -->
+    <div class="sidebar-block">
+        <NavigationCards gridClass="grid grid-cols-1 gap-6" />
+    </div>
+
+    <slot />
+</aside>
+
+<style>
+    .sidebar-container {
+        scrollbar-width: thin;
+        max-height: calc(100vh - 8rem);
+        overflow-y: auto;
+    }
+</style>

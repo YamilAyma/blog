@@ -5,6 +5,7 @@ import { SITE } from "../../config";
 import ProjectCard from "../../components/portfolio/ProjectCard.astro";
 import { Image } from "astro:assets";
 import projectsHero from "../../assets/images/portfolio/projects-hero.png";
+import NavigationCards from "../../components/NavigationCards.astro";
 
 const allProjects = await getCollection("projects");
 const projects = allProjects.sort(
@@ -15,54 +16,56 @@ const projects = allProjects.sort(
 <Layout
     title={`Proyectos — ${SITE.author}`}
     description="Conoce mis proyectos de desarrollo de software, automatización y contenido digital."
-    fullWidth
 >
-    <main class="max-w-6xl mx-auto px-4 md:px-8 py-10 md:py-16">
-        <!-- Hero Section -->
-        <div class="text-center mb-12 md:mb-16">
-            <p
-                class="text-sm font-bold tracking-widest uppercase opacity-40 mb-4"
-            >
-                {SITE.author}
-            </p>
-            <h1
-                class="text-3xl md:text-5xl lg:text-6xl font-black font-heading tracking-tighter leading-tight mb-4"
-                style="color: var(--md-h1);"
-            >
-                Mis Proyectos
-            </h1>
-            <p
-                class="text-sm md:text-base text-text/60 leading-relaxed max-w-xl mx-auto"
-            >
-                Explora mis proyectos de desarrollo de software, automatización
-                y contenido digital. Cada uno refleja mi pasión por crear
-                soluciones accesibles y funcionales.
-            </p>
+    <!-- Navegación solo visible en Mobile/Tablet -->
+    <section class="lg:hidden mb-12">
+        <NavigationCards />
+    </section>
 
-            <!-- Hero Illustration -->
-            <div class="w-[240px] md:w-[320px] mx-auto mt-8">
-                <Image
-                    src={projectsHero}
-                    alt="Ilustración de proyectos"
-                    class="w-full h-auto object-contain"
+    <!-- Hero Section -->
+    <div class="text-center lg:text-left mb-12 md:mb-16">
+        <p
+            class="text-sm font-bold tracking-widest uppercase opacity-40 mb-4"
+        >
+            {SITE.author}
+        </p>
+        <h1
+            class="text-3xl md:text-5xl lg:text-6xl font-black font-heading tracking-tighter leading-tight mb-4"
+            style="color: var(--md-h1);"
+        >
+            Mis Proyectos
+        </h1>
+        <p
+            class="text-sm md:text-base text-text/60 leading-relaxed max-w-xl lg:mx-0 mx-auto"
+        >
+            Explora mis proyectos de desarrollo de software, automatización
+            y contenido digital. Cada uno refleja mi pasión por crear
+            soluciones accesibles y funcionales.
+        </p>
+
+        <!-- Hero Illustration -->
+        <div class="w-[200px] md:w-[280px] lg:mx-0 mx-auto mt-8">
+            <Image
+                src={projectsHero}
+                alt="Ilustración de proyectos"
+                class="w-full h-auto object-contain"
+            />
+        </div>
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {
+            projects.map((project) => (
+                <ProjectCard
+                    title={project.data.title}
+                    description={project.data.description}
+                    image={project.data.image}
+                    periodo={project.data.periodo}
+                    tags={project.data.tags}
+                    href={`/proyectos/${project.id.replace(/\.(md|mdx)$/, "")}`}
                 />
-            </div>
-        </div>
-
-        <!-- Projects Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {
-                projects.map((project) => (
-                    <ProjectCard
-                        title={project.data.title}
-                        description={project.data.description}
-                        image={project.data.image}
-                        periodo={project.data.periodo}
-                        tags={project.data.tags}
-                        href={`/proyectos/${project.id.replace(/\.(md|mdx)$/, "")}`}
-                    />
-                ))
-            }
-        </div>
-    </main>
+            ))
+        }
+    </div>
 </Layout>

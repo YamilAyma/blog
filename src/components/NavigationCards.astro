@@ -1,0 +1,86 @@
+---
+/**
+ * NavigationCards - Componente reutilizable que agrupa las 4 tarjetas de navegación
+ * principales (Portafolio, Posts, Proyectos, Contacto).
+ */
+import { Image } from "astro:assets";
+import cardPortafolio from "../assets/images/cards/portafolio.png";
+import cardPost from "../assets/images/cards/post.png";
+import cardProyectos from "../assets/images/cards/proyectos.png";
+import cardRedes from "../assets/images/cards/redes.png";
+
+export interface Props {
+    gridClass?: string;
+}
+
+const { gridClass = "grid grid-cols-1 md:grid-cols-2 gap-6" } = Astro.props;
+---
+
+<div class={gridClass} id="nav-cards-grid">
+    <a href="/portafolio" class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500">
+        <Image 
+            src={cardPortafolio} 
+            alt="Portafolio" 
+            class="w-full h-auto object-contain transition-transform duration-700"
+        />
+    </a>
+    <a href="/posts" class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500">
+        <Image 
+            src={cardPost} 
+            alt="Posts Visuales" 
+            class="w-full h-auto object-contain transition-transform duration-700"
+        />
+    </a>
+    <a href="/proyectos" class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500">
+        <Image 
+            src={cardProyectos} 
+            alt="Proyectos" 
+            class="w-full h-auto object-contain transition-transform duration-700"
+        />
+    </a>
+    <a href="/contacto" class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500">
+        <Image 
+            src={cardRedes} 
+            alt="Redes y Contacto" 
+            class="w-full h-auto object-contain transition-transform duration-700"
+        />
+    </a>
+</div>
+
+<script>
+    import { gsap } from "gsap";
+
+    const initCards = () => {
+        const cards = document.querySelectorAll(".nav-card");
+        if (cards.length > 0) {
+            cards.forEach(card => {
+                card.addEventListener("mouseenter", () => {
+                    gsap.to(card, {
+                        y: -6,
+                        scale: 1.01,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+                card.addEventListener("mouseleave", () => {
+                    gsap.to(card, {
+                        y: 0,
+                        scale: 1,
+                        duration: 0.3,
+                        ease: "power2.inOut"
+                    });
+                });
+            });
+        }
+    };
+
+    // Inicializar y manejar transiciones si es necesario
+    initCards();
+    document.addEventListener("astro:page-load", initCards);
+</script>
+
+<style>
+    :global(.dark) .nav-card {
+        background-color: #fff;
+    }
+</style>

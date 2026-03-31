@@ -6,6 +6,7 @@ import SEO from "../components/SEO.astro";
 import Celebration from "../components/Celebration.astro";
 import { SITE } from "../config";
 import { THEMES, DEFAULT_THEME_ID, CATEGORY_THEMES } from "../config/themes";
+import Sidebar from "../components/Sidebar.astro";
 
 export interface Props {
     title?: string;
@@ -15,6 +16,7 @@ export interface Props {
     publishDate?: Date;
     type?: "website" | "article";
     fullWidth?: boolean;
+    showSidebar?: boolean;
 }
 
 const {
@@ -25,6 +27,7 @@ const {
     publishDate,
     type,
     fullWidth = false,
+    showSidebar = false,
 } = Astro.props;
 
 // Serializar temas para el script inline (evita duplicación)
@@ -77,7 +80,6 @@ const defaultThemeId = DEFAULT_THEME_ID;
         />
 
         <!-- Script de inicialización del tema (evita FOUC) -->
-        <!-- Los temas se inyectan desde themes.ts para evitar duplicación -->
         <script is:inline define:vars={{ themesJSON, defaultThemeId }}>
             const THEMES = JSON.parse(themesJSON);
 
@@ -150,15 +152,37 @@ const defaultThemeId = DEFAULT_THEME_ID;
         </script>
     </head>
     <body class="flex flex-col min-h-screen" data-category={category}>
-        <Header />
-        <main
-            class:list={[
-                "flex-grow w-full px-6 py-8 mx-auto",
-                !fullWidth && "max-w-3xl",
-            ]}
-        >
-            <slot />
-        </main>
+        <!-- El contenedor principal ahora envuelve Header + Grid para sincronizar alineación -->
+        <div class:list={[
+            "w-full px-6 py-4 mx-auto flex-grow",
+            !fullWidth && "max-w-7xl"
+        ]}>
+            <div class:list={[
+                "grid grid-cols-1 gap-x-12",
+                showSidebar && !fullWidth && "lg:grid-cols-10"
+            ]}>
+                
+                <!-- Columna Principal (60%): Header + Content -->
+                <div class:list={[
+                    "flex flex-col",
+                    showSidebar && !fullWidth ? "lg:col-span-6" : "max-w-3xl mx-auto"
+                ]}>
+                    <Header />
+                    
+                    <main class="w-full mt-4">
+                        <slot />
+                    </main>
+                </div>
+
+                <!-- Right Sidebar (40%) - Desktop Only -->
+                {showSidebar && !fullWidth && (
+                    <aside class="hidden lg:block lg:col-span-4 lg:pt-10">
+                        <Sidebar />
+                    </aside>
+                )}
+            </div>
+        </div>
+
         <Footer />
         <Celebration />
         <script>

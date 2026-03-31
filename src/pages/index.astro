@@ -1,13 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
-import CategorySticker from "../components/CategorySticker.astro";
+import NavigationCards from "../components/NavigationCards.astro";
+import { SITE } from "../config";
 
-// Tarjetas
-import cardPortafolio from "../assets/images/cards/portafolio.png";
-import cardPost from "../assets/images/cards/post.png";
-import cardProyectos from "../assets/images/cards/proyectos.png";
-import cardRedes from "../assets/images/cards/redes.png";
 const now = new Date();
 const blogPosts = await getCollection("blog");
 const journalEntries = (await getCollection("journal" as any)) as any[];
@@ -20,13 +16,10 @@ const posts = [...blogPosts, ...journalEntries]
 	})
 	.sort((a, b) => (b.data?.date?.valueOf() || 0) - (a.data?.date?.valueOf() || 0))
 	.slice(0, 5);
-
-import { SITE } from "../config";
-import { Image } from "astro:assets";
 ---
 
-<Layout title={SITE.title}>
-	<section class="mb-16 mt-8">
+<Layout title={SITE.title} showSidebar={true}>
+	<section class="mb-16 mt-4">
 		<h1 class="hero-title text-4xl md:text-4xl font-bold font-heading mb-6">
 			{SITE.author}
 		</h1>
@@ -52,52 +45,24 @@ import { Image } from "astro:assets";
 		</div>
 	</section>
 
-	<section class="mb-20">
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12" id="nav-cards-grid">
-			<a href="/portafolio" class="nav-card group block relative overflow-hidden rounded-[2.5rem] bg-white border-[6px] border-white shadow-xl hover:shadow-2xl transition-all duration-500">
-				<Image 
-					src={cardPortafolio} 
-					alt="Portafolio" 
-					class="w-full h-auto object-contain transition-transform duration-700"
-				/>
-			</a>
-			<a href="/posts" class="nav-card group block relative overflow-hidden rounded-[2.5rem] bg-white border-[6px] border-white shadow-xl hover:shadow-2xl transition-all duration-500">
-				<Image 
-					src={cardPost} 
-					alt="Posts Visuales" 
-					class="w-full h-auto object-contain transition-transform duration-700"
-				/>
-			</a>
-			<a href="/proyectos" class="nav-card group block relative overflow-hidden rounded-[2.5rem] bg-white border-[6px] border-white shadow-xl hover:shadow-2xl transition-all duration-500">
-				<Image 
-					src={cardProyectos} 
-					alt="Proyectos" 
-					class="w-full h-auto object-contain transition-transform duration-700"
-				/>
-			</a>
-			<a href="/contacto" class="nav-card group block relative overflow-hidden rounded-[2.5rem] bg-white border-[6px] border-white shadow-xl hover:shadow-2xl transition-all duration-500">
-				<Image 
-					src={cardRedes} 
-					alt="Redes y Contacto" 
-					class="w-full h-auto object-contain transition-transform duration-700"
-				/>
-			</a>
-		</div>
+	<!-- Navegación solo visible en Mobile/Tablet dentro del flujo principal -->
+	<section class="lg:hidden mb-16 px-2	">
+		<NavigationCards />
 	</section>
 
-	<section>
+	<section class="mb-12">
 		<div
-			class="flex items-center justify-between mb-6 pb-2 border-b border-black/10 dark:border-white/10"
+			class="flex items-center justify-between mb-8 pb-3 border-b border-black/10 dark:border-white/10"
 		>
 			<h2 class="hero-title text-2xl font-bold font-heading">
 				Entradas Recientes
 			</h2>
 			<a href="/blog" class="text-sm font-medium nav-link hover:underline"
-				>Explorar todos los artículos del blog &rarr;</a
+				>Explorar todos &rarr;</a
 			>
 		</div>
 
-		<ul class="space-y-2">
+		<ul class="space-y-4">
 			{
 				posts.map((post) => {
 					const isJournal = "project" in post.data;
@@ -109,10 +74,10 @@ import { Image } from "astro:assets";
 						<li>
 							<a
 								href={href}
-								class="blog-post-link group flex flex-col md:flex-row md:items-baseline md:justify-between py-2 px-3 -mx-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+								class="blog-post-link group flex flex-col md:flex-row md:items-baseline md:justify-between py-3 px-4 -mx-4 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300"
 							>
-								<div class="flex flex-col">
-									<span class="blog-post-title text-lg font-medium transition-colors">
+								<div class="flex flex-col gap-1">
+									<span class="blog-post-title text-lg font-bold transition-colors">
 										{post.data.title}
 									</span>
 									{isJournal && (
@@ -121,7 +86,7 @@ import { Image } from "astro:assets";
 										</span>
 									)}
 								</div>
-								<span class="text-xs md:text-sm text-stone-400 font-mono whitespace-nowrap md:ml-4">
+								<span class="text-xs md:text-sm text-stone-400 font-mono whitespace-nowrap md:ml-4 mt-2 md:mt-0">
 									{post.data.date.toLocaleDateString("es-ES", {
 										year: "numeric",
 										month: "short",
@@ -137,31 +102,3 @@ import { Image } from "astro:assets";
 		</ul>
 	</section>
 </Layout>
-
-<script>
-	import { gsap } from "gsap";
-
-	const cards = document.querySelectorAll(".nav-card");
-	
-	if (cards.length > 0) {
-		// Micro-interacción de hover suave
-		cards.forEach(card => {
-			card.addEventListener("mouseenter", () => {
-				gsap.to(card, {
-					y: -8,
-					scale: 1.02,
-					duration: 0.4,
-					ease: "power2.out"
-				});
-			});
-			card.addEventListener("mouseleave", () => {
-				gsap.to(card, {
-					y: 0,
-					scale: 1,
-					duration: 0.4,
-					ease: "power2.inOut"
-				});
-			});
-		});
-	}
-</script>
