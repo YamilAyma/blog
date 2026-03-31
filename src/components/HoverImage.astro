@@ -1,0 +1,99 @@
+---
+/**
+ * HoverImage.astro - Componente primitivo para imágenes con efecto hover animado.
+ * Implementa carga diferida (Idle Load) para optimizar el ancho de banda.
+ */
+import { Image } from "astro:assets";
+
+interface Props {
+    staticSrc: any;
+    hoverSrc: any;
+    alt: string;
+    class?: string;
+}
+
+const { staticSrc, hoverSrc, alt, class: className = "" } = Astro.props;
+
+// Extraemos las URLs optimizadas por Astro
+const staticUrl = typeof staticSrc === "string" ? staticSrc : staticSrc.src;
+const hoverUrl = typeof hoverSrc === "string" ? hoverSrc : hoverSrc.src;
+---
+
+<div class={`hover-image-container relative overflow-hidden ${className}`}>
+    <!-- Imagen Estática (Capa Base) -->
+    <Image 
+        src={staticSrc} 
+        alt={alt} 
+        class="static-img w-full h-auto object-contain transition-opacity duration-500 ease-in-out"
+    />
+
+    <!-- Imagen Animada (Capa Superior) -->
+    <img
+        alt={`${alt} (animación)`}
+        data-hover-src={hoverUrl}
+        class="animated-img absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-500 ease-in-out pointer-events-none"
+        loading="lazy"
+    />
+</div>
+
+<script>
+    /**
+     * Lógica de Precarga en Tiempo de Inactividad (Preloading on Idle)
+     */
+    const initHoverImages = () => {
+        const containers = document.querySelectorAll('.hover-image-container');
+        
+        // Función para cargar la imagen real
+        const loadAnimatedImage = (img: HTMLImageElement) => {
+            const hoverSrc = img.getAttribute('data-hover-src');
+            if (hoverSrc && !img.src) {
+                img.src = hoverSrc;
+                img.removeAttribute('data-hover-src');
+            }
+        };
+
+        // 1. Precarga inteligente si no hay modo de ahorro de datos
+        // @ts-ignore
+        const isDataSaver = navigator.connection && navigator.connection.saveData;
+
+        if (!isDataSaver) {
+            // Esperamos a que el navegador esté libre antes de empezar a descargar GIFs
+            const idleCallback = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 2000));
+            
+            idleCallback(() => {
+                containers.forEach(container => {
+                    const animatedImg = container.querySelector('.animated-img') as HTMLImageElement;
+                    if (animatedImg) loadAnimatedImage(animatedImg);
+                });
+            });
+        }
+
+        // 2. Comportamiento de Hover (CSS maneja el fade, el Script asegura la carga si falló el Idle)
+        containers.forEach(container => {
+            container.addEventListener('mouseenter', () => {
+                const animatedImg = container.querySelector('.animated-img') as HTMLImageElement;
+                if (animatedImg) loadAnimatedImage(animatedImg);
+            });
+        });
+    };
+
+    // Ejecutar al cargar y tras transiciones de Astro (View Transitions)
+    initHoverImages();
+    document.addEventListener('astro:page-load', initHoverImages);
+</script>
+
+<style>
+    .hover-image-container:hover .static-img {
+        opacity: 0;
+    }
+    .hover-image-container:hover .animated-img {
+        opacity: 1;
+    }
+    
+    /* Soporte para dispositivos táctiles: la animación se activa brevemente o no según pref */
+    @media (hover: none) {
+        .animated-img {
+            display: none;
+        }
+    }
+</style>

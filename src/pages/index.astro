@@ -44,12 +44,6 @@ const posts = [...blogPosts, ...journalEntries]
 			</p>
 		</div>
 	</section>
-
-	<!-- Navegación solo visible en Mobile/Tablet dentro del flujo principal -->
-	<section class="lg:hidden mb-16 px-2	">
-		<NavigationCards />
-	</section>
-
 	<section class="mb-12">
 		<div
 			class="flex items-center justify-between mb-8 pb-3 border-b border-black/10 dark:border-white/10"
@@ -100,5 +94,10 @@ const posts = [...blogPosts, ...journalEntries]
 				})
 			}
 		</ul>
+	</section>
+
+	<!-- Navegación solo visible en Mobile/Tablet al final para priorizar contenido -->
+	<section class="lg:hidden mb-16 px-2">
+		<NavigationCards />
 	</section>
 </Layout>

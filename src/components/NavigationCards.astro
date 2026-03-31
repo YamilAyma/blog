@@ -3,11 +3,18 @@
  * NavigationCards - Componente reutilizable que agrupa las 4 tarjetas de navegación
  * principales (Portafolio, Posts, Proyectos, Contacto).
  */
-import { Image } from "astro:assets";
+import HoverImage from "./HoverImage.astro";
 import cardPortafolio from "../assets/images/cards/portafolio.png";
+import portfolioWebp from "../assets/images/cards/animated/portafolio.webp";
 import cardPost from "../assets/images/cards/post.png";
+import postWebp from "../assets/images/cards/animated/post.webp"
 import cardProyectos from "../assets/images/cards/proyectos.png";
+import proyectosWebp from "../assets/images/cards/animated/proyectos.webp"
 import cardRedes from "../assets/images/cards/redes.png";
+import redesWebp from "../assets/images/cards/animated/redes.webp"
+import cardCV from "../assets/images/cards/cv.png";
+import cvWebp from "../assets/images/cards/animated/cv.webp"
+
 
 export interface Props {
     gridClass?: string;
@@ -18,31 +25,43 @@ const { gridClass = "grid grid-cols-1 md:grid-cols-2 gap-6" } = Astro.props;
 
 <div class={gridClass} id="nav-cards-grid">
     <a href="/portafolio" class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500">
-        <Image 
-            src={cardPortafolio} 
+        <HoverImage 
+            staticSrc={cardPortafolio} 
+            hoverSrc={portfolioWebp}
             alt="Portafolio" 
-            class="w-full h-auto object-contain transition-transform duration-700"
         />
     </a>
     <a href="/posts" class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500">
-        <Image 
-            src={cardPost} 
+        <HoverImage 
+            staticSrc={cardPost} 
+            hoverSrc={postWebp}
             alt="Posts Visuales" 
-            class="w-full h-auto object-contain transition-transform duration-700"
         />
     </a>
     <a href="/proyectos" class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500">
-        <Image 
-            src={cardProyectos} 
+        <HoverImage 
+            staticSrc={cardProyectos} 
+            hoverSrc={proyectosWebp}
             alt="Proyectos" 
-            class="w-full h-auto object-contain transition-transform duration-700"
         />
     </a>
     <a href="/contacto" class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500">
-        <Image 
-            src={cardRedes} 
+        <HoverImage 
+            staticSrc={cardRedes} 
+            hoverSrc={redesWebp}
             alt="Redes y Contacto" 
-            class="w-full h-auto object-contain transition-transform duration-700"
+        />
+    </a>
+    <a 
+        href="https://github.com/YamilAyma/cv/releases/download/latest/Anthony_Yamil_Ayma_Leon_CV.pdf" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="nav-card group block relative overflow-hidden rounded-[2rem] bg-white border-[4.5px] border-white shadow-lg hover:shadow-xl transition-all duration-500 md:col-span-2 lg:col-span-1"
+    >
+        <HoverImage 
+            staticSrc={cardCV} 
+            hoverSrc={cvWebp}
+            alt="Descargar mi CV" 
         />
     </a>
 </div>
