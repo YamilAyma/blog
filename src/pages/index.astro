@@ -3,6 +3,11 @@ import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import CategorySticker from "../components/CategorySticker.astro";
 
+// Tarjetas
+import cardPortafolio from "../assets/images/cards/portafolio.png";
+import cardPost from "../assets/images/cards/post.png";
+import cardProyectos from "../assets/images/cards/proyectos.png";
+import cardRedes from "../assets/images/cards/redes.png";
 const now = new Date();
 const blogPosts = await getCollection("blog");
 const journalEntries = (await getCollection("journal" as any)) as any[];
@@ -17,6 +22,7 @@ const posts = [...blogPosts, ...journalEntries]
 	.slice(0, 5);
 
 import { SITE } from "../config";
+import { Image } from "astro:assets";
 ---
 
 <Layout title={SITE.title}>
@@ -43,6 +49,39 @@ import { SITE } from "../config";
 			<p>
 				¡Espero que te vaya bien! 👋
 			</p>
+		</div>
+	</section>
+
+	<section class="mb-20">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12" id="nav-cards-grid">
+			<a href="/portafolio" class="nav-card group block relative overflow-hidden rounded-[2.5rem] bg-white border-[6px] border-white shadow-xl hover:shadow-2xl transition-all duration-500">
+				<Image 
+					src={cardPortafolio} 
+					alt="Portafolio" 
+					class="w-full h-auto object-contain transition-transform duration-700"
+				/>
+			</a>
+			<a href="/posts" class="nav-card group block relative overflow-hidden rounded-[2.5rem] bg-white border-[6px] border-white shadow-xl hover:shadow-2xl transition-all duration-500">
+				<Image 
+					src={cardPost} 
+					alt="Posts Visuales" 
+					class="w-full h-auto object-contain transition-transform duration-700"
+				/>
+			</a>
+			<a href="/proyectos" class="nav-card group block relative overflow-hidden rounded-[2.5rem] bg-white border-[6px] border-white shadow-xl hover:shadow-2xl transition-all duration-500">
+				<Image 
+					src={cardProyectos} 
+					alt="Proyectos" 
+					class="w-full h-auto object-contain transition-transform duration-700"
+				/>
+			</a>
+			<a href="/contacto" class="nav-card group block relative overflow-hidden rounded-[2.5rem] bg-white border-[6px] border-white shadow-xl hover:shadow-2xl transition-all duration-500">
+				<Image 
+					src={cardRedes} 
+					alt="Redes y Contacto" 
+					class="w-full h-auto object-contain transition-transform duration-700"
+				/>
+			</a>
 		</div>
 	</section>
 
@@ -98,3 +137,31 @@ import { SITE } from "../config";
 		</ul>
 	</section>
 </Layout>
+
+<script>
+	import { gsap } from "gsap";
+
+	const cards = document.querySelectorAll(".nav-card");
+	
+	if (cards.length > 0) {
+		// Micro-interacción de hover suave
+		cards.forEach(card => {
+			card.addEventListener("mouseenter", () => {
+				gsap.to(card, {
+					y: -8,
+					scale: 1.02,
+					duration: 0.4,
+					ease: "power2.out"
+				});
+			});
+			card.addEventListener("mouseleave", () => {
+				gsap.to(card, {
+					y: 0,
+					scale: 1,
+					duration: 0.4,
+					ease: "power2.inOut"
+				});
+			});
+		});
+	}
+</script>
