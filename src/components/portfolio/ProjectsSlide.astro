@@ -1,11 +1,7 @@
 ---
-/**
- * ProjectsSlide - Sección de carrusel de proyectos.
- * Incluye: Fondo de código con efecto DOF (Blur), 
- * Carrusel horizontal suave, Cards animadas y puntos indicadores.
- * Ahora usa Content Collection y enlaza a páginas dedicadas.
- */
 import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import projectBg from "../../assets/images/portfolio/project-bg.png";
 
 const allProjects = await getCollection("projects");
 const projects = allProjects.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
@@ -19,7 +15,7 @@ const projects = allProjects.sort((a, b) => (a.data.order || 0) - (b.data.order 
     <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-background">
         <div 
             class="absolute inset-0 opacity-20 dark:opacity-10 grayscale mix-blend-overlay scale-110 bg-cover bg-center"
-            style="background-image: url('/images/portfolio/project-bg.png');"
+            style={`background-image: url('${projectBg.src}');`}
         ></div>
 
         <div class="code-bg-overlay absolute inset-0 opacity-40 md:opacity-30">
@@ -62,11 +58,10 @@ const projects = allProjects.sort((a, b) => (a.data.order || 0) - (b.data.order 
                         >
                             <!-- Project Image -->
                             <div class="project-card-image w-full aspect-video rounded-[1.5rem] bg-stone-100 mb-6 flex items-center justify-center relative overflow-hidden group-hover:bg-stone-200 transition-colors border border-text/5">
-                                <img 
+                                <Image 
                                     src={project.data.image} 
                                     alt={project.data.title}
                                     class="absolute inset-0 w-full h-full object-cover p-2"
-                                    onerror="this.style.display='none';"
                                 />
                             </div>
                             

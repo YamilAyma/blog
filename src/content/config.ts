@@ -3,13 +3,13 @@ import { glob } from 'astro/loaders';
 
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
     published: z.boolean().default(true), // Control de publicación
     category: z.string().default('General'),
-    image: z.string().optional(),
+    image: image().optional(),
     tags: z.array(z.string()).optional(),
     layout: z.string().optional(),
   }),
@@ -45,11 +45,11 @@ const posts = defineCollection({
 
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
     description: z.string(),
-    image: z.string(),
-    imagenes: z.array(z.string()).optional(),
+    image: image(),
+    imagenes: z.array(z.union([image(), z.string().url()])).optional(), // Soporte para imágenes locales y remotas
     periodo: z.string(),
     tags: z.array(z.string()).optional(),
     features: z.array(z.string()).optional(),

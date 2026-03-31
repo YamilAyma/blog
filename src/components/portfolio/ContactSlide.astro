@@ -1,10 +1,7 @@
 ---
-/**
- * ContactSlide - Sección de contacto del portafolio.
- * Incluye: Título "Conectemos", descripción, botones de Email y WhatsApp,
- * Ilustración SVG placeholder y fondo decorativo.
- */
 import { SOCIALS } from "../../config";
+import { Image } from "astro:assets";
+import contactImg from "../../assets/images/portfolio/contact.png";
 
 const emailSocial = SOCIALS.find((s) => s.icon === "mail");
 const emailHref = emailSocial?.href || "mailto:yamilaymadev@gmail.com";
@@ -93,7 +90,7 @@ const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                         ></path>
                     </svg>
                     Enviar Correo
@@ -167,7 +164,7 @@ const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
             </div>
         </div>
 
-        <!-- Right Side: SVG Illustration Placeholder (Desktop) -->
+        <!-- Right Side: Contact Illustration -->
         <div
             class="flex justify-center order-1 md:order-2 opacity-0 scale-80"
             id="contact-visual"
@@ -175,11 +172,10 @@ const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
             <div
                 class="relative w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] md:w-[280px] md:h-[280px] lg:w-[400px] lg:h-[400px] flex items-center justify-center group"
             >
-                <img
-                    src="/images/portfolio/contact.png"
+                <Image
+                    src={contactImg}
                     alt="Ilustración de contacto"
                     class="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                 />
             </div>
         </div>

@@ -4,10 +4,12 @@
  * Diseño: Contenedor blanco redondeado con sombra, imagen cabecera,
  * título azul, fecha gris, descripción, badges tecnológicos y botón naranja.
  */
+import { Image } from "astro:assets";
+
 interface Props {
     title: string;
     description: string;
-    image: string;
+    image: any;
     periodo: string;
     tags?: string[];
     href: string;
@@ -24,11 +26,21 @@ const { title, description, image, periodo, tags, href } = Astro.props;
     <article class="project-card">
         <!-- Image Header -->
         <div class="project-card__image">
-            <img
-                src={image}
-                alt={title}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+            {
+                typeof image === "string" ? (
+                    <img
+                        src={image}
+                        alt={title}
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                ) : (
+                    <Image
+                        src={image}
+                        alt={title}
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                )
+            }
         </div>
 
         <!-- Content -->

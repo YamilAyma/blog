@@ -209,17 +209,21 @@ export const CATEGORY_THEMES: Record<string, string> = {
   'Tutorial': 'soft',
 };
 
+import iaSticker from '../assets/images/stickers/ia.png';
+import devSticker from '../assets/images/stickers/dev.png';
+import tutorialSticker from '../assets/images/stickers/tutorial.png';
+import generalSticker from '../assets/images/stickers/general.png';
+import defaultSticker from '../assets/images/stickers/default.png';
+
 /**
  * Mapeo de categorías a rutas de imágenes para el sticker.
- * Las imágenes deben estar en public/images/categories/
  */
-const baseStickerPath = '/images/stickers/';
-export const CATEGORY_IMAGES: Record<string, string> = {
-  'IA': baseStickerPath + 'ia.png',
-  'Dev': baseStickerPath + 'dev.png',
-  'Tutorial': baseStickerPath + 'tutorial.png',
-  'General': baseStickerPath + 'general.png',
-  'default': baseStickerPath + 'default.png',
+export const CATEGORY_IMAGES: Record<string, any> = {
+  'IA': iaSticker,
+  'Dev': devSticker,
+  'Tutorial': tutorialSticker,
+  'General': generalSticker,
+  'default': defaultSticker,
 };
 
 /**

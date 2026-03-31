@@ -4,6 +4,7 @@
  * Las rutas de imágenes se configuran en src/config/themes.ts
  */
 import { CATEGORY_IMAGES } from "../config/themes";
+import { Image } from "astro:assets";
 
 export interface Props {
     category: string;
@@ -16,10 +17,10 @@ const imageSrc = CATEGORY_IMAGES[category] || CATEGORY_IMAGES["default"];
 ---
 
 <div class="flex items-center">
-    <img
+    <Image
         src={imageSrc}
         alt={`Categoría: ${category}`}
-        class="sticker w-30 h-30 rounded-full object-cover shadow-sm border-2"
+        class="sticker w-[30px] h-[30px] rounded-full object-cover shadow-sm border-2"
         style="border-color: var(--color-accent);"
     />
 </div>

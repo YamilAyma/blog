@@ -3,6 +3,8 @@ import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { SITE } from "../../config";
 import ProjectCard from "../../components/portfolio/ProjectCard.astro";
+import { Image } from "astro:assets";
+import projectsHero from "../../assets/images/portfolio/projects-hero.png";
 
 const allProjects = await getCollection("projects");
 const projects = allProjects.sort(
@@ -39,11 +41,10 @@ const projects = allProjects.sort(
 
             <!-- Hero Illustration -->
             <div class="w-[240px] md:w-[320px] mx-auto mt-8">
-                <img
-                    src="/images/portfolio/projects-hero.png"
+                <Image
+                    src={projectsHero}
                     alt="Ilustración de proyectos"
                     class="w-full h-auto object-contain"
-                    onerror="this.parentElement.style.display='none';"
                 />
             </div>
         </div>
