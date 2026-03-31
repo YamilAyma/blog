@@ -2,7 +2,16 @@
 
 ![BlogView](https://i.imgur.com/nu6wh19.png)
 
-Blog personal construido con Astro 5, TailwindCSS v4 y MDX.
+Blog personal de alto rendimiento construido con **Astro 5**, **React 19**, **Tailwind CSS v4**, **MDX** y animaciones avanzadas con **GSAP**.
+
+## ✨ Características Principales
+
+- 🚀 **Performance Extremo**: Basado en Astro para una carga instantánea y mínima hidratación JS.
+- 🎨 **Diseño Moderno**: Interfaz premium con Tailwind CSS v4 y animaciones suaves con GSAP.
+- 📖 **Contenido en MDX**: Escribe con el poder de Markdown y la flexibilidad de componentes React.
+- 🛠️ **Gestión de Proyectos**: Portafolio dinámico con sistema de bitácora (diario de desarrollo).
+- 📰 **RSS Inteligente**: Feed automático para tus posts visuales.
+- 📅 **Deploy Programado**: Publicación automática de entradas futuras mediante GitHub Actions.
 
 ## Acceso
 
@@ -38,6 +47,8 @@ src/
 ├── content/
 │   ├── blog/       # Entradas del blog (.mdx)
 │   ├── posts/      # Posts visuales (.mdx)
+│   ├── journal/    # Bitácoras de proyectos (.mdx)
+│   ├── projects/   # Detalles de proyectos (.mdx)
 │   └── pages/      # Páginas estáticas (.mdx)
 ├── layouts/        # Layouts (Layout, BlogPost)
 ├── pages/          # Rutas del sitio
@@ -52,13 +63,20 @@ src/
 ```mdx
 ---
 image: /images/posts/mi-imagen.png
-date: 2026-02-10
-published: true  # false para ocultar
+imageAlt: 'Descripción técnica de la infografía'
+title: 'Titular SEO Impactante' # Opcional
+copy: 'Resumen de alto impacto para redes sociales' # Máx 300 caracteres
+date: 2026-03-31
+published: true # false para ocultar
+category: 'General'
 socials:
-  linkedin: https://linkedin.com/...
+  linkedin: https://linkedin.com/in/usuario
+  instagram: https://instagram.com/usuario
+  twitter: https://x.com/usuario
 ---
 
-Contenido del post con saltos de línea...
+Contenido del post ampliado aquí...
+Usar saltos de línea normales para que el RSS los procese correctamente.
 ```
 
 2. El post aparece en `/posts` si `published: true` y `date <= hoy`
@@ -95,6 +113,38 @@ Las páginas están en `src/content/pages/`:
 
 Edita `src/config/themes.ts` para modificar colores, fuentes y estilos.
 
+### Crear un nuevo proyecto
+
+1. Crear archivo en `src/content/projects/mi-proyecto.mdx`:
+
+```mdx
+---
+title: 'Nombre del Proyecto'
+description: 'Descripción corta del proyecto'
+image: '/images/portfolio/projects/mi-imagen.png'
+imagenes:
+  - '/images/portfolio/projects/foto-1.png'
+periodo: 'Enero 2024 - Presente'
+tags: ['React', 'Astro']
+features:
+  - 'Funcionalidad A'
+  - 'Funcionalidad B'
+tecnologias:
+  - 'https://img.shields.io/badge/Astro-BC52EE?logo=astro&logoColor=white'
+links:
+  - type: 'github'
+    url: 'https://github.com/...'
+  - type: 'demo'
+    url: 'https://demo.com'
+order: 1
+---
+
+## Descripción
+Contenido en Markdown...
+```
+
+2. El proyecto aparecerá en `/portafolio` y tendrá su propia URL en `/proyectos/mi-proyecto`.
+
 ### Configuración del sitio
 
 Edita `src/config.ts` para cambiar:
@@ -102,6 +152,28 @@ Edita `src/config.ts` para cambiar:
 - Descripción
 - Autor
 - Enlaces sociales
+
+
+### Crear una bitácora de proyecto
+
+1. Localizar el slug del proyecto en `src/content/projects/` (ej: `mi-proyecto.mdx` → slug: `mi-proyecto`).
+2. Crear archivo en `src/content/journal/mi-proyecto/mi-avance.mdx`:
+
+```mdx
+---
+title: 'Título del avance'
+description: 'Resumen corto'
+date: 2026-03-31
+project: 'mi-proyecto'
+published: true
+---
+
+# Mi progreso de hoy
+
+Contenido detallado con imágenes...
+```
+
+3. El avance aparecerá al final de la página del proyecto y en **"Entradas Recientes"** de la Home.
 
 ## Build
 
