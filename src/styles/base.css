@@ -78,6 +78,10 @@
   --site-background-image: none;
 }
 
+html {
+  font-size: 85%; /* Ajuste global: reduce todo el sitio proporcionalmente */
+}
+
 /* ========== ESTILOS BASE DEL BODY ========== */
 body {
   background-color: var(--color-background);
