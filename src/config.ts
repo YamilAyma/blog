@@ -3,8 +3,8 @@
  * Modifica estos valores para personalizar tu blog.
  */
 export const SITE = {
-  name: 'Inicio', // Nombre corto visual (Header)
-  title: 'Yamil Ayma — Desarrollo de Software y Blog Personal', // Título largo para SEO
+  name: 'Inicio',
+  title: 'Yamil Ayma — Desarrollo de Software y Blog Personal',
   description: 'Blog de Yamil Ayma: Tutoriales de desarrollo de software, proyectos de IA, automatización. Ideas y aprendizaje. Publicaciones',
   author: 'Yamil Ayma',
   imgProfile: 'https://avatars.githubusercontent.com/u/177412646?v=4',

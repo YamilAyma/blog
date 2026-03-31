@@ -75,7 +75,7 @@ export const THEMES: Theme[] = [
     type: 'light',
     colors: {
       background: '#FFFBEF',
-      text: '#4A403A',
+      text: '#694836ff',
       primary: '#F2D2BD',
       accent: '#FFB7B2',
       border: 'rgba(74, 64, 58, 0.1)',
@@ -102,7 +102,7 @@ export const THEMES: Theme[] = [
       h4: '#4A9A8F',
       h5: '#5AAA9F',
       h6: '#6ABAAF',
-      p: '#4A403A',
+      p: '#855f4aff',
       bold: '#3A94C5',
       italic: '#6A605A',
       a: '#DF69BA',
