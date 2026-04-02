@@ -65,7 +65,13 @@ const defaultThemeId = DEFAULT_THEME_ID;
         <link
             rel="alternate"
             type="application/rss+xml"
-            title={`${SITE.title} | Posts Visuales`}
+            title={`${SITE.author} | Blog & Bitácora`}
+            href={new URL("/blog/rss.xml", SITE.url)}
+        />
+        <link
+            rel="alternate"
+            type="application/rss+xml"
+            title={`${SITE.author} | Posts Visuales`}
             href={new URL("/posts/rss.xml", SITE.url)}
         />
 
