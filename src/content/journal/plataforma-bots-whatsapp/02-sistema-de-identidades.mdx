@@ -1,0 +1,67 @@
+---
+title: "El sistema de identidades"
+description: "Tenía como idea principal que cada bot tuviera su propia identidad, pero eso se complicaba mucho y decidí usar un solo número para todos los bots, lo que me llevó a crear un sistema de identidades dentro de la plataforma."
+date: 2026-04-04
+project: "plataforma-bots-whatsapp"
+published: true
+---
+
+![Captura de pantalla del sistema de identidades implementado, se ve el perfil de conejo y menos pestañas para la vista de Configuracion](https://i.imgur.com/nrPrDF3.png)
+
+Comenzar es complicado, no sabemos lo que vendrá luego y por ello me dediqué a tomarle atención al framework de [GSD](https://github.com/gsd-build/get-shit-done)
+
+Comprendí nuevos comandos e incluso, me animé con un plumón y puse hojas con notas en la pared del escritorio para recordar los comandos,
+sé que hay un comando para saltar a la siguiente fase pero este framework ya hace mucho por mí, debo tomar algo del pastel.
+
+Luego iniciamos la fase de discusión, tengo estimado lograr crecer con este proyecto, estoy animado y tengo muchas ideas por lo que 
+usar /gsd-note ha sido práctico para alguien acostumbrado a escribir en archivos de texto plano jaja.
+
+## Conociendo mejor los inquilinos
+
+Comenzar bajo esta nueva luz de GSD me abrió el panorama, fue mucho más claro y por lo tanto me sentí algo tonto no haber aprovechado
+las características que tiene y los creadores pensaron (¡en eso es excelente!).
+
+Comenzamos revisando el tema de persistencia, un bot debe recordar y muy bien, por lo que usaremos SQLite, ya no JSON o quizás como opción
+por defecto o para dar compatibilidad práctica (me acostumbré a usarlo jeje), para ello el ORM de [Prisma](https://www.prisma.io/) se encargará de tal responsabilidad.
+
+### Ideas de objetos y personalidades
+
+Teniendo elegido la tecnología, el siguiente paso era definir como se organizarán los datos y cuál será su naturaleza, esto lo tenía claro.
+Describirlo fue agradable porque me permitió resonar mejor lo que comprendía, para resumir, veo a los bots como si fueran tangibles,
+con personalidad(configuración de IA), historia(memoria) y demás, por decirlo, una persona como nosotros,  las personas gustan de llevar objetos
+o recuerdos de ellos que las hacen ser más interesantes como únicos.
+
+Asi que esta imagen ayuda a explicarlo mejor, alguien que viste con ese objeto significa que hace X cosas, entonces un bot, con tal
+objeto es más fácil de reconocer que tiene un perfil de buscador, protector o servicial.
+
+![Explicación del sistema de identidades en breve, se ve una interfaz de un bot con los objetos para agregar](https://i.imgur.com/xICawJL.png)
+
+---
+
+### Implementaciones con un conejo en la mano
+
+Anteriormente tuve una mala experiencia con Prisma debido al conocimiento que tenía que aprender, fue frustrante no lograr avanzar con una tecnología que
+no era lo adecuado para tal proyecto en aquel tiempo, por lo que no lo había usado desde el inicio de este proyecto, asimismo 
+comprendo que agregar más capas a un prototipo/MVP es contraproducente como fastidioso.
+
+Prisma se ganó este puesto ahora 😅. Pero aún así recomendé tener interfaces para soportar otros orígenes de datos en el futuro.
+
+Para continuar, acordamos en probar con la creación de un bot con el perfil de un Conejo (me agradan mucho los conejos, tenía que hacerlo :> )
+
+#### Prisma
+
+Algo que me encanta de los ORM es que te abstraen la base de datos, para lo que buscamos es un alivio, busco valor y delegación. 
+El concepto de migraciones lo ví en Codeigniter, al principio fue muy burocrático pero entiendo que sin historia, el error se repite.
+Prisma tiene eso, las migraciones no los errores.
+
+Y como toda tecnología que invitas, los cambios son como la luz, se reflejan en el código, en la estructura de datos y lo que teníamos funcionando.
+Gracias a las pruebas, estaremos seguros de encontrar los bugs listos para avanzar. Como dicen, avanzar bien es avanzar rápido.
+
+Tengo muchas cosas por contar pero eso aburriría si no son contadas correctamente, ¿lo hice?. Muy probablemente sí, he aprendido algo nuevo y espero continuar.
+
+## Conclusión
+
+- Ver que tu proyecto evoluciona rápidamente es agotador pero a la vez es muy satisfactorio.
+- Tener en cuenta y cuestionar las herramientas que usas es importante, y recuerda documentar la decisión.
+
+Si te gustó la idea de tener a un bot o construir y extender esto juntos, me puedes escribir para conversarlo, nos vemos 👋
