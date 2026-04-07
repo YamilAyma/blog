@@ -1,0 +1,38 @@
+---
+title: "Centralizar los recursos"
+description: "Tenemos una base de datos de recursos, pero no está centralizada, por lo que vamos a crear una biblioteca de recursos para que los bots puedan acceder a ellos."
+date: 2026-04-07
+project: "plataforma-bots-whatsapp"
+published: true
+---
+
+![Una captura de pantalla de la nueva biblioteca de recursos, ignorar los recursos jeje](https://i.imgur.com/X1muATZ.png)
+
+Viste en apps de edición de fotos como Canva o Figma que puedes guardar tus recursos en una biblioteca para poder utilizarlos en diferentes proyectos. Pues bien, en esta sesión logramos implementar esta funcionalidad en nuestra plataforma de bots de WhatsApp.
+
+Porque tenemos stickers que los bots pueden utilizar (en un futuro ellos podrán tener su propio catálogo de recursos) y comenzar con la organización general es el primer paso.
+
+De paso solucionamos el tema de la proactividad, debido a que estamos agregando comandos, capacidades agénticas
+y demás, esto se nos había escapado del contexto y se mantenía activo siempre. Haciendo que cada mensaje enviado sea procesado sin descanso.
+
+### Bugs
+
+Es común esto y a veces hasta divertido porque te ponen a prueba quien eres como desarrollador y tuve problemas con la calidad de código actualmente, bueno no tal como dice la palabra sino que había que preveer el vasto código que a futuro implementaremos asimismo
+estaríamos pasando al territorio de la escalabilidad y modularización.
+
+Esta última palabra es donde concentraré el trabajo puesto que la conexión entre módulos por ser muy planificada no significa que cubre todos los vacios que uno pueda ver.
+
+Noté que por ejemplo había configuraciones que dependían de nuestro formato anterior (JSON) y se reiniciaban las preferencias en cada levantamiento del servidor (nada favorable).
+
+### Modularización
+
+Al crecer uno debe desapegarse de lo que antes era y buscar novedades, el sistema por ahora trabaja en torno a servicios como si fuera un monolito (en realidad lo es) y por lo tanto hay que tener cuidado con las dependencias entre módulos.
+
+Ahora siento la necesidad de ir armando subsistemas para que trabajen entre sí por medio de interfaces flexibles, por ejemplo, esta parte de la biblioteca de recursos en un futuro tendrá una API pública para que otros sistema externos puedan acceder a ella (incluso MCPs),
+pero no lo tengo estimado ahora debido a que trae complejidad y no lo necesitamos.
+
+La idea viene de usar patrones de diseño, preferiblemente los de tipo comportamiento debido a que el sistema es muy activo y ya veo oportunidades para implementar un Chain of Responsibility (CoR), asociado al pipeline de recepción de mensajes por [whatsapp-web-js]().
+
+Quizás una fábrica para los comandos y herramientas para bots asimismo un Builder para la construcción de los prompts.
+
+Ah sí, debemos agregar un modo oscuro temporal, tenemos que cuidar al desarrollador 😎.
