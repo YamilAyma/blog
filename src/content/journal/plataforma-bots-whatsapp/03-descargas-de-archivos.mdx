@@ -1,0 +1,26 @@
+---
+title: "Obteniendo archivos por medio de WhatsApp (y agencia)"
+description: "Hoy vamos a lograr que los bots puedan recibir archivos por medio de WhatsApp, desde stickers, audios, imágenes y documentos, lo que nos permitirá tener una interacción más rica con los usuarios."
+date: 2026-04-06
+project: "plataforma-bots-whatsapp"
+published: true
+---
+
+Se desarrolló la funcionalidad de descarga de archivos por medio de WhatsApp, lo que nos permitirá tener una interacción más rica con los usuarios.
+
+Asimismo incluimos el soporte de Tool Calling para que los bots posean capacidades agénticas
+y puedan interactuar con sistemas externos, APIs y demás. Hemos abierto un mundo nuevo de posibilidades.
+
+### Tool Calling, bots con capacidades agénticas
+
+Cuando nos dan una instrucción, podemos tender a pensar en objetos, planes o verbos, los bots que estoy desarrollando junto con la IA necesitan decisión y retroalimentación para dar una respuesta enriquecida
+por ello, hemos extendido el JSON que recibe el modelo de IA para que pueda conocer las herramientas disponibles y enseñarle como debería utilizarlas, básicamente es pasarle la documentación de unas funciones.
+
+Hemos optimizado esto a 2 respuestas por parte de la IA, una para que elija que herramientas y argumentos utilizar, la segunda para que pueda tener el contexto y resultados anteriores para generar una respuesta adaptada al usuario (no queremos entregarle un JSON o mencionar que tuvo más pasos). Es orgánico.
+
+Sin embargo, destaco que llevar esta transición requirió de actualizar la forma de como entendemos las capacidades de cada objeto, y esto es interesante porque da señal a poder concentrarnos mejor en la 
+comunicación de opciones para el futuro administrador.
+
+### Conclusión
+
+Esta sesión no fue tan intensiva como la anterior y nos permitió avanzar en aspectos que considero importantes para el futuro de la plataforma.
