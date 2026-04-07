@@ -2,6 +2,7 @@
 import Layout from "./Layout.astro";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import ProjectJournal from "../components/ProjectJournal.astro";
+import { Image } from "astro:assets";
 
 /**
  * ProjectLayout.astro - Layout dedicado para páginas de proyectos.
@@ -13,8 +14,8 @@ export interface Props {
     frontmatter: {
         title: string;
         description: string;
-        image: string;
-        imagenes?: string[];
+        image: any;
+        imagenes?: any[];
         periodo: string;
         tags?: string[];
         features?: string[];
@@ -57,11 +58,19 @@ const images = frontmatter.imagenes?.length
                 {
                     images.map((img) => (
                         <div class="min-w-full h-full flex-shrink-0">
-                            <img
-                                src={img}
-                                alt={frontmatter.title}
-                                class="w-full h-full object-cover"
-                            />
+                            {typeof img === "string" ? (
+                                <img
+                                    src={img}
+                                    alt={frontmatter.title}
+                                    class="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <Image
+                                    src={img}
+                                    alt={frontmatter.title}
+                                    class="w-full h-full object-cover"
+                                />
+                            )}
                         </div>
                     ))
                 }
