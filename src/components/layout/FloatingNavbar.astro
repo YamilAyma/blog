@@ -5,7 +5,7 @@
  * Solo se muestra en páginas de blog posts.
  * Posición: centro inferior de la página.
  */
-import { SITE } from "../config";
+import { SITE } from "../../config";
 
 const navItems = [
     { href: "/portafolio", label: "Portafolio" },
@@ -146,7 +146,7 @@ const navItems = [
 </style>
 
 <script>
-    import { setThemePreference, getThemePreference } from "../utils/theme";
+    import { setThemePreference, getThemePreference } from "../../utils/theme";
 
     function initFloatingNavbar() {
         const floatingNav = document.getElementById("floating-navbar");

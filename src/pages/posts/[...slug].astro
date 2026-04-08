@@ -1,13 +1,13 @@
 ---
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
-import FloatingNavbar from "../../components/FloatingNavbar.astro";
+import FloatingNavbar from "../../components/layout/FloatingNavbar.astro";
 import { Image } from "astro:assets";
 import TLDR from "../../components/mdx/TLDR.astro";
 import FAQs from "../../components/mdx/FAQs.astro";
 import FAQItem from "../../components/mdx/FAQItem.astro";
 import MDXImage from "../../components/mdx/MDXImage.astro";
-import RelatedPosts from "../../components/RelatedPosts.astro";
+import RelatedPosts from "../../components/blog/RelatedPosts.astro";
 
 export async function getStaticPaths() {
     const posts = await getCollection("posts");

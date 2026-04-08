@@ -5,7 +5,7 @@ import { SITE } from "../../config";
 import ProjectCard from "../../components/portfolio/ProjectCard.astro";
 import { Image } from "astro:assets";
 import projectsHero from "../../assets/images/portfolio/projects-hero.png";
-import NavigationCards from "../../components/NavigationCards.astro";
+import NavigationCards from "../../components/portfolio/NavigationCards.astro";
 
 const allProjects = await getCollection("projects");
 const projects = allProjects.sort(

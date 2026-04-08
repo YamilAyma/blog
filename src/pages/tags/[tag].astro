@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import PostCard from "../../components/PostCard.astro";
-import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import PostCard from "../../components/blog/PostCard.astro";
+import Breadcrumbs from "../../components/layout/Breadcrumbs.astro";
 import { getSortedEntries } from "../../utils/collections";
 import { SITE } from "../../config";
 
@@ -55,16 +55,16 @@ const { entries } = Astro.props;
         ))}
     </div>
 
-    <div class="text-center bg-stone-50 dark:bg-stone-900/50 p-12 rounded-[3rem] border border-black/5 dark:border-white/5">
-        <h3 class="text-2xl font-bold font-heading mb-4">¿Buscas algo más?</h3>
+    <div class="rounded-[3rem] border border-black/5 dark:border-white/5">
+        <h3 class="text-2xl font-bold font-heading mb-4 text-primary"></h3>
         <p class="text-stone-400 mb-8 max-w-md mx-auto small">
             Explora otros temas o vuelve al archivo general para ver todas las publicaciones.
         </p>
         <div class="flex flex-wrap justify-center gap-4">
-            <a href="/tags" class="px-8 py-3 bg-white dark:bg-stone-800 rounded-2xl font-bold border border-black/5 dark:border-white/5 hover:shadow-lg transition-all">
+            <a href="/tags" class="px-8 py-3 bg-white rounded-2xl font-bold border border-black/5 dark:border-white/5 transition-all hover:shadow-lg transition-all text-md-h1">
                 Ver todas las etiquetas
             </a>
-            <a href="/blog" class="px-8 py-3 bg-primary text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all">
+            <a href="/blog" class="px-8 py-3 bg-md-h1 text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all">
                 Ir al Blog
             </a>
         </div>
