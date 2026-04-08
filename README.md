@@ -205,6 +205,15 @@ Crea una sección de acordeones interactivos. Los items se expanden verticalment
 </FAQs>
 ```
 
+### 💬 Quote / Cita / Opinión
+Ideal para destacar testimonios, referencias externas o pensamientos importantes con un diseño limpio. Soporta los alias `<Quote>`, `<Cita>` y `<Opinion>`.
+
+```mdx
+<Quote cite="Yamil Ayma" role="Desarrollador" url="https://github.com/yamilayma">
+  La modularización no es solo separar archivos, es definir cómo conversan las partes de un todo.
+</Quote>
+```
+
 ## Build
 
 ```bash
