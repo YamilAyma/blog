@@ -48,6 +48,20 @@ const pageTitle = title || (copy ? (copy.length > 60 ? copy.substring(0, 57) + "
                     <Content />
                 </div>
 
+                {
+                    post.data.tags && post.data.tags.length > 0 && (
+                        <div class="mb-8 flex flex-wrap gap-2">
+                            {post.data.tags.map(tag => (
+                                <a href={`/tags/${tag}`} class="no-underline">
+                                    <span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 rounded-md text-[10px] font-black  tracking-wider hover:bg-primary/20 hover:text-primary transition-colors">
+                                        #{tag}
+                                    </span>
+                                </a>
+                            ))}
+                        </div>
+                    )
+                }
+
                 <div
                     class="flex items-center justify-between pt-6 border-t"
                     style="border-color: var(--color-border);"

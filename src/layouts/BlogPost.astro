@@ -94,6 +94,21 @@ const postDate =
             <slot />
         </div>
 
+        {frontmatter.tags && frontmatter.tags.length > 0 && (
+            <div class="mt-12 pt-6 border-t border-black/5 dark:border-white/5">
+                <h3 class="text-xs font-black uppercase tracking-widest mb-4 opacity-50">Tags</h3>
+                <div class="flex flex-wrap gap-2">
+                    {frontmatter.tags.map(tag => (
+                        <a href={`/tags/${tag}`} class="no-underline">
+                            <span class="px-3 py-1 bg-stone-100 dark:bg-stone-800 rounded-full text-xs font-bold hover:bg-primary/20 hover:text-primary transition-colors">
+                                #{tag}
+                            </span>
+                        </a>
+                    ))}
+                </div>
+            </div>
+        )}
+
         <SocialShare
             title={frontmatter.title}
             url={new URL(Astro.url.pathname, Astro.site).toString()}

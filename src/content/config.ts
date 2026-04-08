@@ -33,6 +33,7 @@ const posts = defineCollection({
     date: z.coerce.date(),
     published: z.boolean().default(true), // Control de publicación
     category: z.string().default('General'), // Uso interno
+    tags: z.array(z.string()).optional(),
     socials: z.object({
       twitter: z.string().optional(),
       instagram: z.string().optional(),
@@ -71,6 +72,7 @@ const journal = defineCollection({
     date: z.coerce.date(),
     project: z.string(), // Slug del proyecto al que pertenece
     image: image().optional(),
+    tags: z.array(z.string()).optional(),
     published: z.boolean().default(true),
   }),
 });

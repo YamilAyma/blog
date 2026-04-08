@@ -1,0 +1,73 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import TagEntryCard from "../../components/TagEntryCard.astro";
+import { SITE } from "../../config";
+
+export async function getStaticPaths() {
+	const allBlog = await getCollection("blog");
+	const allProjects = await getCollection("projects");
+	const allPosts = await getCollection("posts");
+	const allJournal = await getCollection("journal");
+
+	const allEntries = [
+        ...allBlog.map(e => ({ ...e, collection: "blog" })),
+        ...allProjects.map(e => ({ ...e, collection: "projects" })),
+        ...allPosts.map(e => ({ ...e, collection: "posts" })),
+        ...allJournal.map(e => ({ ...e, collection: "journal" }))
+    ];
+
+	const uniqueTags = [...new Set(allEntries.flatMap(entry => (entry.data.tags || [])))];
+
+	return uniqueTags.map(tag => {
+		const filteredEntries = allEntries
+			.filter(entry => (entry.data.tags || []).includes(tag))
+			.sort((a, b) => {
+                const dateA = ('date' in a.data ? (a.data as any).date : new Date(0)) as Date;
+                const dateB = ('date' in b.data ? (b.data as any).date : new Date(0)) as Date;
+                return dateB.valueOf() - dateA.valueOf();
+            });
+
+		return {
+			params: { tag },
+			props: { tag, entries: filteredEntries }
+		};
+	});
+}
+
+const { tag, entries } = Astro.props;
+---
+
+<Layout 
+    title={`Etiqueta: ${tag} — ${SITE.author}`}
+    description={`Explora todo el contenido relacionado con la etiqueta ${tag} en el blog de ${SITE.author}.`}
+>
+    <div class="mb-12">
+        <div class="flex items-center gap-3 mb-4 opacity-50">
+            <a href="/portafolio" class="text-sm hover:underline">Portafolio</a>
+            <span class="text-xs">/</span>
+            <span class="text-sm">Etiquetas</span>
+        </div>
+        
+        <h1 class="text-4xl md:text-5xl font-black font-heading tracking-tighter leading-tight mb-4">
+            Contenido con: <span class="text-primary">#{tag}</span>
+        </h1>
+        <p class="text-stone-500 dark:text-stone-400 max-w-xl">
+            Se encontraron {entries.length} {entries.length === 1 ? 'entrada relacionada' : 'entradas relacionadas'} con esta etiqueta en todas las colecciones.
+        </p>
+    </div>
+
+    <!-- Grid de Resultados -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mb-16">
+        {entries.map(entry => (
+            <TagEntryCard entry={entry} collection={entry.collection as any} />
+        ))}
+    </div>
+
+    <!-- Botón de retorno -->
+    <div class="mt-8 border-t border-black/5 dark:border-white/10 pt-8 text-center">
+        <a href="javascript:history.back()" class="inline-flex items-center gap-2 text-sm font-bold opacity-60 hover:opacity-100 transition-opacity">
+            &larr; Volver atrás
+        </a>
+    </div>
+</Layout>
