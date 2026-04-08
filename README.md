@@ -10,6 +10,7 @@ Blog personal de alto rendimiento construido con **Astro 5**, **React 19**, **Ta
 - 🎨 **Diseño Moderno**: Interfaz premium con Tailwind CSS v4 y animaciones suaves con GSAP.
 - 📖 **Contenido en MDX**: Escribe con el poder de Markdown y la flexibilidad de componentes React.
 - 🛠️ **Gestión de Proyectos**: Portafolio dinámico con sistema de bitácora (diario de desarrollo).
+- 🏷️ **Sistema de Tags Universal**: Navegación y agrupación de contenido (blog, proyectos, posts, bitácoras) mediante etiquetas dinámicas.
 - 📰 **RSS Inteligente**: Feed automático para tus posts visuales.
 - 📅 **Deploy Programado**: Publicación automática de entradas futuras mediante GitHub Actions.
 
@@ -69,6 +70,7 @@ copy: 'Resumen de alto impacto para redes sociales' # Máx 300 caracteres
 date: 2026-03-31
 published: true # false para ocultar
 category: 'General'
+tags: ['IA', 'Automatización'] # Opcional
 socials:
   linkedin: https://linkedin.com/in/usuario
   instagram: https://instagram.com/usuario
@@ -165,6 +167,7 @@ title: 'Título del avance'
 description: 'Resumen corto'
 date: 2026-03-31
 project: 'mi-proyecto'
+tags: ['Tag1', 'Tag2'] # Opcional
 published: true
 ---
 
