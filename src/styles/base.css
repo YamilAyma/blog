@@ -94,7 +94,6 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Tipografía de encabezados globales */
 h1,
 h2,
 h3,
@@ -103,6 +102,30 @@ h5,
 h6,
 .font-heading {
   font-family: var(--font-heading) !important;
+  transition: text-shadow 0.3s ease, -webkit-text-stroke 0.3s ease;
+}
+
+/* Efecto Cute Headings (Contorno) */
+body.cute-headings-enabled h1,
+body.cute-headings-enabled h2,
+body.cute-headings-enabled h3,
+body.cute-headings-enabled h4,
+body.cute-headings-enabled h5,
+body.cute-headings-enabled h6,
+body.cute-headings-enabled .font-heading,
+body.cute-headings-enabled .prose h1,
+body.cute-headings-enabled .prose h2,
+body.cute-headings-enabled .prose h3,
+body.cute-headings-enabled .prose h4,
+body.cute-headings-enabled .prose h5,
+body.cute-headings-enabled .prose h6 {
+  -webkit-text-stroke: 0.7rem var(--heading-outline-color);
+  paint-order: stroke fill;
+  text-shadow: 
+    -1.5px -1.5px 0 var(--heading-outline-color),  
+     1.5px -1.5px 0 var(--heading-outline-color),
+    -1.5px  1.5px 0 var(--heading-outline-color),
+     1.5px  1.5px 0 var(--heading-outline-color);
 }
 
 /* ========== ESTILOS DE UI ========== */

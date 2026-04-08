@@ -86,7 +86,12 @@ const defaultThemeId = DEFAULT_THEME_ID;
         />
 
         <!-- Script de inicialización del tema (evita FOUC) -->
-        <script is:inline define:vars={{ themesJSON, defaultThemeId }}>
+        <script is:inline define:vars={{ 
+            themesJSON, 
+            defaultThemeId, 
+            cuteHeadings: SITE.cuteHeadings, 
+            headingOutlineColor: SITE.headingOutlineColor 
+        }}>
             const THEMES = JSON.parse(themesJSON);
 
             const pref =
@@ -140,6 +145,11 @@ const defaultThemeId = DEFAULT_THEME_ID;
                     theme.markdown.blockquoteBorder,
                 );
             }
+
+            // Aplicar configuración de Cute Headings
+            if (cuteHeadings) {
+                root.style.setProperty("--heading-outline-color", headingOutlineColor);
+            }
         </script>
 
         <!-- Google tag (gtag.js) -->
@@ -157,7 +167,13 @@ const defaultThemeId = DEFAULT_THEME_ID;
             gtag("config", "G-BS5GZL7KJF");
         </script>
     </head>
-    <body class="flex flex-col min-h-screen" data-category={category}>
+    <body 
+        class:list={[
+            "flex flex-col min-h-screen",
+            SITE.cuteHeadings && "cute-headings-enabled"
+        ]} 
+        data-category={category}
+    >
         <!-- El contenedor principal ahora envuelve Header + Grid para sincronizar alineación -->
         <div class:list={[
             "w-full px-6 py-4 mx-auto flex-grow",
