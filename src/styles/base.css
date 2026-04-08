@@ -127,18 +127,6 @@ h6,
   color: var(--ui-nav-link-hover);
 }
 
-/* ========== ESTILOS DE LISTADO DE POSTS ========== */
-
-/* TÃ­tulo de entrada de blog en listas */
-.blog-post-title {
-  color: var(--color-text);
-}
-
-/* Hover del enlace de entrada de blog */
-.blog-post-link:hover .blog-post-title {
-  color: var(--md-a-hover);
-}
-
 /* ========== ESTILOS DE CONTENIDO MARKDOWN (prose) ========== */
 
 /* Contenedor base de prosa */
@@ -375,7 +363,7 @@ h6,
   background: #2da44e;
   color: white;
 }
-/* --- Personalización de Scrollbars --- */
+/* --- Personalizaciï¿½n de Scrollbars --- */
 /* Firefox */
 * {
   scrollbar-width: thin;

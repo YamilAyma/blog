@@ -1,33 +1,18 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getCollection } from "astro:content";
 import PostCard from "../../components/PostCard.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { getSortedEntries } from "../../utils/collections";
 import { SITE } from "../../config";
 
 export async function getStaticPaths() {
-    const allBlog = await getCollection("blog");
-    const allProjects = await getCollection("projects");
-    const allPosts = await getCollection("posts");
-    const allJournal = await getCollection("journal");
-
-    const allEntries = [
-        ...allBlog.map(p => ({ ...p, type: 'blog' })),
-        ...allProjects.map(p => ({ ...p, type: 'projects' })),
-        ...allPosts.map(p => ({ ...p, type: 'posts' })),
-        ...allJournal.map(p => ({ ...p, type: 'journal' }))
-    ];
-
+    const allEntries = await getSortedEntries(["blog", "projects", "posts", "journal"]);
     const tags = [...new Set(allEntries.flatMap(entry => entry.data.tags || []))];
 
     return tags.map(tag => {
         const filteredEntries = allEntries.filter(entry => 
             entry.data.tags && entry.data.tags.includes(tag)
-        ).sort((a, b) => {
-            const dateA = a.data.date || a.data.pubDate || new Date(0);
-            const dateB = b.data.date || b.data.pubDate || new Date(0);
-            return new Date(dateB).getTime() - new Date(dateA).getTime();
-        });
+        );
 
         return {
             params: { tag },

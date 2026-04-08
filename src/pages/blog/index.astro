@@ -1,18 +1,10 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getCollection } from "astro:content";
-import CategorySticker from "../../components/CategorySticker.astro";
+import PostListItem from "../../components/PostListItem.astro";
+import { getSortedEntries } from "../../utils/collections";
 import { SITE } from "../../config";
 
-// Get all posts sorted by date
-const now = new Date();
-const posts = (await getCollection("blog"))
-    .filter((post) => {
-        if (!post.data.published) return false;
-        if (post.data.date > now) return false;
-        return true;
-    })
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = await getSortedEntries(["blog"]);
 ---
 
 <Layout
@@ -22,39 +14,10 @@ const posts = (await getCollection("blog"))
     <section class="max-w-3xl">
         <h1 class="text-3xl font-bold mb-10 font-heading">Archivo</h1>
 
-        <div class="space-y-6">
+        <div class="space-y-4">
             {
                 posts.map((post) => (
-                    <article class="sm:flex sm:items-baseline gap-6 group">
-                        <time
-                            datetime={post.data.date.toString()}
-                            class="text-sm font-mono w-32 flex-shrink-0 mb-1 sm:mb-0 block"
-                            style="color: var(--md-blockquote);"
-                        >
-                            {post.data.date.toLocaleDateString("es-ES", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                timeZone: "UTC",
-                            })}
-                        </time>
-                        <div>
-                            <a
-                                href={`/blog/${post.id.replace(/\.(md|mdx)$/, "")}`}
-                                class="blog-post-link block"
-                            >
-                                <h2 class="blog-post-title text-xl font-bold transition-colors">
-                                    {post.data.title}
-                                </h2>
-                            </a>
-                            <p
-                                class="text-sm mt-2 line-clamp-2"
-                                style="color: var(--md-p); opacity: 0.8;"
-                            >
-                                {post.data.description}
-                            </p>
-                        </div>
-                    </article>
+                    <PostListItem entry={post} showDescription={true} />
                 ))
             }
         </div>

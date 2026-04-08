@@ -1,21 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { getCollection } from "astro:content";
 import NavigationCards from "../components/NavigationCards.astro";
+import PostListItem from "../components/PostListItem.astro";
+import { getSortedEntries } from "../utils/collections";
 import { SITE } from "../config";
 
-const now = new Date();
-const blogPosts = await getCollection("blog");
-const journalEntries = (await getCollection("journal" as any)) as any[];
-
-const posts = [...blogPosts, ...journalEntries]
-	.filter((post) => {
-		if (!post.data?.published) return false;
-		if (post.data?.date > now) return false;
-		return true;
-	})
-	.sort((a, b) => (b.data?.date?.valueOf() || 0) - (a.data?.date?.valueOf() || 0))
-	.slice(0, 5);
+const posts = await getSortedEntries(["blog", "journal"], 5);
 ---
 
 <Layout title={SITE.title} showSidebar={true}>
@@ -56,44 +46,13 @@ const posts = [...blogPosts, ...journalEntries]
 			>
 		</div>
 
-		<ul class="space-y-4">
+		<div class="space-y-2">
 			{
-				posts.map((post) => {
-					const isJournal = "project" in post.data;
-					const href = isJournal 
-						? `/proyectos/${post.data.project}/diario/${post.id.split('/').pop()?.replace(/\.(md|mdx)$/, "")}`
-						: `/blog/${post.id.replace(/\.(md|mdx)$/, "")}`;
-					
-					return (
-						<li>
-							<a
-								href={href}
-								class="blog-post-link group flex flex-col md:flex-row md:items-baseline md:justify-between py-3 px-4 -mx-4 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300"
-							>
-								<div class="flex flex-col gap-1">
-									<span class="blog-post-title text-lg font-bold transition-colors">
-										{post.data.title}
-									</span>
-									{isJournal && (
-										<span class="text-[10px] font-black uppercase tracking-widest text-primary/60">
-											Bitácora de Proyecto
-										</span>
-									)}
-								</div>
-								<span class="text-xs md:text-sm text-stone-400 font-mono whitespace-nowrap md:ml-4 mt-2 md:mt-0">
-									{post.data.date.toLocaleDateString("es-ES", {
-										year: "numeric",
-										month: "short",
-										day: "numeric",
-										timeZone: "UTC",
-									})}
-								</span>
-							</a>
-						</li>
-					);
-				})
+				posts.map((post) => (
+					<PostListItem entry={post} />
+				))
 			}
-		</ul>
+		</div>
 	</section>
 
 	<!-- Navegación solo visible en Mobile/Tablet al final para priorizar contenido -->

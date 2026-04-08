@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
-import { Image } from "astro:assets";
+import OptimizedImage from "../OptimizedImage.astro";
+import { getEntryUrl } from "../../utils/content";
 import projectBg from "../../assets/images/portfolio/project-bg.png";
 
 const allProjects = await getCollection("projects");
@@ -58,7 +59,7 @@ const projects = allProjects.sort((a, b) => (a.data.order || 0) - (b.data.order 
                         >
                             <!-- Project Image -->
                             <div class="project-card-image w-full aspect-video rounded-[1.5rem] bg-stone-100 mb-6 flex items-center justify-center relative overflow-hidden group-hover:bg-stone-200 transition-colors border border-text/5">
-                                <Image 
+                                <OptimizedImage 
                                     src={project.data.image} 
                                     alt={project.data.title}
                                     class="absolute inset-0 w-full h-full object-cover p-2"
@@ -71,7 +72,7 @@ const projects = allProjects.sort((a, b) => (a.data.order || 0) - (b.data.order 
                             </p>
                             
                             <a 
-                                href={`/proyectos/${project.id.replace(/\.(md|mdx)$/, "")}`}
+                                href={getEntryUrl(project)}
                                 class="px-6 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-300 hover:brightness-110 shadow-md active:scale-95 whitespace-nowrap inline-block no-underline"
                                 style="background-color: var(--ui-nav-link); color: white;"
                             >

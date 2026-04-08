@@ -26,16 +26,19 @@ export function getEntryUrl(entry: any): string {
     baseUrl = "/posts/";
   } else if (collection === "journal") {
     const projectRef = entry.data.project;
-    // Handle both string reference and object reference (if populated)
     const projectSlug = typeof projectRef === 'string' 
         ? projectRef.replace(/\.(md|mdx)$/, "") 
         : projectRef.id.replace(/\.(md|mdx)$/, "");
     baseUrl = `/proyectos/${projectSlug}/diario/`;
-  } else if (collection === "projects") {
-    baseUrl = "/proyectos/";
+    
+    // If the entry ID starts with the projectSlug folder, remove it to avoid duplication in the final URL
+    const idPath = entry.id.replace(/\.(md|mdx)$/, "");
+    const relativeSlug = idPath.startsWith(`${projectSlug}/`) 
+        ? idPath.substring(projectSlug.length + 1) 
+        : idPath;
+        
+    return `${baseUrl}${relativeSlug}`;
   }
-  
-  return `${baseUrl}${slug}`;
 }
 
 /**

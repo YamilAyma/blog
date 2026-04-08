@@ -1,0 +1,77 @@
+---
+import { getEntryUrl, formatDate } from "../utils/content";
+
+interface Props {
+  entry: any;
+  showDescription?: boolean;
+}
+
+const { entry, showDescription = false } = Astro.props;
+const href = getEntryUrl(entry);
+const isJournal = entry.collection === "journal";
+---
+
+<a
+  href={href}
+  class="post-list-item group flex flex-col sm:flex-row sm:items-baseline sm:justify-between py-4 px-4 rounded-2xl hover:bg-primary/[0.03] dark:hover:bg-primary/[0.05] transition-all duration-300 no-underline"
+>
+  <div class="flex flex-col gap-1.5 max-w-2xl">
+    <div class="flex items-center gap-3">
+        <span class=" text-lg font-bold transition-colors leading-tight group-hover:text-md-a-hover">
+          {entry.data.title}
+        </span>
+        {isJournal && (
+          <span class="px-2 py-0.5 bg-primary/10 text-primary rounded-[5px] text-[8px] font-black uppercase tracking-widest whitespace-nowrap">
+            Bitácora
+          </span>
+        )}
+    </div>
+    
+    {showDescription && entry.data.description && (
+      <p class="text-sm text-stone-500 dark:text-stone-400 line-clamp-1 m-0 font-medium opacity-80 group-hover:opacity-100 transition-opacity">
+        {entry.data.description}
+      </p>
+    )}
+  </div>
+
+  <div class="flex items-center gap-2 mt-2 sm:mt-0 sm:ml-6 flex-shrink-0">
+    <time 
+      datetime={new Date(entry.data.date).toISOString()} 
+      class="text-xs font-mono text-stone-400 dark:text-stone-500 whitespace-nowrap tracking-wider"
+    >
+      {formatDate(entry.data.date)}
+    </time>
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transform translate-x-1 group-hover:translate-x-0 transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14m-7-7 7 7-7 7"/>
+    </svg>
+  </div>
+</a>
+
+<style>
+    .post-list-item {
+        /* No border for a cleaner look */
+        position: relative;
+    }
+    
+    .post-list-item:hover .post-list-title {
+        color: var(--color-primary);
+    }
+
+    /* Subtle indicator on hover instead of a full border */
+    .post-list-item::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        transform: translateY(-50%) scaleY(0);
+        width: 4px;
+        height: 16px;
+        background-color: var(--color-primary);
+        border-radius: 99px;
+        transition: transform 0.3s ease;
+    }
+
+    .post-list-item:hover::before {
+        transform: translateY(-50%) scaleY(1);
+    }
+</style>
