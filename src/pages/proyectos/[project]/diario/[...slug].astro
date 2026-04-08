@@ -55,9 +55,21 @@ const projectData = allProjects.find(p => p.id.replace(/\.(md|mdx)$/, "") === pr
                 {entry.data.title}
             </h1>
             {entry.data.description && (
-                <p class="text-xl text-text/60 font-medium leading-relaxed">
+                <p class="text-xl text-text/60 font-medium leading-relaxed mb-6">
                     {entry.data.description}
                 </p>
+            )}
+
+            {entry.data.tags && entry.data.tags.length > 0 && (
+                <div class="flex flex-wrap gap-2 mb-8">
+                    {entry.data.tags.map(tag => (
+                        <a href={`/tags/${tag}`} class="no-underline">
+                            <span class="px-3 py-1 bg-primary/5 dark:bg-white/5 border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 transition-colors">
+                                #{tag}
+                            </span>
+                        </a>
+                    ))}
+                </div>
             )}
         </header>
 
@@ -74,18 +86,6 @@ const projectData = allProjects.find(p => p.id.replace(/\.(md|mdx)$/, "") === pr
         <div class="prose prose-lg dark:prose-invert max-w-none prose-headings:font-heading prose-p:font-body journal-prose">
             <Content />
         </div>
-
-        {entry.data.tags && entry.data.tags.length > 0 && (
-            <div class="mt-16 flex flex-wrap gap-2 pt-8 border-t border-border/30">
-                {entry.data.tags.map(tag => (
-                    <a href={`/tags/${tag}`} class="no-underline">
-                        <span class="px-3 py-1 bg-primary/5 dark:bg-white/5 border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 transition-colors">
-                            #{tag}
-                        </span>
-                    </a>
-                ))}
-            </div>
-        )}
 
         <footer class="mt-10 pt-10 border-t border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div class="flex items-center gap-4">

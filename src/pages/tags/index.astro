@@ -1,0 +1,79 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { SITE } from "../../config";
+
+const allBlog = await getCollection("blog");
+const allProjects = await getCollection("projects");
+const allPosts = await getCollection("posts");
+const allJournal = await getCollection("journal");
+
+const allEntries = [
+    ...allBlog,
+    ...allProjects,
+    ...allPosts,
+    ...allJournal
+];
+
+// Contar frecuencias de tags
+const tagCounts = allEntries.reduce((acc, entry) => {
+    const tags = entry.data.tags || [];
+    tags.forEach(tag => {
+        acc[tag] = (acc[tag] || 0) + 1;
+    });
+    return acc;
+}, {} as Record<string, number>);
+
+const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]);
+---
+
+<Layout 
+    title={`Archivo de Etiquetas — ${SITE.author}`}
+    description="Explora todo mi contenido filtrado por etiquetas: tecnología, procesos, IA y más."
+>
+    <div class="mb-16">
+        <h1 class="text-4xl md:text-6xl font-black font-heading tracking-tighter leading-tight mb-6">
+            Explora por <span class="text-primary">Especialidad</span>
+        </h1>
+        <p class="text-lg text-stone-500 dark:text-stone-400 max-w-2xl leading-relaxed">
+            Navega a través de mi bitácora digital utilizando etiquetas. He clasificado mis proyectos, 
+            artículos y bitácoras para que encuentres exactamente lo que te interesa.
+        </p>
+    </div>
+
+    <!-- Tags Cloud / Flexbox -->
+    <div class="flex flex-wrap gap-4 mb-20 bg-background dark:bg-black p-8 rounded-[2.5rem] border border-black/5 dark:border-black/5">
+        {sortedTags.map(tag => (
+            <a 
+                href={`/tags/${tag}`} 
+                class="group relative flex items-center gap-3 px-6 py-3 bg-white dark:bg-stone-800 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 border border-black/5 dark:border-black/5 no-underline"
+            >
+                <!-- Badge con degradado -->
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-background/10 transition-opacity rounded-2xl"></div>
+                {/* Color llamativo del markdown que no cambia por color */}
+                <span class="relative text-base font-bold text-md-h1 transition-colors italic">
+                    #{tag}
+                </span>
+                
+                <span class="relative text-[10px] font-black bg-stone-100 dark:bg-stone-700 px-2 py-0.5 rounded-full opacity-50 opacity-100 text-primary transition-all">
+                    {tagCounts[tag]}
+                </span>
+            </a>
+        ))}
+    </div>
+
+    <!-- Sección de categorías sugeridas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="space-y-4">
+            <h3 class="text-xs font-black uppercase tracking-widest opacity-50">Nota</h3>
+            <p class="text-sm text-stone-400">
+                Las etiquetas con mayor frecuencia representan áreas de enfoque actual. 
+            </p>
+        </div>
+        <div class="flex items-center justify-end">
+             <a href="/blog" class="text-sm font-bold opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2">
+                Ver todos los artículos &rarr;
+            </a>
+        </div>
+    </div>
+</Layout>

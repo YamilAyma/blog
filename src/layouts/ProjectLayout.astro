@@ -118,6 +118,18 @@ const images = frontmatter.imagenes?.length
                 >
                     {frontmatter.periodo}
                 </div>
+
+                {frontmatter.tags && frontmatter.tags.length > 0 && (
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        {frontmatter.tags.map(tag => (
+                            <a href={`/tags/${tag}`} class="no-underline">
+                                <span class="px-2 py-0.5 bg-primary/5 dark:bg-primary/20 rounded-md text-[10px] font-black tracking-wider text-primary hover:bg-primary/10 transition-colors uppercase">
+                                    #{tag}
+                                </span>
+                            </a>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <!-- Links -->
@@ -200,18 +212,10 @@ const images = frontmatter.imagenes?.length
             </div>
         </div>
 
-        <!-- Tags Pills -->
-        {
-            frontmatter.tags?.length && (
-                <div class="flex flex-wrap gap-2 mb-8">
-                    {frontmatter.tags.map((tag) => (
-                        <a href={`/tags/${tag}`} class="project-tag-link">
-                            <span class="project-tag">#{tag}</span>
-                        </a>
-                    ))}
-                </div>
-            )
-        }
+        <p
+            class="text-lg md:text-xl text-stone-600 dark:text-stone-400 mb-12"
+            set:html={frontmatter.description}
+        />
 
         <!-- Features Checklist -->
         {

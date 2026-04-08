@@ -27,6 +27,3 @@ pnpm-debug.log*
 
 # todo
 todo.txt
-
-# gemini-cli local config
-.gemini/
