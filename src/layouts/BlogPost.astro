@@ -6,6 +6,9 @@ import FloatingNavbar from "../components/FloatingNavbar.astro";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import TableOfContents from "../components/TableOfContents.astro";
 import SocialShare from "../components/SocialShare.astro";
+import RelatedPosts from "../components/RelatedPosts.astro";
+import AuthorBadge from "../components/AuthorBadge.astro";
+import { SITE } from "../config";
 
 export interface Props {
     frontmatter: {
@@ -15,12 +18,14 @@ export interface Props {
         category: string;
         image?: any;
         imageAlt?: string;
+        tags?: string[];
     };
     headings?: any[];
     content?: string;
+    id?: string;
 }
 
-const { frontmatter, headings = [], content = "" } = Astro.props;
+const { frontmatter, headings = [], content = "", id = "" } = Astro.props;
 
 // Calcular tiempo de lectura (promedio de 200 palabras por minuto)
 const words = content.split(/\s+/).length;
@@ -42,6 +47,11 @@ const postDate =
 >
     <FloatingNavbar />
 
+    <!-- Sticker Flotante -->
+    <div class="fixed bottom-8 right-8 z-50 pointer-events-none md:pointer-events-auto hover:scale-110 transition-transform duration-300">
+        <CategorySticker category={frontmatter.category} />
+    </div>
+
     <article
         class="prose prose-lg dark:prose-invert max-w-none prose-headings:font-heading prose-p:font-body"
     >
@@ -52,29 +62,42 @@ const postDate =
             ]}
         />
 
-        <div class="mb-10 border-b border-black/5 dark:border-white/5 pb-8">
-            <CategorySticker category={frontmatter.category} />
-            <h1 class="mb-4 text-4xl md:text-5xl font-bold">
+        <div class="mb-10 text-center md:text-left">
+            <h1 class="mb-6 text-4xl md:text-6xl font-black leading-tight tracking-tighter">
                 {frontmatter.title}
             </h1>
-            <div class="text-stone-500 dark:text-stone-400 text-sm font-mono">
-                <time datetime={postDate.toISOString()}>
-                    {
-                        postDate.toLocaleDateString("es-ES", {
-                            dateStyle: "long",
-                            timeZone: "UTC",
-                        })
-                    }
-                </time>
-                <span class="mx-2">•</span>
-                <span>{readingTime} min de lectura</span>
+
+            <!-- Sección Copy -->
+            <p class="text-md md:text-lg text-stone-600 dark:text-stone-300 font-medium leading-relaxed mb-10 italic opacity-90">
+                {frontmatter.description}
+            </p>
+
+            <!-- Bloque de Autor y Metadata Superior -->
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-8">
+                <AuthorBadge label="Autor" />
+
+                <div class="flex items-center gap-4 text-stone-500 dark:text-stone-400 text-xs font-bold tracking-widest">
+                    <div class="flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                        <time datetime={postDate.toISOString()}>
+                            {postDate.toLocaleDateString("es-ES", { dateStyle: "medium" })}
+                        </time>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>{readingTime} min lectura</span>
+                    </div>
+                </div>
             </div>
 
+            <!-- ToC Desplegable debajo de Metadata -->
+            <TableOfContents headings={headings} />
+
             {frontmatter.tags && frontmatter.tags.length > 0 && (
-                <div class="mt-4 flex flex-wrap gap-2">
+                <div class="mt-6 flex flex-wrap gap-2 justify-center md:justify-start">
                     {frontmatter.tags.map(tag => (
                         <a href={`/tags/${tag}`} class="no-underline">
-                            <span class="px-2 py-0.5 bg-primary/5 dark:bg-primary/20 rounded-md text-[10px] font-black tracking-wider text-primary hover:bg-primary/10 transition-colors uppercase">
+                            <span class="px-3 py-1 bg-primary/10 dark:bg-primary/20 rounded-full text-[11px] font-black tracking-widest text-primary hover:bg-primary/20 transition-all border border-primary/20">
                                 #{tag}
                             </span>
                         </a>
@@ -89,26 +112,67 @@ const postDate =
                     <img
                         src={frontmatter.image}
                         alt={frontmatter.title}
-                        class="w-full h-auto rounded-3xl shadow-lg mb-8"
+                        class="w-full h-auto rounded-[2.5rem] shadow-2xl mb-12 border border-black/5 dark:border-white/5"
                     />
                 ) : (
-                    <Image
-                        src={frontmatter.image}
-                        alt={frontmatter.imageAlt || frontmatter.title}
-                        class="w-full h-auto rounded-3xl shadow-lg mb-8"
-                    />
+                    <div class="rounded-[2.5rem] overflow-hidden shadow-2xl mb-12 border border-black/5 dark:border-white/5">
+                        <Image
+                            src={frontmatter.image}
+                            alt={frontmatter.imageAlt || frontmatter.title}
+                            class="w-full h-auto m-0"
+                        />
+                    </div>
                 ))
         }
 
-        <TableOfContents headings={headings} />
-
-        <div class="mt-8">
+        <div class="mt-8 entry-content">
             <slot />
         </div>
 
-        <SocialShare
-            title={frontmatter.title}
-            url={new URL(Astro.url.pathname, Astro.site).toString()}
-        />
+        <div class="mt-20">
+            <SocialShare
+                title={frontmatter.title}
+                url={new URL(Astro.url.pathname, Astro.site).toString()}
+            />
+        </div>
+
+        <!-- Publicaciones Relacionadas -->
+        <RelatedPosts currentTags={frontmatter.tags} currentId={id} />
     </article>
 </Layout>
+
+<style is:global>
+    /* Estilos para las tablas en el contenido */
+    .entry-content table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 2rem 0;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    .dark .entry-content table {
+        border-color: rgba(255,255,255,0.05);
+    }
+    .entry-content th {
+        background: rgba(0,0,0,0.02);
+        padding: 1rem;
+        text-align: left;
+        font-family: var(--font-heading);
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+    }
+    .dark .entry-content th {
+        background: rgba(255,255,255,0.02);
+    }
+    .entry-content td {
+        padding: 1rem;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    .dark .entry-content td {
+        border-color: rgba(255,255,255,0.05);
+    }
+</style>

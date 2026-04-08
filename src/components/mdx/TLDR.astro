@@ -1,0 +1,37 @@
+---
+interface Props {
+  title?: string;
+  points?: string[];
+}
+
+const { title = "Puntos Clave", points = [] } = Astro.props;
+---
+
+<div class="tldr-card my-10 p-6 rounded-[2rem] border-2 border-primary/20 bg-primary/5 dark:bg-primary/10 relative overflow-hidden group animate-in fade-in duration-700">
+  <!-- Efecto de fondo sutil -->
+  <div class="absolute -top-12 -right-12 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+  
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-primary/20 rounded-xl text-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+      </svg>
+    </div>
+    <h3 class="text-lg font-bold tracking-widest my-0 text-primary">{title}</h3>
+  </div>
+
+  <div class="tldr-content text-stone-600 dark:text-stone-300 font-medium italic">
+    {points.length > 0 ? (
+      <ul class="space-y-3 list-none">
+        {points.map((point) => (
+          <li class="flex items-start gap-3">
+            <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary/50 flex-shrink-0"></span>
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <slot />
+    )}
+  </div>
+</div>

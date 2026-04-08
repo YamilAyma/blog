@@ -1,6 +1,10 @@
 ---
 import { getCollection, render } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
+import TLDR from "../../components/mdx/TLDR.astro";
+import FAQs from "../../components/mdx/FAQs.astro";
+import FAQItem from "../../components/mdx/FAQItem.astro";
+import MDXImage from "../../components/mdx/MDXImage.astro";
 
 export async function getStaticPaths() {
     const posts = await getCollection("blog");
@@ -14,8 +18,15 @@ const { post } = Astro.props;
 const rendered = await render(post);
 const { Content } = rendered;
 const headings = rendered.headings;
+
+const components = {
+    TLDR,
+    FAQs,
+    FAQItem,
+    img: MDXImage,
+};
 ---
 
-<BlogPost frontmatter={post.data} headings={headings} content={post.body}>
-    <Content />
+<BlogPost frontmatter={post.data} headings={headings} content={post.body} id={post.id}>
+    <Content components={components} />
 </BlogPost>

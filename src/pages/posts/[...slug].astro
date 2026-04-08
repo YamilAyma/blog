@@ -3,27 +3,39 @@ import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import FloatingNavbar from "../../components/FloatingNavbar.astro";
 import { Image } from "astro:assets";
+import TLDR from "../../components/mdx/TLDR.astro";
+import FAQs from "../../components/mdx/FAQs.astro";
+import FAQItem from "../../components/mdx/FAQItem.astro";
+import MDXImage from "../../components/mdx/MDXImage.astro";
+import RelatedPosts from "../../components/RelatedPosts.astro";
 
 export async function getStaticPaths() {
-// ... (omitting unchanged lines for brevity or just replacing the whole block if needed)
     const posts = await getCollection("posts");
     return posts.map((post) => ({
-        params: { slug: post.id.replace(/\.(md|mdx)$/, "") },
+        params: { slug: post.slug || post.id.replace(/\.(md|mdx)$/, "") },
         props: { post },
     }));
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const rendered = await render(post);
+const { Content } = rendered;
 const { image, title, copy, date, category, imageAlt } = post.data;
 
 // Usar el cuerpo del MDX como descripción SEO, o copy como respaldo
 const description = post.body?.trim() || copy || "Post visual del blog de Yamil Ayma";
 // Usar title como titular principal, fallback a copy
 const pageTitle = title || (copy ? (copy.length > 60 ? copy.substring(0, 57) + "..." : copy) : "Post Visual");
+
+const components = {
+    TLDR,
+    FAQs,
+    FAQItem,
+    img: MDXImage,
+};
 ---
 
-<Layout title={`${pageTitle} | ${category}`} description={description} image={image.src}>
+<Layout title={`${pageTitle} | ${category}`} description={description} image={typeof image === 'string' ? image : image.src}>
     <FloatingNavbar />
 
     <article class="max-w-2xl mx-auto pt-10 px-4">
@@ -36,7 +48,7 @@ const pageTitle = title || (copy ? (copy.length > 60 ? copy.substring(0, 57) + "
                 <div class="mb-8 flex flex-wrap gap-2">
                     {post.data.tags.map(tag => (
                         <a href={`/tags/${tag}`} class="no-underline">
-                            <span class="px-2 py-0.5 bg-primary/5 dark:bg-primary/20 rounded-md text-[10px] font-black tracking-wider text-primary hover:bg-primary/10 transition-colors uppercase">
+                            <span class="px-2 py-0.5 bg-primary/10 dark:bg-primary/20 rounded-full text-[10px] font-black tracking-wider text-primary hover:bg-primary/30 transition-all uppercase border border-primary/20">
                                 #{tag}
                             </span>
                         </a>
@@ -50,29 +62,81 @@ const pageTitle = title || (copy ? (copy.length > 60 ? copy.substring(0, 57) + "
             style="background-color: var(--color-background); border-color: var(--color-border);"
         >
             <div class="aspect-square w-full">
-                <Image
-                    src={image}
-                    alt={imageAlt || ""}
-                    class="w-full h-full object-contain"
-                    style="background-color: rgba(var(--color-primary-rgb, 0,0,0), 0.05);"
-                />
+                {typeof image === 'string' ? (
+                    <img
+                        src={image}
+                        alt={imageAlt || ""}
+                        class="w-full h-full object-contain"
+                        style="background-color: rgba(var(--color-primary-rgb, 0,0,0), 0.05);"
+                    />
+                ) : (
+                    <Image
+                        src={image}
+                        alt={imageAlt || ""}
+                        class="w-full h-full object-contain"
+                        style="background-color: rgba(var(--color-primary-rgb, 0,0,0), 0.05);"
+                    />
+                )}
             </div>
 
             <div class="p-8">
                 <div
-                    class="prose max-w-none mb-6 whitespace-pre-line"
+                    class="prose max-w-none mb-6 whitespace-pre-line entry-content"
                     style="color: var(--color-text); font-family: var(--font-body);"
                 >
-                    <Content />
+                    <Content components={components} />
                 </div>
+            </div>
+        </div>
 
-        <div class="mt-8 text-center">
+        {/* Publicaciones Relacionadas */}
+        <div class="mt-12 border-t border-black/5 dark:border-white/5 pt-12">
+            <RelatedPosts currentTags={post.data.tags} currentId={post.id} />
+        </div>
+
+        <div class="mt-16 text-center border-t border-black/5 dark:border-white/5 pt-8">
             <a
                 href="/posts"
-                class="text-stone-500 hover:underline inline-flex items-center gap-2"
+                class="text-stone-500 hover:text-primary transition-colors inline-flex items-center gap-2 font-bold tracking-widest text-xs"
             >
-                &larr; Volver a todos los posts
+                &larr; Volver a Galería de Posts
             </a>
         </div>
     </article>
 </Layout>
+
+<style is:global>
+    /* Estilos para las tablas en el contenido visual */
+    .entry-content table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 2rem 0;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    .dark .entry-content table {
+        border-color: rgba(255,255,255,0.05);
+    }
+    .entry-content th {
+        background: rgba(0,0,0,0.02);
+        padding: 1rem;
+        text-align: left;
+        font-family: var(--font-heading);
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+    }
+    .dark .entry-content th {
+        background: rgba(255,255,255,0.02);
+    }
+    .entry-content td {
+        padding: 1rem;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    .dark .entry-content td {
+        border-color: rgba(255,255,255,0.05);
+    }
+</style>

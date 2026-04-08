@@ -1,0 +1,37 @@
+---
+import { Image } from "astro:assets";
+
+interface Props {
+  src: string | any;
+  alt: string;
+  [key: string]: any;
+}
+
+const { src, alt, ...props } = Astro.props;
+const isExternal = typeof src === 'string' && (src.startsWith('http') || src.startsWith('//'));
+---
+
+<figure class="my-10 group">
+  <div class="rounded-3xl overflow-hidden shadow-xl">
+    {isExternal ? (
+      <img 
+        src={src} 
+        alt={alt} 
+        {...props} 
+        class="w-full h-auto block transition-transform duration-700 group-hover:scale-[1.02]" 
+      />
+    ) : (
+      <Image 
+        src={src} 
+        alt={alt} 
+        {...props} 
+        class="w-full h-auto block transition-transform duration-700 group-hover:scale-[1.02]" 
+      />
+    )}
+  </div>
+  {alt && (
+    <figcaption class="mt-4 text-center text-sm italic text-stone-500 dark:text-stone-400 font-medium px-4">
+      {alt}
+    </figcaption>
+  )}
+</figure>

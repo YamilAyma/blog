@@ -1,0 +1,41 @@
+---
+interface Props {
+  question: string;
+  open?: boolean;
+}
+
+const { question, open = false } = Astro.props;
+---
+
+<details class="faq-item group border-b border-black/5 dark:border-white/5 last:border-0" open={open}>
+  <summary class="flex items-center justify-between py-6 cursor-pointer list-none transition-all">
+    <h4 class="text-lg font-bold m-0 leading-tight pr-8">{question}</h4>
+    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center group-open:rotate-180 transition-transform duration-300">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    </div>
+  </summary>
+  <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out max-h-0 group-open:max-h-[1000px]">
+    <div class="pb-6 prose-sm dark:prose-invert opacity-80">
+      <slot />
+    </div>
+  </div>
+</details>
+
+<style>
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  /* Animación suave de apertura */
+  .faq-content {
+    visibility: hidden;
+    opacity: 0;
+  }
+  
+  .group[open] .faq-content {
+    visibility: visible;
+    opacity: 1;
+  }
+</style>

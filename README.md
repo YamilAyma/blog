@@ -178,6 +178,33 @@ Contenido detallado con imágenes...
 
 3. El avance aparecerá al final de la página del proyecto y en **"Entradas Recientes"** de la Home.
 
+## 🧩 Componentes Especiales (MDX)
+
+Puedes usar estos componentes enriquecidos en cualquier archivo `.mdx` (blog, diario, posts) para mejorar la legibilidad.
+
+### 💡 TLDR (Resumen Rápido)
+Ideal para dar un resumen ejecutivo al inicio de un post largo. Incluye una animación de entrada suave.
+
+```mdx
+<TLDR>
+  Aquí va el resumen rápido de lo que el lector aprenderá o los puntos clave del artículo.
+</TLDR>
+```
+
+### ❓ FAQs (Preguntas Frecuentes)
+Crea una sección de acordeones interactivos. Los items se expanden verticalmente con una transición suave.
+
+```mdx
+<FAQs>
+  <FAQItem question="¿Qué es este proyecto?">
+    Es un sistema de gestión de contenido estático optimizado para velocidad.
+  </FAQItem>
+  <FAQItem question="¿Cómo puedo contribuir?">
+    Haciendo un fork del repositorio y enviando un Pull Request.
+  </FAQItem>
+</FAQs>
+```
+
 ## Build
 
 ```bash

@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+import PostCard from './PostCard.astro';
+
+interface Props {
+    currentTags?: string[];
+    currentId: string;
+}
+
+const { currentTags = [], currentId } = Astro.props;
+
+// Obtener todos los contenidos de blog y posts
+const allBlog = await getCollection('blog');
+const allPosts = await getCollection('posts');
+
+// Unificar contenidos
+const allContent = [...allBlog, ...allPosts];
+
+// Filtrar para encontrar los que comparten tags, excluyendo el actual
+const related = allContent
+    .filter(item => item.id !== currentId)
+    .filter(item => {
+        // Asegurarse de que el post tenga título e imagen para no mostrar cards vacíos
+        const hasData = item.data.title && (item.data.image || typeof item.data.image === 'string');
+        if (!hasData) return false;
+        
+        if (!item.data.tags || !currentTags) return false;
+        return item.data.tags.some(tag => currentTags.includes(tag));
+    })
+    // Ordenar por relevancia (cuántos tags coinciden) o fecha
+    .sort((a, b) => {
+        const aMatches = a.data.tags?.filter(t => currentTags.includes(t)).length || 0;
+        const bMatches = b.data.tags?.filter(t => currentTags.includes(t)).length || 0;
+        if (aMatches !== bMatches) return bMatches - aMatches;
+        return (b.data.date?.valueOf() || 0) - (a.data.date?.valueOf() || 0);
+    })
+    .slice(0, 4);
+---
+
+{related.length > 0 && (
+    <section class="related-posts mt-20 pt-10 border-t border-black/5 dark:border-white/5">
+        <h2 class="text-3xl font-black font-heading mb-8">Publicaciones Relacionadas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {related.map((item) => (
+                <PostCard 
+                    post={item} 
+                    variant="small" 
+                    postId={`related-${item.id.replace(/[^a-zA-Z0-9]/g, '-')}`}
+                />
+            ))}
+        </div>
+    </section>
+)}
+
+<style>
+    .related-posts {
+        width: 100%;
+    }
+</style>

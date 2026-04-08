@@ -16,26 +16,60 @@ const filteredHeadings = headings.filter((h) => h.depth > 1 && h.depth < 4);
 
 {
     filteredHeadings.length > 0 && (
-        <nav class="toc mb-10 p-6 bg-transparent rounded-2xl border border-black/10 dark:border-white/10">
-            <h2
-                class="text-sm font-bold uppercase tracking-wider mb-4 font-heading"
-                style="color: var(--color-text); opacity: 0.6;"
+        <nav class="toc-collapsible mb-8 border border-black/5 dark:border-white/5 bg-stone dark:bg-stone-900/30 rounded-2xl overflow-hidden transition-all duration-300">
+            <button 
+                id="toc-toggle"
+                class="w-full flex items-center justify-between px-6 py-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                aria-expanded="false"
+                aria-controls="toc-list"
             >
-                Contenido
-            </h2>
-            <ul class="space-y-2">
-                {filteredHeadings.map((h) => (
-                    <li class={h.depth === 3 ? "ml-4" : ""}>
-                        <a
-                            href={`#${h.slug}`}
-                            class="underline hover:opacity-80 transition-opacity"
-                            style="color: var(--color-text);"
-                        >
-                            {h.text}
-                        </a>
-                    </li>
-                ))}
-            </ul>
+                <div class="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" x2="20" y1="12" y2="12"></line>
+                        <line x1="4" x2="20" y1="6" y2="6"></line>
+                        <line x1="4" x2="20" y1="18" y2="18"></line>
+                    </svg>
+                    <span class="text-sm font-black uppercase tracking-widest font-heading opacity-80 group-hover:opacity-100 transition-opacity">Contenido</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-300 transform group-aria-expanded:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+            
+            <div id="toc-list" class="hidden px-6 pb-6 pt-0 border-t border-black/5 dark:border-white/5 animate-in slide-in-from-top-2 duration-200">
+                <ul class="space-y-3 pt-4">
+                    {filteredHeadings.map((h) => (
+                        <li class={h.depth === 3 ? "ml-5" : ""}>
+                            <a
+                                href={`#${h.slug}`}
+                                class="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2 group/item"
+                            >
+                                <span class="w-1 h-1 rounded-full bg-stone-300 dark:bg-stone-700 group-hover/item:bg-primary transition-colors"></span>
+                                {h.text}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </nav>
     )
 }
+
+<script>
+    function setupToC() {
+        const toggle = document.getElementById('toc-toggle');
+        const list = document.getElementById('toc-list');
+        
+        if (toggle && list) {
+            toggle.addEventListener('click', () => {
+                const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', (!isExpanded).toString());
+                list.classList.toggle('hidden');
+            });
+        }
+    }
+
+    // Inicializar
+    setupToC();
+    document.addEventListener('astro:page-load', setupToC);
+</script>

@@ -111,34 +111,41 @@ const projects = allProjects.sort((a, b) => (a.data.order || 0) - (b.data.order 
 </section>
 
 <script>
-    const carousel = document.getElementById("projects-carousel");
-    const prevBtn = document.getElementById("carousel-prev");
-    const nextBtn = document.getElementById("carousel-next");
+    function initProjectsCarousel() {
+        const carousel = document.getElementById("projects-carousel");
+        const prevBtn = document.getElementById("carousel-prev");
+        const nextBtn = document.getElementById("carousel-next");
 
-    if (carousel && prevBtn && nextBtn) {
-        const scrollAmount = 340; // card width + gap
+        if (carousel && prevBtn && nextBtn) {
+            const scrollAmount = 340; // card width + gap
 
-        prevBtn.addEventListener("click", () => {
-            carousel.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-        });
+            prevBtn.addEventListener("click", () => {
+                carousel.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+            });
 
-        nextBtn.addEventListener("click", () => {
-            carousel.scrollBy({ left: scrollAmount, behavior: "smooth" });
-        });
+            nextBtn.addEventListener("click", () => {
+                carousel.scrollBy({ left: scrollAmount, behavior: "smooth" });
+            });
 
-        // Update arrow visibility based on scroll position
-        function updateArrows() {
-            const atStart = carousel!.scrollLeft <= 10;
-            const atEnd = carousel!.scrollLeft + carousel!.clientWidth >= carousel!.scrollWidth - 10;
-            prevBtn!.style.opacity = atStart ? "0.3" : "1";
-            prevBtn!.style.pointerEvents = atStart ? "none" : "auto";
-            nextBtn!.style.opacity = atEnd ? "0.3" : "1";
-            nextBtn!.style.pointerEvents = atEnd ? "none" : "auto";
+            // Update arrow visibility based on scroll position
+            function updateArrows() {
+                if (!carousel || !prevBtn || !nextBtn) return;
+                const atStart = carousel.scrollLeft <= 10;
+                const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
+                prevBtn.style.opacity = atStart ? "0.3" : "1";
+                prevBtn.style.pointerEvents = atStart ? "none" : "auto";
+                nextBtn.style.opacity = atEnd ? "0.3" : "1";
+                nextBtn.style.pointerEvents = atEnd ? "none" : "auto";
+            }
+
+            carousel.addEventListener("scroll", updateArrows);
+            updateArrows();
         }
-
-        carousel.addEventListener("scroll", updateArrows);
-        updateArrows();
     }
+
+    // Initialize on first load and on navigation
+    initProjectsCarousel();
+    document.addEventListener("astro:page-load", initProjectsCarousel);
 </script>
 
 <style>
