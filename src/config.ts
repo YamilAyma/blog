@@ -11,8 +11,8 @@ export const SITE = {
   url: 'https://yamilayma.github.io',
   repo: 'https://github.com/yamilayma/blog',
   celebration: true, // Activa la animación de confeti al visitar el sitio por primera vez cada día
-  cuteHeadings: true, // Activa un borde/contorno en los titulares para un estilo más cute
-  headingOutlineColor: '#ffffff', // Color del borde de los titulares
+  cuteHeadings: true, // Activa un borde/contorno en los titulares para un estilo más esponjoso
+  headingOutlineColor: '#ffffffff', // Color del borde de los titulares
 };
 
 /**

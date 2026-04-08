@@ -74,7 +74,7 @@ const components = {
         />
 
         <header class="mt-10 mb-12 text-center md:text-left">
-            <h1 class="text-4xl md:text-5xl font-black font-heading tracking-tight mb-6 leading-tight">
+            <h1 class="text-4xl md:text-5xl font-black font-heading tracking-tight mb-6 leading-tight text-primary">
                 {entry.data.title}
             </h1>
             
@@ -125,8 +125,7 @@ const components = {
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-bold tracking-widest opacity-40">Volver al proyecto</p>
-                    <a href={`/proyectos/${project}`} class="text-lg font-bold font-heading hover:text-primary transition-colors">
+                    <a href={`/proyectos/${project}`} class="text-md font-bold font-heading text-primary transition-colors">
                         {projectData?.data.title || project}
                     </a>
                 </div>

@@ -119,7 +119,7 @@ body.cute-headings-enabled .prose h3,
 body.cute-headings-enabled .prose h4,
 body.cute-headings-enabled .prose h5,
 body.cute-headings-enabled .prose h6 {
-  -webkit-text-stroke: 0.7rem var(--heading-outline-color);
+  -webkit-text-stroke: 1rem var(--heading-outline-color);
   paint-order: stroke fill;
   text-shadow: 
     -1.5px -1.5px 0 var(--heading-outline-color),  

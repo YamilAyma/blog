@@ -13,17 +13,17 @@ interface Props {
 
 <nav aria-label="Breadcrumb" class="mb-4">
     <ol
-        class="flex flex-wrap items-center gap-2 text-sm font-bold"
+        class="flex flex-wrap items-center gap-2 text-sm font-bold list-none p-0 m-0"
         style="color: var(--color-text);"
     >
-        <li>
+        <li class="flex items-center gap-2 list-none">
             <a href="/" class="underline hover:opacity-80 transition-opacity"
                 >Inicio</a
             >
         </li>
         {
             items.map((item, index) => (
-                <li class="flex items-center gap-2">
+                <li class="flex items-center gap-2 list-none">
                     <span class="opacity-40">/</span>
                     {item.href ? (
                         <a

@@ -43,7 +43,12 @@ const navItems = [
         />
         <title>{title}</title>
 
-        <script is:inline define:vars={{ themesJSON, defaultThemeId }}>
+        <script is:inline define:vars={{ 
+            themesJSON, 
+            defaultThemeId,
+            cuteHeadings: SITE.cuteHeadings,
+            headingOutlineColor: SITE.headingOutlineColor
+        }}>
             const THEMES = JSON.parse(themesJSON);
             const pref =
                 localStorage.getItem("blog-theme-preference") || "auto";
@@ -122,10 +127,18 @@ const navItems = [
                     );
                 }
             }
+
+            // Aplicar configuración de Cute Headings
+            if (cuteHeadings) {
+                root.style.setProperty("--heading-outline-color", headingOutlineColor);
+            }
         </script>
     </head>
     <body
-        class="bg-background text-text selection:bg-primary/30 overflow-hidden min-h-screen"
+        class:list={[
+            "bg-background text-text selection:bg-primary/30 overflow-hidden min-h-screen",
+            SITE.cuteHeadings && "cute-headings-enabled"
+        ]}
     >
         <!-- Header (Desktop) -->
         <header
