@@ -8,6 +8,12 @@ import ReadingTime from "../../../../components/ReadingTime.astro";
 import TagBadge from "../../../../components/TagBadge.astro";
 import OptimizedImage from "../../../../components/OptimizedImage.astro";
 
+// Componentes especiales
+import TLDR from "../../../../components/mdx/TLDR.astro";
+import FAQs from "../../../../components/mdx/FAQs.astro";
+import FAQItem from "../../../../components/mdx/FAQItem.astro";
+import MDXImage from "../../../../components/mdx/MDXImage.astro";
+
 export async function getStaticPaths() {
     const journalEntries = await getCollection("journal");
 
@@ -43,6 +49,13 @@ const { Content, headings } = await render(entry);
 // Obtener datos del proyecto para los breadcrumbs
 const allProjects = await getCollection("projects");
 const projectData = allProjects.find(p => p.id.replace(/\.(md|mdx)$/, "") === project);
+
+const components = {
+    TLDR,
+    FAQs,
+    FAQItem,
+    img: MDXImage,
+};
 ---
 
 <Layout 
@@ -101,7 +114,7 @@ const projectData = allProjects.find(p => p.id.replace(/\.(md|mdx)$/, "") === pr
         )}
 
         <div class="prose prose-lg dark:prose-invert max-w-none prose-headings:font-heading prose-p:font-body journal-prose entry-content">
-            <Content />
+            <Content components={components} />
         </div>
 
         <footer class="mt-10 pt-10 border-t border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
