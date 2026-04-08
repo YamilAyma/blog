@@ -38,7 +38,11 @@ export function getEntryUrl(entry: any): string {
         : idPath;
         
     return `${baseUrl}${relativeSlug}`;
+  } else if (collection === "projects") {
+    baseUrl = "/proyectos/";
   }
+  
+  return `${baseUrl}${slug}`;
 }
 
 /**
