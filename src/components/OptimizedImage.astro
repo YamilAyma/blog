@@ -1,0 +1,39 @@
+---
+import { Image } from "astro:assets";
+
+interface Props {
+  src: any;
+  alt: string;
+  class?: string;
+  loading?: "lazy" | "eager";
+  width?: number;
+  height?: number;
+}
+
+const { src, alt, class: className, loading = "lazy", ...rest } = Astro.props;
+
+// Determine if src is a string or an ESM-imported image/processed image
+const isStringSrc = typeof src === "string";
+---
+
+{
+  src ? (
+    isStringSrc ? (
+      <img
+        src={src}
+        alt={alt}
+        class={className}
+        loading={loading}
+        {...rest}
+      />
+    ) : (
+      <Image
+        src={src}
+        alt={alt}
+        class={className}
+        loading={loading}
+        {...rest}
+      />
+    )
+  ) : null
+}

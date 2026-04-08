@@ -1,0 +1,28 @@
+---
+import { calculateReadingTime } from "../utils/content";
+
+interface Props {
+  content: string;
+  className?: string;
+}
+
+const { content, className = "text-stone-500 dark:text-stone-400 text-xs font-bold tracking-widest" } = Astro.props;
+const readingTime = calculateReadingTime(content);
+---
+
+<div class:list={["flex items-center gap-1.5", className]}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="w-4 h-4 opacity-50"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <circle cx="12" cy="12" r="10"></circle>
+    <polyline points="12 6 12 12 16 14"></polyline>
+  </svg>
+  <span>{readingTime} min lectura</span>
+</div>

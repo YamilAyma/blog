@@ -2,7 +2,9 @@
 import Layout from "./Layout.astro";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import ProjectJournal from "../components/ProjectJournal.astro";
-import { Image } from "astro:assets";
+import OptimizedImage from "../components/OptimizedImage.astro";
+import TagBadge from "../components/TagBadge.astro";
+import AuthorBadge from "../components/AuthorBadge.astro";
 
 /**
  * ProjectLayout.astro - Layout dedicado para páginas de proyectos.
@@ -58,19 +60,11 @@ const images = frontmatter.imagenes?.length
                 {
                     images.map((img) => (
                         <div class="min-w-full h-full flex-shrink-0">
-                            {typeof img === "string" ? (
-                                <img
-                                    src={img}
-                                    alt={frontmatter.title}
-                                    class="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <Image
-                                    src={img}
-                                    alt={frontmatter.title}
-                                    class="w-full h-full object-cover"
-                                />
-                            )}
+                            <OptimizedImage
+                                src={img}
+                                alt={frontmatter.title}
+                                class="w-full h-full object-cover"
+                            />
                         </div>
                     ))
                 }
@@ -127,11 +121,7 @@ const images = frontmatter.imagenes?.length
                 {frontmatter.tags && frontmatter.tags.length > 0 && (
                     <div class="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
                         {frontmatter.tags.map(tag => (
-                            <a href={`/tags/${tag}`} class="no-underline">
-                                <span class="px-3 py-1 bg-primary/5 dark:bg-primary/20 border border-primary/20 rounded-full text-[10px] font-black tracking-wider text-primary hover:bg-primary/10 transition-colors uppercase">
-                                    #{tag}
-                                </span>
-                            </a>
+                            <TagBadge tag={tag} href={`/tags/${tag}`} />
                         ))}
                     </div>
                 )}

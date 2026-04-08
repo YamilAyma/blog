@@ -1,6 +1,7 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import { Image } from "astro:assets";
+import { getEntryUrl } from "../utils/content";
+import OptimizedImage from "./OptimizedImage.astro";
+import TagBadge from "./TagBadge.astro";
 
 interface Props {
     post: any; // Usamos any para permitir múltiples colecciones
@@ -10,23 +11,7 @@ interface Props {
 
 const { post, variant = "small" } = Astro.props;
 
-// Determinar la URL base según la colección
-const collection = post.collection;
-let baseUrl = "/blog/";
-if (collection === "posts") baseUrl = "/posts/";
-if (collection === "journal") {
-    // Para journal, necesitamos el proyecto asociado
-    const projectRef = post.data.project;
-    const projectSlug = typeof projectRef === 'string' 
-        ? projectRef.replace(/\.(md|mdx)$/, "") 
-        : projectRef.id.replace(/\.(md|mdx)$/, "");
-    baseUrl = `/proyectos/${projectSlug}/diario/`;
-}
-
-// Usar el slug de Astro o el ID relativo completo (preservando subfolders como 'automatizacion/')
-const slug = post.slug || post.id.replace(/\.(md|mdx)$/, "");
-const href = `${baseUrl}${slug}`;
-
+const href = getEntryUrl(post);
 const image = post.data.image;
 const imageAlt = post.data.title;
 const textContent = post.data.description || post.data.copy || "";
@@ -46,20 +31,11 @@ const truncatedCopy =
     <div class="flex flex-col h-full">
         {image && (
             <div class="relative aspect-video overflow-hidden border-b border-black/5 dark:border-white/5">
-                {typeof image === "string" ? (
-                    <img
-                        src={image}
-                        alt={imageAlt || ""}
-                        class="w-full h-full object-cover transition-transform duration-500"
-                        loading="lazy"
-                    />
-                ) : (
-                    <Image 
-                        src={image} 
-                        alt={imageAlt || ""} 
-                        class="w-full h-full object-cover transition-transform duration-500" 
-                    />
-                )}
+                <OptimizedImage 
+                    src={image} 
+                    alt={imageAlt || ""} 
+                    class="w-full h-full object-cover transition-transform duration-500" 
+                />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
             </div>
         )}
@@ -79,9 +55,7 @@ const truncatedCopy =
                 {post.data.tags && post.data.tags.length > 0 && (
                     <div class="flex flex-wrap gap-1.5">
                         {post.data.tags.slice(0, 2).map((tag: string) => (
-                            <span class="px-2 py-0.5 bg-primary/10 text-primary rounded text-[9px] font-bold uppercase tracking-wider">
-                                #{tag}
-                            </span>
+                            <TagBadge tag={tag} size="xs" />
                         ))}
                     </div>
                 )}

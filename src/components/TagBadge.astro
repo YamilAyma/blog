@@ -1,0 +1,34 @@
+---
+interface Props {
+  tag: string;
+  size?: "xs" | "sm";
+  href?: string;
+}
+
+const { tag, size = "sm", href } = Astro.props;
+
+const sizeStyles = {
+  xs: "px-2 py-0.5 text-[9px]",
+  sm: "px-3 py-1 text-[10px] md:text-[11px]",
+};
+
+const tagClass = [
+  "bg-primary/10 dark:bg-primary/20 border border-primary/20 rounded-full font-black tracking-widest text-primary uppercase transition-all duration-300",
+  sizeStyles[size],
+  href ? "hover:bg-primary/20 dark:hover:bg-primary/30" : ""
+].filter(Boolean).join(" ");
+---
+
+{
+  href ? (
+    <a href={href} class="no-underline block h-full">
+      <span class={tagClass}>
+        #{tag}
+      </span>
+    </a>
+  ) : (
+    <span class={tagClass}>
+      #{tag}
+    </span>
+  )
+}
