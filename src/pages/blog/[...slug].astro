@@ -6,6 +6,7 @@ import FAQs from "../../components/mdx/FAQs.astro";
 import FAQItem from "../../components/mdx/FAQItem.astro";
 import MDXImage from "../../components/mdx/MDXImage.astro";
 import Quote from "../../components/mdx/Quote.astro";
+import References from "../../components/mdx/References.astro";
 
 export async function getStaticPaths() {
     const posts = await getCollection("blog");
@@ -28,6 +29,7 @@ const components = {
     Cita: Quote,
     Opinion: Quote,
     img: MDXImage,
+    References,
 };
 ---
 

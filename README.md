@@ -214,6 +214,25 @@ Ideal para destacar testimonios, referencias externas o pensamientos importantes
 </Quote>
 ```
 
+### 📚 References
+Ideal para listar fuentes bibliográficas, materiales de estudio o enlaces de interés con un estilo académico y profesional. Usa el tag `<References />`.
+
+```mdx
+<References 
+  title="Fuentes Consultadas"
+  references={[
+    { 
+      text: "Doe, J. R. (2023). Understanding Minimalist Tech: A Gentle Introduction. Ayma Press.", 
+      link: "https://example.com/tech-intro" 
+    },
+    { 
+      text: "Smith, A. L. (2022). 'Designing for Accessibility'. Journal of Soft Technology.", 
+      link: "https://doi.org/10.1000/j.st.2022" 
+    }
+  ]} 
+/>
+```
+
 ## Build
 
 ```bash

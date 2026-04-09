@@ -1,0 +1,106 @@
+---
+/**
+ * References.astro - Componente para mostrar recursos y referencias académicas.
+ * Diseño: Card suave con numeración circular e ilustraciones.
+ */
+import { Image } from "astro:assets";
+import readingImg from "../../assets/images/illustrations/reading.png";
+
+export interface Props {
+    title?: string;
+    description?: string;
+    references: {
+        text: string;
+        link?: string;
+    }[];
+}
+
+const { 
+    title = "Recursos y Referencias", 
+    description = "Una lista curada de fuentes y materiales educativos referenciados en esta entrada.",
+    references = [] 
+} = Astro.props;
+---
+
+{references.length > 0 && (
+    <section class="references-card my-16 p-8 md:p-10 rounded-[2.5rem] border border-black/5 dark:border-white/5 relative overflow-hidden group transition-all duration-500 hover:shadow-xl hover:shadow-primary/5">
+        <!-- Background Decoration -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50 z-0"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row gap-10">
+            <!-- Content -->
+            <div class="flex-1">
+                <header class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black font-heading tracking-tight" style="color: var(--md-h1);">{title}</h2>
+                    </div>
+                </header>
+
+                <p class="text-sm md:text-md text-text/70 mb-10 leading-relaxed font-body">
+                    {description}
+                </p>
+
+                <ul class="space-y-6 list-none p-0 m-0">
+                    {references.map((ref, index) => (
+                        <li class="reference-item flex gap-5">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-primary/30 flex items-center justify-center text-primary text-xs font-black mt-1 ring-4 ring-primary/5">
+                                {index + 1}
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm md:text-base italic leading-relaxed text-text/90 m-0 citation-text">
+                                    {ref.text}
+                                </p>
+                                {ref.link && (
+                                    <a 
+                                        href={ref.link} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        class="inline-block mt-2 text-xs md:text-sm font-bold tracking-tight hover:underline transition-all"
+                                        style="color: var(--ui-nav-link);"
+                                    >
+                                        {ref.link}
+                                    </a>
+                                )}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            <!-- Illustration (Visible on Tablet/Desktop) -->
+            <div class="hidden md:flex items-center justify-center w-56 lg:w-72">
+                <div class="relative w-full aspect-square rounded-[3rem] p-4 group-hover:translate-y-[-5px] transition-transform duration-700">
+                    <Image 
+                        src={readingImg} 
+                        alt="Persona leyendo" 
+                        class="w-full h-full object-contain filter drop-shadow-2xl"
+                    />
+                </div>
+            </div>
+        </div>
+    </section>
+)}
+
+<style>
+    .references-card {
+        background-color: var(--color-background);
+    }
+    
+    :global(.dark) .references-card {
+        background-color: rgba(28, 25, 23, 0.4);
+    }
+
+    .citation-text {
+        font-family: inherit;
+        text-wrap: pretty;
+    }
+
+    .reference-item:hover .flex-shrink-0 {
+        box-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.3);
+    }
+</style>
