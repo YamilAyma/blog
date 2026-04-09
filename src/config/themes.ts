@@ -227,6 +227,18 @@ export const CATEGORY_IMAGES: Record<string, any> = {
 };
 
 /**
+ * Descripciones breves para cada categoría para mostrar en el popover.
+ */
+export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  'IA': 'Inteligencia Artificial y Automatización',
+  'Dev': 'Desarrollo de Software y Frontend',
+  'Tutorial': 'Guías paso a paso y tutoriales',
+  'General': 'Contenido variado y notas rápidas',
+  'Personal': 'Reflexiones y experiencias personales',
+  'default': 'Bitácora Digital',
+};
+
+/**
  * Ruta por defecto para el fondo personalizado del sitio (usada sólo
  * si ningún tema provee una imagen).
  * El valor se mantiene para compatibilidad, pero ahora cada tema

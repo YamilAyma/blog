@@ -3,7 +3,7 @@
  * CategorySticker - Muestra una imagen circular pequeña según la categoría del post.
  * Las rutas de imágenes se configuran en src/config/themes.ts
  */
-import { CATEGORY_IMAGES } from "../../config/themes";
+import { CATEGORY_IMAGES, CATEGORY_DESCRIPTIONS } from "../../config/themes";
 import { Image } from "astro:assets";
 
 export interface Props {
@@ -12,15 +12,37 @@ export interface Props {
 
 const { category } = Astro.props;
 
-// Obtener la imagen de la categoría o usar la por defecto
+// Obtener la imagen y descripción de la categoría
 const imageSrc = CATEGORY_IMAGES[category] || CATEGORY_IMAGES["default"];
+const description = CATEGORY_DESCRIPTIONS[category] || CATEGORY_DESCRIPTIONS["default"];
 ---
 
-<div class="flex items-center">
+<div class="category-sticker-group relative flex items-center group touch-none" tabindex="0">
+    <!-- Popover Bubble (Desktop Only) -->
+    <div 
+        class="absolute right-full mr-4 px-4 py-2 bg-white dark:bg-stone-800 border border-black/10 dark:border-white/10 rounded-2xl shadow-xl opacity-0 translate-x-4 scale-95 pointer-events-none transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 group-hover:scale-100 group-focus:opacity-100 group-focus:translate-x-0 group-focus:scale-100  z-50 whitespace-nowrap"
+    >
+        <span class="text-xs font-bold font-heading" style="color: var(--md-h1);">{description}</span>
+        <!-- Triangle pointer -->
+        <div class="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white dark:bg-stone-800 border-r border-t border-black/10 dark:border-white/10 rotate-45"></div>
+    </div>
+
+    <!-- Sticker Image -->
     <Image
         src={imageSrc}
         alt={`Categoría: ${category}`}
-        class="sticker w-1/6 h-1/6 rounded-full object-cover shadow-md border-[3px]"
+        class="sticker w-1/6 h-1/6 rounded-full object-cover shadow-md border-[3px] transition-transform duration-300 group-hover:scale-110 group-focus:scale-110"
         style="border-color: var(--color-accent);"
     />
 </div>
+
+<style>
+    .category-sticker-group {
+        outline: none;
+    }
+    
+    /* Efecto de pulso suave al estar activo */
+    .category-sticker-group:focus .sticker {
+        box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.2);
+    }
+</style>
