@@ -52,5 +52,8 @@ export function getEntryUrl(entry: any): string {
  */
 export function formatDate(date: Date | string): string {
   const d = date instanceof Date ? date : new Date(date);
-  return d.toLocaleDateString("es-ES", { dateStyle: "medium" });
+  return d.toLocaleDateString("es-ES", { 
+    dateStyle: "medium",
+    timeZone: "UTC"
+  });
 }

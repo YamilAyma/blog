@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { Image } from "astro:assets";
+import { formatDate } from "../../utils/content";
 
 interface Props {
     post: CollectionEntry<"posts">;
@@ -12,11 +13,7 @@ const { post, postId, rawBody = "" } = Astro.props;
 const { image, imageAlt, copy, socials, date } = post.data;
 
 // Formatear fecha
-const formattedDate = date.toLocaleDateString("es-ES", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-});
+const formattedDate = formatDate(date);
 
 // Iconos de redes sociales
 const socialIcons: Record<string, string> = {
