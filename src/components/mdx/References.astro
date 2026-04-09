@@ -23,7 +23,7 @@ const {
 ---
 
 {references.length > 0 && (
-    <section class="references-card my-16 p-8 md:p-10 rounded-[2.5rem] border border-black/5 dark:border-white/5 relative overflow-hidden group transition-all duration-500 hover:shadow-xl hover:shadow-primary/5">
+    <section class="references-card my-16 p-6 md:p-10 max-w-4xl mx-auto rounded-[2.5rem] border border-black/5 dark:border-white/5 relative overflow-hidden group transition-all duration-500 hover:shadow-xl hover:shadow-primary/5">
         <!-- Background Decoration -->
         <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50 z-0"></div>
 
@@ -51,7 +51,7 @@ const {
                             <div class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-primary/30 flex items-center justify-center text-primary text-xs font-black mt-1 ring-4 ring-primary/5">
                                 {index + 1}
                             </div>
-                            <div class="flex-1">
+                            <div class="flex-1 min-w-0">
                                 <p class="text-sm md:text-base italic leading-relaxed text-text/90 m-0 citation-text">
                                     {ref.text}
                                 </p>
@@ -60,7 +60,7 @@ const {
                                         href={ref.link} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        class="inline-block mt-2 text-xs md:text-sm font-bold tracking-tight hover:underline transition-all"
+                                        class="inline-block mt-2 text-xs md:text-sm font-bold tracking-tight hover:underline transition-all break-all"
                                         style="color: var(--ui-nav-link);"
                                     >
                                         {ref.link}
