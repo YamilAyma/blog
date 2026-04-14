@@ -1,0 +1,11 @@
+{
+  "skill_name": "note-to-post-transformer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Transforma estas notas en un post para la colección dev: 'Notas sobre Stylus y Google AI Studio. Encontré Stylus para cambiar el color de apps web de IA. Usé light-dark(color1, color2) para temas duales. Detecté clase hljs para el código. Publiqué dos estilos en userstyles.world. Adjunto imagen: ![Stylus UI](https://i.imgur.com/QuVsKhU.png) (mostrando las características de la herramienta).'",
+      "expected_output": "Debería generar un archivo MDX con frontmatter, el disclaimer de IA, el componente <TLDR /> con los puntos clave, secciones con títulos como '### ¿Qué descubrimos?', integrar la imagen con su descripción, y terminar con un FAQ sobre Stylus o Google AI Studio.",
+      "files": []
+    }
+  ]
+}
