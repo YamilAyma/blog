@@ -1,0 +1,17 @@
+{
+  "skill_name": "blog-post-polisher",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Mejorar este fragmento de post: 'hola, hoy hize un repo en github con nextjs y tailwindcss para mi proyecto de ia. es brutal lo facil que es.'",
+      "expected_output": "Debería corregir 'hize' a 'hice', normalizar 'GitHub', 'Next.js', 'Tailwind CSS', 'IA', quitar el hype 'brutal' y agregar links oficiales a los términos.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Agrega un alt text técnico a esta imagen en un post sobre automatización: '![captura](https://example.com/automation.png)'",
+      "expected_output": "Debería generar un alt text más descriptivo y técnico en lugar de 'captura'.",
+      "files": []
+    }
+  ]
+}
