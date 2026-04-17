@@ -12,6 +12,7 @@ Este archivo contiene las instrucciones para la IA al procesar nuevos posts del 
    - **copy**: Generar resumen de alto impacto de máx. 300 caracteres (SI NO EXISTE).
    - **body (Cuerpo)**: Transcribir o expandir el contenido de la infografía en párrafos claros (SI NO EXISTE).
 4. **Validación**: Asegurar que el frontmatter sea válido y que el contenido MDX mantenga los hashtags originales.
+5. **Notificar y Esperar**: Informar al usuario para que valide y revise el contenido generado. **NO realizar commit** automáticamente.
 
 ## Guía de Estilo y Voz (Mandatoria):
 
