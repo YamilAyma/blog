@@ -1,0 +1,465 @@
+---
+// src/components/mdx/CodeBlock.astro
+// MacOS-style code block with modal expansion
+// Props come from the <pre> element rendered by Shiki
+
+// When Astro maps `pre: CodeBlock`, the component receives whatever attributes
+// the <pre> tag has. Shiki sets data-language, class, and style on the <pre>.
+// The <pre> itself is REPLACED by this component, so the <slot> receives the
+// inner content (typically a <code> element). We must wrap it in a new <pre>.
+const props = Astro.props;
+
+// Extract language from Shiki's data-language attribute or class (language-xxx)
+const dataLang = (props['data-language'] || '').toString();
+const classLang = ((props.class || '').toString().match(/language-(\w+)/) || [])[1] || '';
+const lang = dataLang || classLang || '';
+
+// Pass through Shiki's style attribute for dual-theme support
+const shikiStyle = props.style || '';
+const shikiClass = props.class || '';
+
+// Title: use explicit title prop, or build a sensible fallback
+const LANG_FILENAMES: Record<string, string> = {
+  js: 'script.js',
+  javascript: 'script.js',
+  ts: 'index.ts',
+  typescript: 'index.ts',
+  jsx: 'App.jsx',
+  tsx: 'App.tsx',
+  py: 'main.py',
+  python: 'main.py',
+  html: 'index.html',
+  css: 'styles.css',
+  json: 'data.json',
+  yaml: 'config.yaml',
+  yml: 'config.yml',
+  bash: 'terminal',
+  sh: 'terminal',
+  shell: 'terminal',
+  sql: 'query.sql',
+  md: 'README.md',
+  mdx: 'page.mdx',
+  astro: 'Component.astro',
+  java: 'Main.java',
+  rs: 'main.rs',
+  go: 'main.go',
+  c: 'main.c',
+  cpp: 'main.cpp',
+  rb: 'app.rb',
+  php: 'index.php',
+  swift: 'App.swift',
+  kt: 'Main.kt',
+  dart: 'main.dart',
+  toml: 'config.toml',
+  xml: 'data.xml',
+  dockerfile: 'Dockerfile',
+  docker: 'Dockerfile',
+};
+const title = props.title || LANG_FILENAMES[lang.toLowerCase()] || (lang ? `code.${lang}` : 'snippet');
+---
+
+<div class="codeblock-mac" data-codeblock>
+    <!-- Title Bar -->
+    <div class="codeblock-mac__titlebar">
+        <!-- Left: Dots + Title -->
+        <div class="codeblock-mac__left">
+            <div class="codeblock-mac__dots">
+                <button class="codeblock-mac__dot codeblock-mac__dot--close" aria-label="Cerrar (decorativo)" tabindex="-1">
+                    <svg viewBox="0 0 6 6"><path d="M0.5 0.5L5.5 5.5M5.5 0.5L0.5 5.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>
+                </button>
+                <button class="codeblock-mac__dot codeblock-mac__dot--minimize" data-cb-minimize aria-label="Minimizar">
+                    <svg viewBox="0 0 8 2"><path d="M0.5 1H7.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>
+                </button>
+                <button class="codeblock-mac__dot codeblock-mac__dot--maximize" data-cb-maximize aria-label="Expandir">
+                    <svg viewBox="0 0 8 8"><path d="M1 2.5V7H5.5M3 1H7V5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <span class="codeblock-mac__title">{title}</span>
+        </div>
+
+        <!-- Right: Action buttons -->
+        <div class="codeblock-mac__actions">
+            <span class="codeblock-mac__lang-badge">{lang.toUpperCase() || '—'}</span>
+            <button class="codeblock-mac__action-btn" data-cb-copy aria-label="Copiar código">
+                <svg class="codeblock-mac__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span class="codeblock-mac__action-label">Copiar</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Code Content: Wrap in <pre> since the original <pre> was replaced by this component -->
+    <div class="codeblock-mac__body">
+        <pre class={shikiClass} style={shikiStyle} data-language={lang}><slot /></pre>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="codeblock-mac__overlay" data-cb-overlay></div>
+</div>
+
+<script>
+    function initCodeBlocks() {
+        document.querySelectorAll('[data-codeblock]').forEach(block => {
+            // Guard against double-init
+            if ((block as HTMLElement).dataset.cbInit) return;
+            (block as HTMLElement).dataset.cbInit = 'true';
+
+            const maximizeBtn = block.querySelector('[data-cb-maximize]');
+            const minimizeBtn = block.querySelector('[data-cb-minimize]');
+            const overlay = block.querySelector('[data-cb-overlay]');
+            const copyBtn = block.querySelector('[data-cb-copy]');
+
+            const setModal = (on: boolean) => {
+                block.classList.toggle('is-modal', on);
+                document.body.style.overflow = on ? 'hidden' : '';
+            };
+
+            maximizeBtn?.addEventListener('click', () => setModal(true));
+            minimizeBtn?.addEventListener('click', () => {
+                if (block.classList.contains('is-modal')) setModal(false);
+            });
+
+            // Click overlay to close modal
+            overlay?.addEventListener('click', () => setModal(false));
+
+            // Copy to clipboard
+            copyBtn?.addEventListener('click', async () => {
+                const code = block.querySelector('pre code') || block.querySelector('pre');
+                const text = code?.textContent || '';
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const label = copyBtn.querySelector('.codeblock-mac__action-label');
+                    if (label) {
+                        label.textContent = '¡Copiado!';
+                        copyBtn.classList.add('is-copied');
+                        setTimeout(() => {
+                            label.textContent = 'Copiar';
+                            copyBtn.classList.remove('is-copied');
+                        }, 2000);
+                    }
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                }
+            });
+        });
+    }
+
+    // Global ESC handler
+    function handleEsc(e: KeyboardEvent) {
+        if (e.key === 'Escape') {
+            const modal = document.querySelector('.codeblock-mac.is-modal');
+            if (modal) {
+                modal.classList.remove('is-modal');
+                document.body.style.overflow = '';
+            }
+        }
+    }
+
+    document.removeEventListener('keydown', handleEsc);
+    document.addEventListener('keydown', handleEsc);
+
+    initCodeBlocks();
+    document.addEventListener('astro:page-load', initCodeBlocks);
+</script>
+
+<style>
+    /* ========================================
+       MacOS Code Block — Design
+       ======================================== */
+
+    .codeblock-mac {
+        position: relative;
+        margin: 1.75rem 0;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #ffffff;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow:
+            0 1px 2px rgba(0,0,0,0.04),
+            0 4px 12px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
+    }
+
+    :global(.dark) .codeblock-mac {
+        background-color: #22272e !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+
+    .codeblock-mac:hover {
+        box-shadow:
+            0 2px 4px rgba(0,0,0,0.06),
+            0 8px 24px rgba(0,0,0,0.12);
+        border-color: color-mix(in srgb, rgba(0,0,0,0.1), var(--color-primary) 30%);
+    }
+
+    :global(.dark) .codeblock-mac:hover {
+        border-color: color-mix(in srgb, rgba(255,255,255,0.1), var(--color-primary) 30%) !important;
+    }
+
+    /* --- Title Bar --- */
+    .codeblock-mac__titlebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.7rem 1.2rem;
+        background-color: #f3f4f6;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        user-select: none;
+    }
+
+    :global(.dark) .codeblock-mac__titlebar {
+        background-color: #2d333b !important;
+        border-bottom-color: rgba(255,255,255,0.1) !important;
+    }
+
+    /* Left group: dots + title */
+    .codeblock-mac__left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+    }
+
+    /* Traffic-light dots */
+    .codeblock-mac__dots {
+        display: flex;
+        gap: 7px;
+        flex-shrink: 0;
+    }
+
+    .codeblock-mac__dot {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: filter 0.15s ease;
+    }
+
+    .codeblock-mac__dot svg {
+        width: 6px;
+        height: 6px;
+        opacity: 0;
+        color: rgba(0,0,0,0.55);
+        transition: opacity 0.15s ease;
+    }
+
+    .codeblock-mac:hover .codeblock-mac__dot svg,
+    .codeblock-mac__dot:focus-visible svg {
+        opacity: 1;
+    }
+
+    .codeblock-mac__dot:active {
+        filter: brightness(0.85);
+    }
+
+    .codeblock-mac__dot--close {
+        background: #ff5f57;
+    }
+    .codeblock-mac__dot--minimize {
+        background: #febc2e;
+    }
+    .codeblock-mac__dot--maximize {
+        background: #28c840;
+    }
+    .codeblock-mac__dot--maximize svg {
+        width: 7px;
+        height: 7px;
+    }
+
+    /* Title - next to dots */
+    .codeblock-mac__title {
+        font-family: var(--font-body);
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--cb-text);
+        opacity: 0.6;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Right group: lang badge + copy */
+    .codeblock-mac__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .codeblock-mac__lang-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        background: color-mix(in srgb, var(--cb-text) 10%, transparent);
+        color: var(--cb-text);
+        opacity: 0.5;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    .codeblock-mac__action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 6px;
+        border: 1px solid var(--cb-border);
+        background: color-mix(in srgb, var(--cb-bg) 95%, white);
+        color: var(--cb-text);
+        cursor: pointer;
+        font-size: 0.72rem;
+        font-weight: 600;
+        font-family: var(--font-body);
+        opacity: 0.8;
+        transition: all 0.2s ease;
+    }
+
+    :global(.dark) .codeblock-mac__action-btn {
+        background: color-mix(in srgb, var(--cb-bg) 95%, black);
+    }
+
+    .codeblock-mac__action-btn:hover {
+        opacity: 1;
+        background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    }
+
+    .codeblock-mac__action-btn.is-copied {
+        color: #28c840;
+        border-color: #28c840;
+    }
+
+    .codeblock-mac__icon {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* --- Code Body --- */
+    .codeblock-mac__body {
+        overflow-x: auto;
+    }
+
+    /* The <pre> we render to wrap the slotted <code> */
+    .codeblock-mac__body pre {
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 1.25rem 1.5rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.7 !important;
+        white-space: pre !important;
+        word-wrap: normal !important;
+        overflow-wrap: normal !important;
+        overflow-x: auto;
+        background: transparent !important;
+    }
+
+    .codeblock-mac__body pre code,
+    .codeblock-mac__body pre code :global(.line),
+    .codeblock-mac__body pre code :global(span) {
+        background: transparent !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+    }
+
+    /* --- Overlay (hidden by default) --- */
+    .codeblock-mac__overlay {
+        position: fixed;
+        inset: 0;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: -1;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+    }
+
+    /* ========================================
+       MODAL STATE
+       ======================================== */
+
+    .codeblock-mac.is-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90vw;
+        max-width: 960px;
+        max-height: 88vh;
+        z-index: 9999;
+        border-radius: 12px;
+        box-shadow:
+            0 0 0 1px rgba(0,0,0,0.1),
+            0 25px 60px rgba(0, 0, 0, 0.35),
+            0 8px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        animation: codeblock-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .codeblock-mac.is-modal .codeblock-mac__body {
+        flex: 1;
+        overflow-y: auto;
+        max-height: calc(88vh - 44px);
+    }
+
+    .codeblock-mac.is-modal .codeblock-mac__body pre {
+        font-size: 1rem !important;
+        line-height: 1.8 !important;
+        padding: 2rem !important;
+    }
+
+    .codeblock-mac.is-modal .codeblock-mac__overlay {
+        opacity: 1;
+        pointer-events: auto;
+        z-index: -1;
+    }
+
+    @keyframes codeblock-enter {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -48%) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    /* --- Mobile Adjustments --- */
+    @media (max-width: 640px) {
+        .codeblock-mac__title {
+            display: none;
+        }
+        .codeblock-mac__lang-badge {
+            display: none;
+        }
+        .codeblock-mac__action-label {
+            display: none;
+        }
+        .codeblock-mac__action-btn {
+            padding: 0.3rem;
+        }
+        .codeblock-mac.is-modal {
+            width: 96vw;
+            max-height: 92vh;
+            border-radius: 10px;
+        }
+        .codeblock-mac.is-modal .codeblock-mac__body {
+            max-height: calc(92vh - 44px);
+        }
+    }
+</style>

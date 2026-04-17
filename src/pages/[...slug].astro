@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
 import { SITE } from "../config";
+import CodeBlock from "../components/mdx/CodeBlock.astro";
 
 export async function getStaticPaths() {
     const pages = await getCollection("pages");
@@ -13,6 +14,10 @@ export async function getStaticPaths() {
 
 const { page } = Astro.props;
 const { Content } = await render(page);
+
+const components = {
+    pre: CodeBlock,
+};
 ---
 
 <Layout
@@ -20,6 +25,6 @@ const { Content } = await render(page);
     description={page.data.description}
 >
     <article class="prose prose-lg dark:prose-invert max-w-none">
-        <Content />
+        <Content components={components} />
     </article>
 </Layout>
