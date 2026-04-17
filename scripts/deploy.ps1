@@ -38,13 +38,18 @@ Copy-Item -Path "$DistDir\*" -Destination $DeployDir -Recurse -Force
 
 # Hacer commit y push
 Write-Host "Subiendo cambios a GitHub..." -ForegroundColor Magenta
+# Limpiar el índice para evitar conflictos de casing antes de agregar
+git rm -r --cached . -q
 git add .
 $date = Get-Date -Format "yyyy-MM-dd HH:mm"
-# Si no hay cambios, el script no fallará gracias a "|| echo"
-git commit -m "Deploy Manual: $date"
-
-Write-Host "Enviando a GitHub..." -ForegroundColor Cyan
-git push origin main
+# Intentar commit, capturar error si no hay cambios
+try {
+    git commit -m "Deploy Manual: $date" -q
+    Write-Host "Enviando a GitHub..." -ForegroundColor Cyan
+    git push origin main
+} catch {
+    Write-Host "No hay cambios para desplegar." -ForegroundColor Yellow
+}
 
 Write-Host "¡Despliegue completado con éxito!" -ForegroundColor Green
 Write-Host "Tu blog se está actualizando en: https://yamilayma.github.io/" -ForegroundColor Cyan
