@@ -1,0 +1,102 @@
+---
+image: ../../../assets/images/posts/tutorial/sitemap-plano.png
+imageAlt: "Ilustración técnica de un sitemap plano frente a uno indexado en Astro. Muestra un sitemap.xml limpio y brillante con un check verde."
+title: "Sitemap Plano en Astro: El truco para Google Search Console"
+copy: "Google Search Console ama los sitemaps planos. Aquí te enseño cómo forzarlo en Astro con un simple script post-build."
+date: 2026-04-22
+category: Tutorial
+tags: ["Astro", "SEO", "Sitemap", "Automatización", "Dev"]
+socials:
+  linkedin: "https://www.linkedin.com/in/yamilayma/"
+---
+
+import TLDR from '@/components/mdx/TLDR.astro';
+import FAQs from '@/components/mdx/FAQs.astro';
+import FAQItem from '@/components/mdx/FAQItem.astro';
+
+> Contenido generado mediante asistencia de IA basándose en notas y experiencias reales del autor.
+
+¿Alguna vez has notado que Google Search Console tarda una eternidad en "descubrir" las URLs de tu sitemap en Astro? El culpable suele ser el formato por defecto: un `sitemap-index.xml` que apunta a otros archivos. A Google le encanta la simplicidad, y un sitemap plano es la solución.
+
+<TLDR title="Puntos Clave" points={[
+  "Astro genera por defecto un índice de sitemaps, lo que puede retrasar la indexación.",
+  "Un sitemap 'flat' o plano pone todas las URLs en un solo archivo .xml.",
+  "Podemos automatizar este proceso con un script sencillo tras el build.",
+  "Mejora la visibilidad en GSC al instante."
+]} />
+
+## ¿Por dónde empezamos?
+
+Astro tiene una integración fantástica llamada `@astrojs/sitemap`. Es potente, pero por defecto intenta ser "organizada" creando un índice. Para sitios pequeños o medianos, esto es añadir un paso extra innecesario para los bots de Google.
+
+Queremos pasar de esto:
+- `sitemap-index.xml` -> `sitemap-0.xml`
+
+A esto:
+- `sitemap.xml` (con todo el contenido)
+
+## ¿Qué nos detuvo? (El desafío técnico)
+
+La integración oficial no tiene un flag de "hazlo plano" (al menos no uno que funcione siempre como queremos). Si intentamos manipularlo durante la generación, podemos romper la lógica interna de Astro. La solución más robusta es dejar que Astro haga su trabajo y luego, justo antes de terminar, darle nuestro toque personal.
+
+## ¿Cómo lo solucionamos?
+
+Creamos un script de "limpieza" que corre justo después del build. Este script busca el archivo real de URLs (`sitemap-0.xml`), lo renombra al estándar `sitemap.xml` y borra el índice que ya no necesitamos.
+
+### Paso 1: El Script de la Magia
+
+Crea un archivo en `scripts/flat-sitemap.js`:
+
+```javascript
+// scripts/flat-sitemap.js
+import fs from 'fs';
+import path from 'path';
+
+const distDir = path.join(process.cwd(), 'dist');
+const sitemap0Path = path.join(distDir, 'sitemap-0.xml');
+const sitemapIndexPath = path.join(distDir, 'sitemap-index.xml');
+const finalSitemapPath = path.join(distDir, 'sitemap.xml');
+
+if (fs.existsSync(sitemap0Path)) {
+  fs.renameSync(sitemap0Path, finalSitemapPath);
+  console.log('✅ sitemap-0.xml renombrado a sitemap.xml');
+  if (fs.existsSync(sitemapIndexPath)) {
+    fs.unlinkSync(sitemapIndexPath);
+    console.log('🗑️ sitemap-index.xml eliminado');
+  }
+}
+```
+
+### Paso 2: Automatización en package.json
+
+Solo tenemos que decirle a nuestro comando de build que ejecute este script al terminar:
+
+```json
+"scripts": {
+  "build": "astro build && node scripts/flat-sitemap.js"
+}
+```
+
+### Paso 3: Avisar a los Robots
+
+No olvides actualizar tu `public/robots.txt` para que apunte al nuevo archivo:
+
+```text
+Sitemap: https://tu-dominio.com/sitemap.xml
+```
+
+## ¿Qué descubrimos al final?
+
+Al implementar esto, Google Search Console suele pasar del estado "No se pudo obtener" a "Correcto" casi de inmediato. Es un pequeño ajuste técnico que hace que tu SEO sea mucho más predecible y eficiente.
+
+<FAQs title="Preguntas Frecuentes">
+  <FAQItem question="¿Por qué Astro usa un índice por defecto?">
+    Es una buena práctica para sitios masivos (con más de 50,000 URLs). Como la mayoría de blogs no llegan a ese número, el índice es opcional.
+  </FAQItem>
+  <FAQItem question="¿Funciona en cualquier hosting?">
+    Sí, siempre que tu proceso de despliegue ejecute el comando 'npm run build'. Funciona perfecto en Vercel, Netlify o GitHub Pages.
+  </FAQItem>
+  <FAQItem question="¿Qué pasa si tengo más de 50,000 páginas?">
+    En ese caso, ¡enhorabuena! Deberías mantener el formato de índice de Astro para cumplir con los límites técnicos de Google.
+  </FAQItem>
+</FAQs>
