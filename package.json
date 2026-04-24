@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/flat-sitemap.js",
     "preview": "astro preview",
     "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1",
     "astro": "astro"
