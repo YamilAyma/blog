@@ -1,13 +1,10 @@
 ---
-image: ../../../assets/images/posts/tutorial/sitemap-plano.png
-imageAlt: "Ilustración técnica de un sitemap plano frente a uno indexado en Astro. Muestra un sitemap.xml limpio y brillante con un check verde."
-title: "Sitemap Plano en Astro: El truco para Google Search Console"
-copy: "Google Search Console ama los sitemaps planos. Aquí te enseño cómo forzarlo en Astro con un simple script post-build."
-date: 2026-04-22
-category: Tutorial
-tags: ["Astro", "SEO", "Sitemap", "Automatización", "Dev"]
-socials:
-  linkedin: "https://www.linkedin.com/in/yamilayma/"
+title: "[Tutorial] - Sitemap Plano en Astro: El truco para Google Search Console"
+description: "Google Search Console ama los sitemaps planos. Veamos cómo forzarlo en Astro con un simple script post-build."
+date: "2026-04-22"
+category: "Tutorial"
+tags: ["astro", "seo", "sitemap", "automatización", "dev"]
+image: "../../../assets/images/blog/tutorial/flat-sitemap-astro.png"
 ---
 
 import TLDR from '@/components/mdx/TLDR.astro';
@@ -43,7 +40,7 @@ La integración oficial no tiene un flag de "hazlo plano" (al menos no uno que f
 
 Creamos un script de "limpieza" que corre justo después del build. Este script busca el archivo real de URLs (`sitemap-0.xml`), lo renombra al estándar `sitemap.xml` y borra el índice que ya no necesitamos.
 
-### Paso 1: El Script de la Magia
+### Paso 1: El Script ⭐
 
 Crea un archivo en `scripts/flat-sitemap.js`:
 
@@ -87,7 +84,9 @@ Sitemap: https://tu-dominio.com/sitemap.xml
 
 ## ¿Qué descubrimos al final?
 
-Al implementar esto, Google Search Console suele pasar del estado "No se pudo obtener" a "Correcto" casi de inmediato. Es un pequeño ajuste técnico que hace que tu SEO sea mucho más predecible y eficiente.
+Al implementar esto, Google Search Console suele pasar del estado "No se pudo obtener" a "Correcto" casi de inmediato (aunque a veces tarda horas en actualizarse). Es un pequeño ajuste técnico que hace que tu SEO sea mucho más predecible y eficiente.
+
+Por cierto, este artículo está hecho con asistencia de IA pero basado en una experiencia que tuve con mi blog, hace mucho tiempo que GSC no me detectaba las nuevas entradas y después de implementar lo hizo.
 
 <FAQs title="Preguntas Frecuentes">
   <FAQItem question="¿Por qué Astro usa un índice por defecto?">

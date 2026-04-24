@@ -22,7 +22,7 @@ title: 'Descriptive Title'
 description: 'Engaging summary'
 date: 'YYYY-MM-DD' (Today)
 category: 'Dev' (or relevant)
-tags: ['tag1', 'tag2']
+tags: ['tag1', 'tag2'] (Lowercase only)
 image: 'main_image_url' (from notes or placeholder)
 ---
 ```
@@ -80,3 +80,7 @@ import FAQItem from '@/components/mdx/FAQItem.astro';
 - **Honest**: Transparent about errors and the exploration process.
 - **No Hype**: Avoid marketing buzzwords. Stick to authentic excitement.
 - **Polished**: Respect standard Spanish grammar and technical casing (GitHub, VS Code, IA, etc.).
+- **Tags**: Las etiquetas (tags) en el frontmatter DEBEN estar siempre en minúsculas (ej: `['astro', 'seo']` en lugar de `['Astro', 'SEO']`).
+
+## ⚠️ Regla Crítica de Revisión
+- **NO hagas commit ni push directo**: Una vez generada la entrada, DEBES mostrar el contenido al usuario y esperar su aprobación explícita antes de persistir los cambios en Git. El usuario siempre debe revisar el tono y la precisión técnica del artículo.
