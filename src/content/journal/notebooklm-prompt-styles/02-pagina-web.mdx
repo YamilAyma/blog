@@ -1,0 +1,96 @@
+---
+title: "Rostro digital para el proyecto"
+description: "Un esfuerzo que hace más amigable la interacción con el repositorio"
+date: 2026-04-23
+project: "notebooklm-prompt-styles"
+published: true
+---
+
+¡Este es el día!
+
+[En mi primera entrada de este proyecto](https://yamilayma.github.io/proyectos/notebooklm-prompt-styles/diario/02-pagina-web) mencioné que íbamos a desarrollar una página web para el repositorio.
+
+Menciono que esto se concretó, busqué practicidad... tuvimos una página con tecnología Vanilla; sin embargo, estaba limitada por factores de calidad y reutilización como mantenimiento, no muy recomendable para un proyecto que en un futuro puede volverse incluso un producto (lo dudo).
+
+### Migrando a Astro
+
+La migración fue segura, como cambiar de asiento. El caso es que teníamos cerca de 10 estilos y son muy pocos como para generar valor, por lo que al tenerla me fui dedicando a la parte de extraer más estilos y ampliar el catálogo mientras que mi asistente [Gemini](https://gemini.google.com/) iba haciendo refactorización de componentes existentes; hubo bugs pero estuvimos a salvo 👍.
+
+### Sobre el proyecto
+
+Pocas veces hago este tipo de proyectos por lo que quería saber cómo lo tienen otros, vi algunos mercados de skills de IA como colecciones amigas y era necesario una página que explique sobre qué trata el proyecto, de paso esta haría nacer otra página llamada *How to Use* para orientar cómo usarlo (aunque hice un vídeo para detalle).
+
+### Mejorando estética
+
+Pasó poco tiempo de lo anterior y fuimos a la parte visual. Teníamos iconos pero no eran del todo buenos, había contraste pero del malo, por lo que busqué unos iconos amigables además de agregarle las redes para que puedan compartir la página como proyecto. ¿Y qué más? También incluimos un botón para agregar a favoritos, útil para quienes tienen la costumbre ✅.
+
+Me fui a Veo para generar un icono para el proyecto porque buscaba identidad sencilla, y no debería parecerse mucho al logotipo de [NotebookLM](https://notebooklm.google.com/) porque sería contraproducente para el proyecto según mi punto de vista (no quiero confundir).
+
+Conseguí este resultado:
+![Logotipo oficial del proyecto NotebookLM Prompt Styles generado con Veo](https://notebooklm-prompt-styles.vercel.app/icon.png)
+
+Y también una versión animada pero esa la dejé para un preloader ⭐.
+
+### Ampliando el sitio
+
+Agregamos un footer para que scrapers y demás sistemas puedan obtener información del proyecto (sí, incluso [Google Scraper](https://www.google.com/)).
+
+También hubo tiempo para añadir un favicon para la página.
+
+Una página de Preguntas Frecuentes que ayuda a guiar a usuarios nuevos y también para tener una guía para mí mismo.
+
+### Tooltip
+
+Una de las cosas que me interesaron conocer era cómo lograr que las personas copien el Prompt Style. Se me ocurrieron dos formas y terminamos agregando las dos por compatibilidad de dispositivos: una activada por clic y otra por mouse al pasar la imagen previa del estilo.
+
+Se ven así:
+
+![Captura de pantalla mostrando el tooltip interactivo para copiar estilos de prompt en la web del proyecto](https://i.imgur.com/kKxlfIC.png)
+
+Y para cuando das clic, aparece un modal inferior con el Prompt Style y un botón para copiar.
+
+![Vista del modal inferior con el código del prompt style y botón de copiado rápido](https://i.imgur.com/WmWVDqX.png)
+
+### Bugs y pequeños intrépidos errores
+
+Avanzar no siempre es bueno si no sabes dónde pisas. Eso pasó cuando me di cuenta de que el modal inferior no funcionaba correctamente en su barra de scroll, por lo que me puse a trabajar en ello con Gemini. Una vez solucionado, nos dimos cuenta de que había estilos que necesitaban atención, así que priorizamos una limpieza de restos de migración. Todo seguro 🔍.
+
+De paso aprovechamos el poder de la IA para iniciar con la internacionalización, agregamos compatibilidad con español, inglés y portugués.
+
+Luego mejoramos la calidad de los documentos incluyendo workflows, reglas y un archivo de contribución para futuros agentes IA o desarrolladores humanos. Lo común al publicar es dar soporte, alcance y conocimiento.
+
+### Landing Page
+
+Habíamos avanzado aceleradamente poco, así que dimos el paso para la [Landing Page](https://notebooklm-prompt-styles.vercel.app/) que verán a continuación.
+
+![Sección Hero de la Landing Page de NotebookLM Prompt Styles mostrando el diseño visual y propuesta de valor](https://i.imgur.com/81AeXgq.png)
+
+Estuve probando ideas en Veo con Nano Banana para lograr transmitir lo que tenía en mente pero las palabras me vencieron, así que usé Paint para dibujar cómo deseaba verlo y describirlo. Bueno... a veces necesitamos ser más expresivos de otras formas 🎨.
+
+Otro detalle es que buscaba un hook visual, y recuerdo ver galerías que colocan múltiples carruseles de iconos o resultados en el fondo, por ello me dio la idea de usar ese enfoque para el hero. No terminamos en una sola iteración; este es un resultado de varios intentos y ajustes aunque no lo parezca jeje.
+
+### Vídeo, vídeo
+
+Destaco que Flow tiene una gran capa generosa de tokens para la generación de vídeos, por ello me animé a generar uno para usarlo en el fondo de algunas secciones. Admito que da una mejor impresión que un fondo animado y además pesa menos de 2MB, es un buen trade-off.
+
+### Empoderamiento
+
+No gustaría que todo lo pueda hacer con la IA porque me encantaría que otras personas quieran compartir prompts similares. Antes de ir avanzando había aprendido que si no estandarizo cuando se trata de contenido al mayor o repeticiones, iba a tener resultados impredecibles, flujos que requieran de atención, así que dejamos unos scripts que usarían las IA como una skill para apoyarse con la extracción de estilos. Fácilmente alguien podría unirse y aportar. Por el momento la comunidad se muestra tímida, anímense a participar si aman la personalización 👍.
+
+- La skill se encuentra en el repositorio por cierto, es de libre acceso 😉.
+
+### Presentación simple
+
+Receta:
+- Un banner (generado con GPT Image 2 🤖)
+- Un DISCLAIMER para asegurarnos de que no estamos afiliados a Google (muy importante)
+
+El [README](https://github.com/YamilAyma/notebooklm-prompt-styles/blob/main/README.md) es como nuestra base de datos. Esto lo tengo también hecho para mi otra colección llamada [Enlaces Para Desarrolladores](https://github.com/yamilayma/enlaces-para-desarrolladores).
+
+Hice otras varias cosas y exploré algo con [Remotion](https://www.remotion.dev/) que tengo planeado darle un uso en el proyecto, pero lo reservo como idea; contar todo me agotaría mucho. Lo próximo que hice fue el vídeo, el cual grabé con Openvid, un editor web de vídeo con un gran potencial y te animo a probarlo porque está de súper.
+
+Lejos de ello, lo subí a [YouTube](https://www.youtube.com/watch?v=x3vWKEqKBpY&feature=youtu.be), ya tenía la presentación casi lista, porque ahora falta presentarlo.
+
+Tengo planeado la comunidad de NotebookLM en [Reddit](https://www.reddit.com/r/notebooklm/) y [LinkedIn](https://www.linkedin.com/), espero les encante y sean amables con recibirlo, que es para todos 🤗.
+
+**Repositorio oficial:** [GitHub - YamilAyma/notebooklm-prompt-styles](https://github.com/YamilAyma/notebooklm-prompt-styles)
