@@ -1,0 +1,86 @@
+---
+title: "¡100 estilos para NotebookLM! 📁"
+description: "¡Alcanzamos la meta!"
+date: 2026-05-01
+project: "notebooklm-prompt-styles"
+tags: ["styles", "ia", "google", "collection"]
+published: true
+---
+
+![Captura de pantalla de la página principal del proyecto](https://i.imgur.com/4sgMrQy.png)
+
+### ¡Cumplimos lo prometido!
+
+Actualmente el proyecto cuenta con muchísimos estilos, cada uno de ellos cuenta con una descripción detallada y un ejemplo de uso.
+
+Para esta ocasión quiero comentar como he ido agregando los estilos y así ser transparente con todo el proceso que se lleva a cabo en el proyecto.
+
+## El entorno ayuda más de lo que parece
+
+Cuando me animé a usar IA para la generación de estilos, la primera IA que usé fue [Gemini](https://gemini.google.com/) aunque tenía sus detalles con los que me topé, fue buena idea continuar usando los archivos de skills.
+
+Al principio lo hice manual pero cuando estás haciendo a escala, es mejor estandarizar las cosas, verás que ahorra demasiado.
+
+### Skills de IA
+
+Con el skill-creator de Anthropic, creé una skill que ayude a extraer y generar los estilos, basado en algunos lineamientos que definí, mayormente iba por internet y tomaba capturas, luego se las daba al agente para que con la skill, cree el prompt y listo.
+
+### Vamos un poquito más allá
+
+Esto tiene una serie de 5 pasos en promedio, quise acortarlos para poder caminar más rápido 🎯.
+
+1. Buscar estilos de calidad en internet.
+2. Tomar captura.
+3. Generar prompt de estilo.
+4. Actualizar README.md.
+5. Crear una carpeta con el estilo obtenido para guardar las imágenes previas.
+6. Generar una diapositiva de ejemplo con NotebookLM usando el estilo para así tener las imágenes previa.
+7. Optimizar el peso de las imágenes.
+8. Enviar los cambios.
+
+Entonces, el paso 4, 5 y 6 fueron automatizados...
+
+### Scripts y herramientas
+
+Los agentes tienen buenas herramientas para editar archivos, sin embargo, el README estaba creciendo demasiado, por lo que Gemini tenía problemas.
+
+Había que hacer algo, esto era lento, improductivo y a menudo torpe :p 
+
+Noté que fallaba a veces en colocar el prompt para que las personas lo vean, la razón de ponerlo en el README es de diseño, los usuarios comunes no desearían ir y buscar cada uno de los prompts en cada archivo, asimismo aprovecho el espacio para poner una imagen de ejemplo 👍.
+
+Tal script se encarga de actualizar el README cada vez que se agrega un nuevo prompt, con modificador para categorías y demás (omitiré la parte donde dividimos en más categorías porque tiene el mismo color del asunto).
+
+¡Ahora tenía los poderes para editar correctamente los archivos!
+
+Las IA manejan muy bien herramientas CLI, hacer esto nos redujo ambos pasos.
+
+### Workflows 
+
+No he comentado sobre el paso 5 y 6, pues estos se lo llevan, los archivos de workflow que creamos, pero el 6 estuvo algo inmutable.
+
+Creamos unos scripts más para generar la carpeta automáticamente cuando en un archivo input.yaml se ingrese el estilo, se hace una búsqueda para ver si coincide con algún estilo y si no, se crea la carpeta con el nombre dado. Sencillo 🔍.
+
+Luego, solamente tuve que agregar las imágenes, esto no terminó de automatizarse por completo pero sí que mejoramos la calidad del repositorio en cuanto a peso.
+
+### Esas imágenes pesan mucho
+
+Una imagen .png pesaba cerca de 1mb, demasiado...
+Tuvimos un script de Python para solucionar ese detalle, lo bueno es que era un paso transversal, no afectaba al flujo, así que cuando terminabamos de colocar las imágenes para un estilo, optimizabamos automáticamente (y de paso se renombraba, que genial).
+
+Es súper lo que pueden hacer pequeñas herramientas, el proceso de agregación estaba minimizado, como si lo hubiéramos comprimido 📦.
+
+---
+
+Por último, en un archivo tengo mensajes de commit preestablecidos para copiar y pegar, así que el commit incluso estaba bajo nuestro manto :D.
+
+#### Una última nota 
+
+Puede que haya sido breve y algo rápido, pero en realidad no recuerdo muy muy bien lo que fuí haciendo, por ello aquí escribí lo que más importa.
+
+Sé que pueden haber maneras más eficientes, quizás las encuentre para otro futuro proyecto, oh y puede que extienda los estilos a más de 100, se verá.
+
+¡Lo importante es crear! 
+
+[Te interesa ver un ejemplo de cómo quedó un estilo?] -> [Ir al ejemplo](https://notebooklm-prompt-styles.vercel.app/samples/demo_notebooklm_prompt_styles.pdf)
+
+![Ejemplo de cómo quedó una diapositiva con uno de nuestros estilos coleccionados, se ve muy profesional 📸](https://i.imgur.com/mCJkJVO.png)
