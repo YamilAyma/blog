@@ -11,7 +11,9 @@ published: true
 
 ## ¡Cumplimos lo prometido!
 
-Actualmente, el proyecto dispone de una amplia variedad de estilos; cada uno incluye una descripción detallada y un ejemplo de uso práctico. En esta entrada, quiero compartir **cómo** he ido integrando estos estilos para ser transparente con el proceso de curación y desarrollo del proyecto.
+Actualmente el proyecto cuenta con muchísimos estilos, cada uno de ellos cuenta con una descripción detallada y un ejemplo de uso.
+
+Para esta ocasión quiero comentar como he ido agregando los estilos y así ser transparente con todo el proceso que se lleva a cabo en el proyecto.
 
 ## El entorno ayuda más de lo que parece
 
@@ -42,7 +44,13 @@ Los agentes de IA cuentan con herramientas potentes para la edición de archivos
 
 Noté que el agente fallaba al insertar los prompts para que fueran visibles directamente. Mantener los prompts en el `README.md` es una decisión de diseño: los usuarios prefieren ver el contenido de un vistazo en lugar de navegar por múltiples archivos. Además, aprovecho ese espacio para mostrar una imagen de ejemplo que aporte valor visual.
 
-Desarrollé un script que se encarga de actualizar el `README.md` automáticamente cada vez que se añade un nuevo prompt, gestionando categorías y modificadores de forma eficiente. ¡Ahora el proceso de edición es quirúrgico y preciso! Las herramientas [CLI](https://en.wikipedia.org/wiki/Command-line_interface) son ideales para que las IA manipulen archivos sin errores.
+Noté que fallaba a veces en colocar el prompt para que las personas lo vean, la razón de ponerlo en el README es de diseño, los usuarios comunes no desearían ir y buscar cada uno de los prompts en cada archivo, asimismo aprovecho el espacio para poner una imagen de ejemplo 👍.
+
+Tal script se encarga de actualizar el README cada vez que se agrega un nuevo prompt, con modificador para categorías y demás (omitiré la parte donde dividimos en más categorías porque tiene el mismo color del asunto).
+
+¡Ahora tenía los poderes para editar correctamente los archivos!
+
+Las IA manejan muy bien herramientas CLI, hacer esto nos redujo ambos pasos.
 
 ### Workflows y automatización
 
@@ -64,4 +72,4 @@ Aunque el camino ha sido rápido y lleno de iteraciones, lo más importante es d
 
 [¿Te interesa ver un ejemplo de cómo quedó un estilo?] -> [Ir al ejemplo](https://notebooklm-prompt-styles.vercel.app/samples/demo_notebooklm_prompt_styles.pdf)
 
-![Muestra de una diapositiva profesional generada con NotebookLM utilizando uno de los estilos de nuestra colección](https://i.imgur.com/mCJkJVO.png)
+![Muestra de una diapositiva profesional generada con NotebookLM utilizando uno de los estilos de nuestra colección](https://i.imgur.com/mCJkJVO.png)
