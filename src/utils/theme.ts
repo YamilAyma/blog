@@ -16,7 +16,7 @@ export function getThemePreference(): ThemePreference {
   if (typeof localStorage !== 'undefined' && localStorage.getItem(THEME_KEY)) {
     return localStorage.getItem(THEME_KEY) as ThemePreference;
   }
-  return 'auto';
+  return 'light';
 }
 
 /**

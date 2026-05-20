@@ -95,7 +95,7 @@ const defaultThemeId = DEFAULT_THEME_ID;
             const THEMES = JSON.parse(themesJSON);
 
             const pref =
-                localStorage.getItem("blog-theme-preference") || "auto";
+                localStorage.getItem("blog-theme-preference") || "light";
             const isDark =
                 pref === "dark" ||
                 (pref === "auto" &&
