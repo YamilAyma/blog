@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Yamil Ayma CMS — Panel de Desarrollo</title>
+  <title>Mi Blog CMS — Panel de Desarrollo</title>
+  
+  <!-- Favicon del Blog -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   
   <!-- Tipografías del Blog -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,14 +22,11 @@
   
   <!-- Babel para transpilar JSX en caliente -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <!-- Marked para previsualización de Markdown -->
-  <script src="https://unpkg.com/marked/marked.min.js"></script>
 
   <style type="text/tailwindcss">
     @layer base {
       :root {
-        /* Paleta de colores heredada de tema Everforest 'soft' por defecto */
+        /* Paleta de colores tema Everforest 'soft' */
         --color-bg-light: #FFFBEF;
         --color-bg-dark: #fffdf0;
         --color-primary: #F2D2BD;
@@ -75,10 +75,182 @@
 
   <!-- Lógica React Transpilada por Babel en el cliente -->
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
+
+    // Cargador dinámico de componentes modulares con Babel Standalone en el cliente
+    async function loadComponent(url) {
+      try {
+        const res = await fetch(url);
+        const code = await res.text();
+        
+        // Transpilar el código del componente convirtiendo exports de ES6 a UMD/CommonJS
+        const transformed = Babel.transform(code, {
+          presets: ['react'],
+          plugins: ['transform-modules-umd']
+        }).code;
+        
+        // Ejecutar en un sandbox local
+        const exports = {};
+        const module = { exports };
+        const fn = new Function('React', 'exports', 'module', transformed);
+        fn(React, exports, module);
+        
+        return module.exports;
+      } catch (err) {
+        console.error(`Error cargando componente ${url}:`, err);
+        throw err;
+      }
+    }
+
+    // Modal de Carga de Imágenes Multimodal
+    function ImageUploaderModal({ isOpen, onClose, onUploadSuccess, t }) {
+      const [file, setFile] = useState(null);
+      const [targetDir, setTargetDir] = useState('images');
+      const [isUploading, setIsUploading] = useState(false);
+      const [error, setError] = useState('');
+      const [dragActive, setDragActive] = useState(false);
+
+      if (!isOpen) return null;
+
+      const handleDrag = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+          setDragActive(true);
+        } else if (e.type === "dragleave") {
+          setDragActive(false);
+        }
+      };
+
+      const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          setFile(e.dataTransfer.files[0]);
+        }
+      };
+
+      const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+          setFile(e.target.files[0]);
+        }
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!file) return;
+        setIsUploading(true);
+        setError('');
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          const base64data = reader.result;
+
+          fetch('/api/media', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filename: file.name,
+              targetDir: targetDir,
+              image: base64data
+            })
+          })
+            .then(res => {
+              if (!res.ok) throw new Error('Error al subir la imagen');
+              return res.json();
+            })
+            .then(data => {
+              setIsUploading(false);
+              onUploadSuccess(data.url);
+              onClose();
+            })
+            .catch(err => {
+              setIsUploading(false);
+              setError(err.message || 'Error en la subida');
+            });
+        };
+      };
+
+      return (
+        <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 flex flex-col gap-4">
+            <h3 className="text-xl font-bold text-gray-800">Subir Imagen</h3>
+            
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              {/* Drag and Drop Area */}
+              <div 
+                className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
+                  dragActive ? 'border-[#d88a75] bg-[#d88a75]/5' : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => document.getElementById('file-upload-input').click()}
+              >
+                <input 
+                  id="file-upload-input"
+                  type="file" 
+                  accept="image/*"
+                  className="hidden" 
+                  onChange={handleFileChange}
+                />
+                <span className="text-3xl mb-2">📸</span>
+                {file ? (
+                  <span className="text-xs font-semibold text-green-600 truncate max-w-64">{file.name}</span>
+                ) : (
+                  <span className="text-xs text-gray-400 font-semibold uppercase">Arrastra una imagen o haz clic para buscar</span>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1">Directorio de Destino</label>
+                <select 
+                  className="w-full cms-input px-3 py-2 rounded-xl text-xs" 
+                  value={targetDir} 
+                  onChange={e => setTargetDir(e.target.value)}
+                >
+                  <option value="images">src/assets/images/</option>
+                  <option value="projects">src/assets/images/projects/</option>
+                  <option value="blog">src/assets/images/blog/</option>
+                </select>
+              </div>
+
+              {error && <span className="text-xs text-red-500 font-bold">{error}</span>}
+
+              <div className="flex justify-end gap-3 mt-2">
+                <button 
+                  type="button" 
+                  onClick={onClose}
+                  className="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  disabled={!file || isUploading}
+                  className="px-4 py-2 bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                >
+                  {isUploading ? 'Subiendo...' : 'Subir Imagen'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
 
     function App() {
-      // Estado de colecciones
+      // Módulos dinámicos cargados
+      const [SidebarComp, setSidebarComp] = useState(null);
+      const [FormFieldsComp, setFormFieldsComp] = useState(null);
+      const [MarkdownEditorComp, setMarkdownEditorComp] = useState(null);
+      const [translationsDict, setTranslationsDict] = useState(null);
+
+      // Estados de UI e idioma
+      const [lang, setLang] = useState('es');
       const [collections, setCollections] = useState({});
       const [activeCollection, setActiveCollection] = useState('projects');
       const [searchQuery, setSearchQuery] = useState('');
@@ -93,32 +265,31 @@
       const [showNewModal, setShowNewModal] = useState(false);
       const [newFilename, setNewFilename] = useState('');
       
-      // Estado para previsualización de Markdown
-      const [previewMode, setPreviewMode] = useState(false);
+      // Estado del cargador de imágenes
+      const [uploaderOpen, setUploaderOpen] = useState(false);
+      const [activeImageField, setActiveImageField] = useState('');
 
-      // Función para insertar formato Markdown en el textarea
-      const insertFormat = (prefix, suffix = '') => {
-        const textarea = document.getElementById('markdown-editor');
-        if (!textarea) return;
-        
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = textarea.value;
-        const selected = text.substring(start, end);
-        
-        const replacement = prefix + selected + suffix;
-        const newContent = text.substring(0, start) + replacement + text.substring(end);
-        
-        setEntryData(prev => ({ ...prev, content: newContent }));
-        
-        // Reposicionar cursor
-        setTimeout(() => {
-          textarea.focus();
-          textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
-        }, 10);
-      };
+      // Control del Sidebar responsivo en móviles
+      const [sidebarOpen, setSidebarOpen] = useState(false);
 
-      // Cargar contenidos al inicio
+      // Cargar componentes de forma modular en caliente
+      useEffect(() => {
+        Promise.all([
+          loadComponent('./components/i18n.js'),
+          loadComponent('./components/Sidebar.js'),
+          loadComponent('./components/FormFields.js'),
+          loadComponent('./components/MarkdownEditor.js')
+        ]).then(([i18nMod, sidebarMod, formFieldsMod, mdEditorMod]) => {
+          setTranslationsDict(i18nMod.translations);
+          setSidebarComp(() => sidebarMod.Sidebar);
+          setFormFieldsComp(() => formFieldsMod.FormFields);
+          setMarkdownEditorComp(() => mdEditorMod.MarkdownEditor);
+        }).catch(err => {
+          console.error("Fallo al inicializar los componentes modulares del CMS:", err);
+        });
+      }, []);
+
+      // Cargar contenidos del backend al inicio
       useEffect(() => {
         fetch('/api/content')
           .then(res => res.json())
@@ -132,6 +303,9 @@
           .catch(err => console.error('Error al cargar contenidos:', err));
       }, []);
 
+      // Obtener traducción activa
+      const t = translationsDict ? translationsDict[lang] : {};
+
       // Seleccionar una entrada del listado
       const selectEntry = (col, filename) => {
         fetch(`/api/content/${col}/${filename}`)
@@ -140,6 +314,7 @@
             setActiveEntry({ collection: col, filename });
             setEntryData(data);
             setMessage('');
+            setSidebarOpen(false); // Cerrar sidebar en móviles tras seleccionar
           })
           .catch(err => console.error('Error al cargar entrada:', err));
       };
@@ -213,397 +388,171 @@
         }));
       };
 
-      // Helper: renderizar formularios adaptativos por colección
-      const renderFormFields = () => {
-        if (!entryData.metadata) return null;
-        const meta = entryData.metadata;
-
-        switch (activeEntry?.collection) {
-          case 'projects':
-            return (
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 class="text-xl font-bold border-b pb-2">Información General</h3>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Título</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.title || ''} onChange={e => updateMeta('title', e.target.value)} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Descripción Corta</label>
-                    <textarea class="w-full cms-input px-3 py-2 rounded-xl text-sm h-24" value={meta.description || ''} onChange={e => updateMeta('description', e.target.value)} />
-                  </div>
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-semibold mb-1">Período</label>
-                      <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.periodo || ''} onChange={e => updateMeta('periodo', e.target.value)} />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-semibold mb-1">Orden (Posición)</label>
-                      <input type="number" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.order || 0} onChange={e => updateMeta('order', parseInt(e.target.value))} />
-                    </div>
-                  </div>
-                </div>
-
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 class="text-xl font-bold border-b pb-2">Imágenes & Recursos</h3>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Portada Destacada (Ruta/URL)</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.image || ''} onChange={e => updateMeta('image', e.target.value)} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Tags (Separados por coma)</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={Array.isArray(meta.tags) ? meta.tags.join(', ') : ''} onChange={e => updateMeta('tags', e.target.value.split(',').map(t => t.trim()))} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Vídeo de YouTube (ID)</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.videoYoutube || ''} onChange={e => updateMeta('videoYoutube', e.target.value)} />
-                  </div>
-                </div>
-              </div>
-            );
-          
-          case 'blog':
-            return (
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 class="text-xl font-bold border-b pb-2">Información del Post</h3>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Título</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.title || ''} onChange={e => updateMeta('title', e.target.value)} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Descripción / Resumen</label>
-                    <textarea class="w-full cms-input px-3 py-2 rounded-xl text-sm h-24" value={meta.description || ''} onChange={e => updateMeta('description', e.target.value)} />
-                  </div>
-                  <div class="flex items-center gap-6 mt-2">
-                    <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer">
-                      <input type="checkbox" checked={meta.published !== false} onChange={e => updateMeta('published', e.target.checked)} class="w-4 h-4 rounded accent-[#d88a75]" />
-                      Publicado (Visibilidad en Producción)
-                    </label>
-                  </div>
-                </div>
-
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 class="text-xl font-bold border-b pb-2">Metadatos & Portada</h3>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Categoría</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.category || 'General'} onChange={e => updateMeta('category', e.target.value)} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Tags (Separados por coma)</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={Array.isArray(meta.tags) ? meta.tags.join(', ') : ''} onChange={e => updateMeta('tags', e.target.value.split(',').map(t => t.trim()))} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Layout</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.layout || ''} onChange={e => updateMeta('layout', e.target.value)} />
-                  </div>
-                </div>
-              </div>
-            );
-
-          case 'posts':
-            return (
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 class="text-xl font-bold border-b pb-2">Micro-Post</h3>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Imagen (Obligatoria)</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.image || ''} onChange={e => updateMeta('image', e.target.value)} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Copy / Mensaje</label>
-                    <textarea class="w-full cms-input px-3 py-2 rounded-xl text-sm h-24" value={meta.copy || ''} onChange={e => updateMeta('copy', e.target.value)} />
-                  </div>
-                </div>
-
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 class="text-xl font-bold border-b pb-2">Clasificación</h3>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Categoría</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.category || 'General'} onChange={e => updateMeta('category', e.target.value)} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Tags (Separados por coma)</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={Array.isArray(meta.tags) ? meta.tags.join(', ') : ''} onChange={e => updateMeta('tags', e.target.value.split(',').map(t => t.trim()))} />
-                  </div>
-                </div>
-              </div>
-            );
-
-          case 'journal':
-            return (
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 class="text-xl font-bold border-b pb-2">Bitácora</h3>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Título de Entrada</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.title || ''} onChange={e => updateMeta('title', e.target.value)} />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Descripción Opcional</label>
-                    <textarea class="w-full cms-input px-3 py-2 rounded-xl text-sm h-24" value={meta.description || ''} onChange={e => updateMeta('description', e.target.value)} />
-                  </div>
-                </div>
-
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 class="text-xl font-bold border-b pb-2">Relación de Proyecto</h3>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Slug del Proyecto Asociado (project)</label>
-                    <select class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta.project || ''} onChange={e => updateMeta('project', e.target.value)}>
-                      <option value="">Seleccionar Proyecto...</option>
-                      {collections.projects?.map(p => (
-                        <option key={p.slug} value={p.slug}>{p.slug}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold mb-1">Tags (Separados por coma)</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={Array.isArray(meta.tags) ? meta.tags.join(', ') : ''} onChange={e => updateMeta('tags', e.target.value.split(',').map(t => t.trim()))} />
-                  </div>
-                </div>
-              </div>
-            );
-
-          default:
-            return (
-              <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                <h3 class="text-xl font-bold border-b pb-2">Metadatos Genéricos</h3>
-                {Object.keys(meta).map(k => (
-                  <div key={k}>
-                    <label class="block text-sm font-semibold mb-1 capitalize">{k}</label>
-                    <input type="text" class="w-full cms-input px-3 py-2 rounded-xl text-sm" value={meta[k] || ''} onChange={e => updateMeta(k, e.target.value)} />
-                  </div>
-                ))}
-              </div>
-            );
-        }
+      // Abrir modal de carga de imágenes
+      const handleOpenUploader = (fieldName) => {
+        setActiveImageField(fieldName);
+        setUploaderOpen(true);
       };
 
-      // Filtrar entradas del sidebar según búsqueda
-      const filteredEntries = collections[activeCollection]?.filter(entry => {
-        return entry.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-               entry.slug.toLowerCase().includes(searchQuery.toLowerCase());
-      }) || [];
+      // Al completar carga de imagen
+      const handleUploadSuccess = (imageUrl) => {
+        updateMeta(activeImageField, imageUrl);
+      };
+
+      if (!SidebarComp || !FormFieldsComp || !MarkdownEditorComp || !translationsDict) {
+        return (
+          <div className="flex h-screen w-screen items-center justify-center bg-[#FFFBEF]">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d88a75]"></div>
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Iniciando Mi Blog CMS...</span>
+            </div>
+          </div>
+        );
+      }
 
       return (
-        <div class="flex h-screen overflow-hidden">
+        <div className="flex flex-col md:flex-row h-screen overflow-hidden">
           
+          {/* Botón flotante para abrir Sidebar en móviles */}
+          <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-[var(--color-border)] w-full shrink-0">
+            <div className="flex items-center gap-2">
+              <img src="/favicon.svg" alt="Favicon" className="w-6 h-6" />
+              <span className="font-bold text-sm text-gray-700">{t.cms_title}</span>
+            </div>
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="px-3 py-1.5 bg-[#d88a75]/10 text-[#d88a75] border border-[#d88a75]/20 rounded-xl text-xs font-bold transition-all"
+            >
+              {sidebarOpen ? '✕ Cerrar' : '☰ Menú'}
+            </button>
+          </div>
+
           {/* Sidebar Izquierdo */}
-          <aside class="w-64 cms-sidebar flex flex-col h-full shrink-0">
-            <div class="p-6 border-b border-[var(--color-border)] flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-[#d88a75] flex items-center justify-center text-white font-bold text-lg">Y</div>
-              <div>
-                <h1 class="text-lg font-black tracking-tight leading-none text-[#d88a75]">Yamil Ayma</h1>
-                <span class="text-xs text-gray-400 font-semibold uppercase">CMS DE DESARROLLO</span>
-              </div>
-            </div>
-
-            {/* Selector de Colecciones */}
-            <div class="p-4 border-b border-[var(--color-border)]">
-              <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Colecciones</label>
-              <nav class="flex flex-col gap-1">
-                {Object.keys(collections).map(col => (
-                  <button
-                    key={col}
-                    class={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
-                      activeCollection === col 
-                        ? 'bg-[#d88a75]/10 text-[#d88a75] border-l-4 border-[#d88a75]' 
-                        : 'hover:bg-gray-100 text-gray-600'
-                    }`}
-                    onClick={() => {
-                      setActiveCollection(col);
-                      setSearchQuery('');
-                      if (collections[col] && collections[col].length > 0) {
-                        selectEntry(col, collections[col][0].filename);
-                      } else {
-                        setActiveEntry(null);
-                      }
-                    }}
-                  >
-                    <span class="capitalize">{col}</span>
-                    <span class="text-xs bg-gray-200 px-2 py-0.5 rounded-full text-gray-500 font-bold">{collections[col]?.length || 0}</span>
-                  </button>
-                ))}
-              </nav>
-            </div>
-
-            {/* Listado de Entradas */}
-            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
-              <div class="flex items-center justify-between mb-2">
-                <label class="text-xs font-bold text-gray-400 uppercase">Entradas</label>
-                <button 
-                  onClick={() => setShowNewModal(true)}
-                  class="text-xs font-bold bg-[#d88a75] text-white px-2 py-1 rounded-lg hover:bg-[#c27c69] transition-all"
-                >
-                  + Nuevo
-                </button>
-              </div>
-
-              {/* Buscador Rápido */}
-              <input 
-                type="text" 
-                placeholder="Buscar entrada..." 
-                class="w-full cms-input px-3 py-1.5 rounded-xl text-xs mb-2"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-
-              <div class="flex flex-col gap-1">
-                {filteredEntries.map(entry => (
-                  <button
-                    key={entry.filename}
-                    onClick={() => selectEntry(activeCollection, entry.filename)}
-                    class={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium truncate transition-all ${
-                      activeEntry?.filename === entry.filename
-                        ? 'bg-[#d88a75] text-white shadow-md'
-                        : 'hover:bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {entry.slug}
-                  </button>
-                ))}
-                {filteredEntries.length === 0 && (
-                  <span class="text-xs text-gray-400 italic text-center py-4">No se encontraron entradas</span>
-                )}
-              </div>
-            </div>
-          </aside>
+          <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block shrink-0 h-[calc(100vh-60px)] md:h-full z-40 bg-white`}>
+            <SidebarComp
+              collections={collections}
+              activeCollection={activeCollection}
+              setActiveCollection={setActiveCollection}
+              activeEntry={activeEntry}
+              onSelectEntry={selectEntry}
+              onOpenNewModal={() => setShowNewModal(true)}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              lang={lang}
+              setLang={setLang}
+              t={t}
+            />
+          </div>
 
           {/* Área de Trabajo Principal */}
-          <main class="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
+          <main className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-6 md:gap-8">
             
-            {/* Header del CMS */}
             {activeEntry ? (
-              <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
-                <div>
-                  <div class="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase mb-1">
-                    <span class="capitalize">{activeEntry.collection}</span>
-                    <span>/</span>
-                    <span>{activeEntry.filename}</span>
+              <>
+                {/* Header del CMS */}
+                <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 shrink-0">
+                  <div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase mb-1">
+                      <span className="capitalize">{activeEntry.collection}</span>
+                      <span>/</span>
+                      <span>{activeEntry.filename}</span>
+                    </div>
+                    <h2 className="text-xl md:text-3xl font-black text-gray-800">
+                      {t.edit_label} <span className="text-[#d88a75]">{entryData.metadata?.title || activeEntry.filename.replace(/\.(md|mdx)$/, '')}</span>
+                    </h2>
                   </div>
-                  <h2 class="text-3xl font-black text-gray-800">
-                    Editar: <span class="text-[#d88a75]">{entryData.metadata?.title || activeEntry.filename.replace(/\.(md|mdx)$/, '')}</span>
-                  </h2>
+                  
+                  <div className="flex items-center gap-3">
+                    {message && <span className="text-xs md:text-sm font-bold text-green-600 transition-all">{message}</span>}
+                    <button
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className="bg-[#d88a75] hover:bg-[#c27c69] text-white px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                    >
+                      {isSaving ? t.saving : t.save_changes}
+                    </button>
+                  </div>
+                </header>
+
+                {/* Formulario Adaptativo & Markdown Editor */}
+                <div className="flex flex-col gap-6 md:gap-8">
+                  
+                  {/* Formulario de Metadatos */}
+                  <FormFieldsComp
+                    entry={activeEntry}
+                    entryData={entryData}
+                    updateMeta={updateMeta}
+                    onOpenUploader={handleOpenUploader}
+                    collections={collections}
+                    t={t}
+                  />
+
+                  {/* Markdown Editor */}
+                  <MarkdownEditorComp
+                    value={entryData.content}
+                    onChange={val => setEntryData(prev => ({ ...prev, content: val }))}
+                    entryId={`${activeEntry.collection}/${activeEntry.filename}`}
+                    t={t}
+                  />
                 </div>
-                
-                <div class="flex items-center gap-3">
-                  {message && <span class="text-sm font-bold text-green-600 transition-all">{message}</span>}
-                  <button
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    class="bg-[#d88a75] hover:bg-[#c27c69] text-white px-5 py-2.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-                  >
-                    {isSaving ? 'Guardando...' : 'Guardar Cambios'}
-                  </button>
-                </div>
-              </header>
+              </>
             ) : (
-              <div class="flex flex-col items-center justify-center flex-1 py-20 text-center">
-                <div class="text-6xl mb-4">✍️</div>
-                <h2 class="text-2xl font-bold mb-2">Bienvenido al CMS del Blog</h2>
-                <p class="text-sm text-gray-500 max-w-md">Selecciona una colección o entrada en el sidebar izquierdo para comenzar a gestionar los contenidos físicos del blog en tiempo real.</p>
-              </div>
-            )}
-
-            {/* Formulario Adaptativo & Markdown Editor */}
-            {activeEntry && (
-              <div class="flex flex-col gap-8">
-                
-                {/* Formulario de Metadatos */}
-                {renderFormFields()}
-
-                {/* Markdown Editor */}
-                <div class="cms-card p-6 rounded-2xl flex flex-col gap-4">
-                  <div class="flex items-center justify-between border-b pb-2">
-                    <h3 class="text-xl font-bold">Cuerpo de la Publicación (Markdown Editor)</h3>
-                    <div class="flex gap-2">
-                      <button 
-                        onClick={() => setPreviewMode(!previewMode)}
-                        class={`text-xs font-bold px-3 py-1 rounded-lg transition-all border ${
-                          previewMode 
-                            ? 'bg-[#d88a75] text-white border-[#d88a75]' 
-                            : 'hover:bg-gray-100 text-[#d88a75] border-[var(--color-border)]'
-                        }`}
-                      >
-                        {previewMode ? '✍️ Editar' : '👁️ Vista Previa'}
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Barra de Herramientas de Formato */}
-                  {!previewMode && (
-                    <div class="flex flex-wrap gap-1 bg-gray-50 p-2 rounded-xl border border-[var(--color-border)]">
-                      <button type="button" onClick={() => insertFormat('**', '**')} class="px-2.5 py-1 text-xs font-bold rounded hover:bg-gray-200" title="Negrita">B</button>
-                      <button type="button" onClick={() => insertFormat('*', '*')} class="px-2.5 py-1 text-xs italic rounded hover:bg-gray-200" title="Itálica">I</button>
-                      <button type="button" onClick={() => insertFormat('# ')} class="px-2 py-1 text-xs font-bold rounded hover:bg-gray-200" title="Encabezado 1">H1</button>
-                      <button type="button" onClick={() => insertFormat('## ')} class="px-2 py-1 text-xs font-bold rounded hover:bg-gray-200" title="Encabezado 2">H2</button>
-                      <button type="button" onClick={() => insertFormat('### ')} class="px-2 py-1 text-xs font-bold rounded hover:bg-gray-200" title="Encabezado 3">H3</button>
-                      <button type="button" onClick={() => insertFormat('- ')} class="px-2 py-1 text-xs rounded hover:bg-gray-200" title="Lista Viñeta">• Lista</button>
-                      <button type="button" onClick={() => insertFormat('[', '](url)')} class="px-2 py-1 text-xs rounded hover:bg-gray-200" title="Insertar Enlace">Enlace</button>
-                      <button type="button" onClick={() => insertFormat('![alt](', ')') } class="px-2 py-1 text-xs rounded hover:bg-gray-200" title="Insertar Imagen">Imagen</button>
-                      <button type="button" onClick={() => insertFormat('`', '`')} class="px-2.5 py-1 text-xs font-mono rounded hover:bg-gray-200" title="Código Inline">&lt;&gt;</button>
-                    </div>
-                  )}
-                  
-                  {previewMode ? (
-                    <div 
-                      class="w-full p-6 rounded-xl border border-[var(--color-border)] bg-white h-96 overflow-y-auto prose max-w-none prose-headings:font-heading prose-p:font-body"
-                      dangerouslySetInnerHTML={{ __html: marked.parse(entryData.content || '') }}
-                    />
-                  ) : (
-                    <textarea
-                      id="markdown-editor"
-                      class="w-full cms-input p-4 rounded-xl text-sm font-mono h-96 leading-relaxed"
-                      value={entryData.content || ''}
-                      onChange={e => setEntryData(prev => ({ ...prev, content: e.target.value }))}
-                      placeholder="Escribe el cuerpo de tu publicación utilizando Markdown..."
-                    />
-                  )}
-                </div>
+              <div className="flex flex-col items-center justify-center flex-1 py-12 md:py-20 text-center">
+                <div className="text-5xl md:text-6xl mb-4">✍️</div>
+                <h2 className="text-xl md:text-2xl font-bold mb-2">{t.welcome_title}</h2>
+                <p className="text-xs md:text-sm text-gray-500 max-w-md px-4">{t.welcome_desc}</p>
               </div>
             )}
           </main>
 
           {/* Modal de Nueva Entrada */}
           {showNewModal && (
-            <div class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 backdrop-blur-xs">
-              <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 flex flex-col gap-4">
-                <h3 class="text-xl font-bold text-gray-800">Crear Nueva Entrada</h3>
-                <p class="text-xs text-gray-400 font-semibold uppercase">COLECCIÓN: <span class="text-[#d88a75]">{activeCollection}</span></p>
+            <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 backdrop-blur-xs">
+              <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 flex flex-col gap-4">
+                <h3 className="text-xl font-bold text-gray-800">{t.new_entry_title}</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase">{t.collections}: <span className="text-[#d88a75]">{activeCollection}</span></p>
                 
-                <form onSubmit={handleCreateEntry} class="flex flex-col gap-4">
+                <form onSubmit={handleCreateEntry} className="flex flex-col gap-4">
                   <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">Nombre del Archivo (Slug)</label>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">{t.filename_label}</label>
                     <input 
                       type="text" 
                       placeholder="ej: mi-nuevo-post" 
                       required
-                      class="w-full cms-input px-3 py-2 rounded-xl text-sm"
+                      className="w-full cms-input px-3 py-2 rounded-xl text-xs"
                       value={newFilename}
                       onChange={e => setNewFilename(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, ''))}
                     />
-                    <span class="text-xs text-gray-400 mt-1 block">Se autoguardará como archivo físico `.md` en la carpeta de la colección.</span>
+                    <span className="text-[10px] text-gray-400 mt-1 block">{t.filename_desc}</span>
                   </div>
                   
-                  <div class="flex justify-end gap-3 mt-2">
+                  <div className="flex justify-end gap-3 mt-2">
                     <button 
                       type="button" 
                       onClick={() => { setShowNewModal(false); setNewFilename(''); }}
-                      class="px-4 py-2 border rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"
+                      className="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all"
                     >
-                      Cancelar
+                      {t.cancel}
                     </button>
                     <button 
                       type="submit"
-                      class="px-4 py-2 bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                      className="px-4 py-2 bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all"
                     >
-                      Crear Recurso
+                      {t.create_resource}
                     </button>
                   </div>
                 </form>
               </div>
             </div>
           )}
+
+          {/* Modal de Carga de Imágenes */}
+          <ImageUploaderModal
+            isOpen={uploaderOpen}
+            onClose={() => setUploaderOpen(false)}
+            onUploadSuccess={handleUploadSuccess}
+            t={t}
+          />
 
         </div>
       );
