@@ -11,6 +11,7 @@ El blog almacena sus contenidos en colecciones de Astro (`src/content/`) como ar
 *   Proveer formularios interactivos y autogenerados basados en los tipos de datos (Zod) de las colecciones.
 *   Diseñar una interfaz altamente interactiva y modular basada en **Radix UI** primitives y **Tailwind CSS**.
 *   Lograr la mimetización visual del CMS heredando dinámicamente las variables de color CSS de los temas activos del blog.
+*   Soportar un CRUD completo adaptativo para todas las colecciones de contenido del blog (`blog`, `pages`, `posts`, `projects`, `journal`).
 
 **Non-Goals:**
 *   Implementar autenticación web, base de datos externa (como PostgreSQL) o roles de usuario avanzados. El CMS asume confianza plena dado que corre únicamente en la máquina local del desarrollador.
@@ -35,20 +36,13 @@ La interfaz de usuario del CMS se construirá con componentes modulares basados 
 La interfaz web del CMS heredará y aplicará de forma directa las variables personalizadas `:root` del blog (`--color-background`, `--color-primary`, `--color-accent`, etc.).
 *   **Razón**: Al cargar el script central de temas de la base de código (`src/utils/theme.ts`), la interfaz de usuario del CMS se pintará y adaptará automáticamente al tema seleccionado en el blog (`soft`, `tech`, `dark`), manteniendo una consistencia estética unificada sin necesidad de duplicar el motor de diseño.
 
-### 5. Estructura de Panel CRUD Completo de Archivos Físicos
-El flujo de visualización y edición en la UI del CMS se mapea en una distribución de dos secciones principales:
-*   **Barra Lateral de Navegación (Sidebar)**:
-    *   **Entries**: Filtros de acceso directo para las colecciones nucleares (`Blogs`, `Projects`, `Posts`).
-    *   **Images**: Gestión de recursos visuales locales (`Stickers`, `Thumbnails`).
-    *   **System**: Accesos a configuraciones de desarrollo y salida (`Settings`, `Logout`).
-*   **Lienzo de Edición (Canvas Central)**:
-    Organizado en tarjetas interactivas modulares que agrupan los metadatos específicos:
-    *   *General Info*: Campos de texto plano (Título, Descripción, Periodo, Orden).
-    *   *Project Media*: Módulo uploader de portada física e inputs URL, más carrusel dinámico de galería con reordenamiento interactivo.
-    *   *Tags & Classification*: Chips y tags interactivos con botón de borrado rápido (`x`), e inputs de lista para añadir características (`Add Feature`).
-    *   *Technologies*: Listado de insignias dinámicas que previsualizan los badges de `shields.io` con edición en caliente del color y logos.
-    *   *External Links & Video*: Inputs para URLs externas (GitHub, Demo en Vercel) y el identificador de video de YouTube.
-    *   *Markdown Editor*: Editor interactivo con barra de herramientas de formato (`B`, `I`, `H1`, listas, enlaces, imágenes) y vista previa de texto renderizado en tiempo real.
+### 5. Interfaz Adaptativa y CRUD de Colecciones Mixtas
+La interfaz del CMS adaptará dinámicamente su formulario de metadatos en el lienzo central de edición de acuerdo con la colección de contenido seleccionada en la barra lateral (Sidebar):
+*   **Colección `projects` (Portafolio de Software)**: Muestra metadatos generales (título, descripción, periodo, orden), gestión de media (cargador de portada, galería de imágenes interactivas), clasificación (chips de tags, features ordenables), previsualización de insignias de `shields.io`, enlaces externos y editor de Markdown. *(Se prioriza como punto de partida en el desarrollo de la interfaz)*.
+*   **Colección `blog` (Artículos Técnicos)**: Formulario adaptado para título, descripción, categoría, control de publicación (`published`), portada, array de tags, selección de plantilla (`layout`) y editor de Markdown.
+*   **Colección `posts` (Micro-posts)**: Formulario optimizado para imagen física (obligatoria), copy o descripción corta, tags y sección estructurada de enlaces a redes sociales (`twitter`, `instagram`, `linkedin`, `facebook`, `tiktok`).
+*   **Colección `journal` (Diarios de Desarrollo)**: Módulo de edición para título, descripción opcional, fecha, imagen opcional, tags y el selector vinculante dinámico para asociar la bitácora con un proyecto en específico (`project`).
+*   **Colección `pages` (Páginas Estáticas)**: Formulario minimalista que expone título y descripción SEO opcional de la página.
 
 ## Risks / Trade-offs
 

@@ -33,21 +33,28 @@ La interfaz del CMS DEBE ser modular y construirse utilizando **Radix UI** primi
 - **WHEN** el desarrollador cambia la preferencia de tema en el blog o visualiza un post con categoría dinámica y accede a la interfaz de administración del CMS
 - **THEN** el CMS renderiza sus paneles, botones y fondos heredando de forma transparente las variables CSS globales (`--color-background`, `--color-primary`, `--color-accent`, etc.) asociadas al tema activo del blog
 
-### Requirement: Lienzo de Edición CRUD Completo
-El CMS DEBE proveer un panel interactivo compuesto por un Sidebar izquierdo para la navegación rápida de colecciones e imágenes, y un Canvas central con tarjetas estructuradas para todos los metadatos y contenido:
-*   *General Info*: Título, Descripción, Periodo, Orden.
-*   *Project Media*: Módulo file uploader y carrusel de galería de imágenes con borrado rápido.
-*   *Tags & Classification*: Tags interactivos con borrado en chip (`x`) y características ordenables (`Add Feature`).
-*   *Technologies*: Previsualización dinámica de insignias de `shields.io` con edición de colores y logos.
-*   *External Links*: Entradas de texto específicas para enlaces de GitHub, demostraciones web y video de YouTube.
-*   *Markdown Editor*: Editor enriquecido con barra de herramientas de formato (Negrita, Itálica, Encabezados, Listas, Enlaces, Imágenes) y previsualización de texto renderizado.
+### Requirement: Lienzo de Edición CRUD Adaptativo
+El CMS DEBE proveer un panel interactivo compuesto por un Sidebar izquierdo para la navegación rápida de colecciones e imágenes, y un Canvas central que adapta dinámicamente su formulario de metadatos (tarjetas estructuradas de campos frontmatter) de acuerdo con el esquema específico de la colección de contenido seleccionada:
+*   **Colección `projects`**: Campos de título, descripción, periodo, orden, uploader de portada, galería interactiva, chips de tags, lista de características, badges de `shields.io`, enlaces externos (GitHub/Demo) y editor de Markdown. *(Punto de partida del desarrollo)*.
+*   **Colección `blog`**: Campos de título, descripción, categoría, published, portada, tags, selector de layout y editor de Markdown.
+*   **Colección `posts`**: Campos de imagen obligatoria, copy corto, chips de tags, enlaces estructurados a redes sociales (Twitter, Instagram, LinkedIn, etc.) y editor de Markdown.
+*   **Colección `journal`**: Campos de título, descripción, fecha, imagen opcional, tags, selector vinculante dinámico de proyecto asociado (`project`) y editor de Markdown.
+*   **Colección `pages`**: Campos de título, descripción SEO y editor de Markdown.
+
+#### Scenario: Carga adaptativa del formulario para posts
+- **WHEN** el desarrollador selecciona una publicación de la colección `posts` en el Sidebar del CMS
+- **THEN** la interfaz expone de forma dinámica los campos para imagen física, copy descriptivo, tags y la tarjeta interactiva de enlaces a redes sociales, ocultando componentes redundantes
+
+#### Scenario: Carga adaptativa del formulario para diarios (journal)
+- **WHEN** el desarrollador selecciona un diario de la colección `journal` en el Sidebar del CMS
+- **THEN** la interfaz expone un formulario estructurado con un selector interactivo que lee y lista todos los slugs de proyectos de `projects` para vincular de forma relacional el campo `project`
 
 #### Scenario: Formateo y vista previa en el editor Markdown
 - **WHEN** el desarrollador escribe en el Markdown Editor del CMS y hace clic en "Preview"
 - **THEN** la interfaz renderiza dinámicamente una vista previa HTML estilizada de la publicación respetando las tipografías y el diseño estético general del blog
 
 #### Scenario: Borrado de chips de tags
-- **WHEN** el desarrollador hace clic en el botón `x` de un chip de tag en el módulo *Tags & Classification*
+- **WHEN** el desarrollador hace clic en el botón `x` de un chip de tag en el módulo de clasificación
 - **THEN** el tag se remueve de forma instantánea de la lista visual y se excluye del frontmatter al guardar
 
 ### Requirement: Aislamiento del Entorno de Producción
