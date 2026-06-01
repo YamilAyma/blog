@@ -1,7 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { serializeYaml, parseFileContent } from './yamlFormatter.js';
 import { gitCommit } from './git.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Escaneo recursivo para construir el árbol jerárquico de contenidos
 export function scanDir(baseDir, currentDir = '') {
@@ -121,3 +125,14 @@ export async function deleteEntry(filePath, slug, collection) {
   await gitCommit(filePath, 'delete', slug, collection);
   return { success: true };
 }
+
+// Obtener la base de datos viva de componentes personalizados
+export function getCustomComponents() {
+  const registryPath = path.join(__dirname, 'componentsRegistry.json');
+  if (!fs.existsSync(registryPath)) {
+    return { components: [] };
+  }
+  const rawData = fs.readFileSync(registryPath, 'utf-8');
+  return JSON.parse(rawData);
+}
+

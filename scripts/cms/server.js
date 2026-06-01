@@ -3,9 +3,11 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import open from 'open';
+import { spawn } from 'child_process';
+import net from 'net';
 
 // Importar submódulos de la API modularizada
-import { scanDir, readEntry, saveEntry, createEntry, deleteEntry, getDefaultTemplate } from './api/content.js';
+import { scanDir, readEntry, saveEntry, createEntry, deleteEntry, getDefaultTemplate, getCustomComponents } from './api/content.js';
 import { scanFolders, createFolder, uploadMedia } from './api/media.js';
 import { gitCommit, gitPush } from './api/git.js';
 
@@ -326,8 +328,79 @@ app.post('/api/git-push', async (req, res) => {
   }
 });
 
+// 13. Endpoint GET: Obtener base de datos de componentes personalizados
+app.get('/api/custom-components', (req, res) => {
+  try {
+    const data = getCustomComponents();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al cargar componentes', details: err.message });
+  }
+});
+
+let astroProcess = null;
+
+function checkPort(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+    server.once('listening', () => {
+      server.close();
+      resolve(false);
+    });
+    server.listen(port);
+  });
+}
+
+async function startAstroDev() {
+  const isPortInUse = await checkPort(4321);
+  if (isPortInUse) {
+    console.log('⚡ El servidor de desarrollo de Astro ya parece estar ejecutándose en el puerto 4321.');
+    return;
+  }
+
+  console.log('🚀 Iniciando servidor de desarrollo de Astro en segundo plano...');
+  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  astroProcess = spawn(npmCmd, ['run', 'dev'], {
+    cwd: BLOG_ROOT,
+    stdio: 'ignore',
+    detached: false
+  });
+
+  astroProcess.on('error', (err) => {
+    console.error('❌ Error al iniciar el servidor de Astro:', err);
+  });
+
+  astroProcess.unref();
+}
+
+function cleanup() {
+  if (astroProcess) {
+    console.log('Apagando servidor de desarrollo de Astro...');
+    astroProcess.kill();
+    astroProcess = null;
+  }
+}
+
+process.on('exit', cleanup);
+process.on('SIGINT', () => {
+  cleanup();
+  process.exit();
+});
+process.on('SIGTERM', () => {
+  cleanup();
+  process.exit();
+});
+
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`\n🚀 CMS de desarrollo listo en http://localhost:${PORT}`);
+  await startAstroDev();
   open(`http://localhost:${PORT}`);
 });

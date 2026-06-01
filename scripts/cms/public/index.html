@@ -580,6 +580,7 @@
       // Estado para crear un archivo nuevo
       const [showNewModal, setShowNewModal] = useState(false);
       const [newFilename, setNewFilename] = useState('');
+      const [saveTrigger, setSaveTrigger] = useState(0);
 
       // Árbol y creación de subcarpetas de CONTENIDOS
       const [contentFolders, setContentFolders] = useState([]);
@@ -606,6 +607,20 @@
 
       // Sistema de Toasts en esquina
       const [toasts, setToasts] = useState([]);
+
+      // Control del menú flotante de acciones rápidas
+      const [quickActionsOpen, setQuickActionsOpen] = useState(false);
+      const quickActionsRef = useRef(null);
+
+      useEffect(() => {
+        const handleClickOutside = (event) => {
+          if (quickActionsRef.current && !quickActionsRef.current.contains(event.target)) {
+            setQuickActionsOpen(false);
+          }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+      }, []);
 
       const addToast = (type, title, message) => {
         const id = Date.now();
@@ -730,10 +745,12 @@
               if (data.success) {
                 setMessage('✓ ' + (t.success_save || 'Guardado con éxito'));
                 addToast('info', t.cms_title || 'CMS', '✓ Archivo persistido y comiteado localmente.');
+                setSaveTrigger(prev => prev + 1);
                 setTimeout(() => setMessage(''), 3000);
               } else {
                 setMessage('Error: ' + data.error);
               }
+
             })
             .catch(err => {
               setIsSaving(false);
@@ -1101,9 +1118,11 @@
                       value={entryData.content}
                       onChange={val => setEntryData(prev => ({ ...prev, content: val }))}
                       entryId={`${activeEntry.collection}/${activeEntry.filename}`}
+                      saveTrigger={saveTrigger}
                       t={t}
                     />
                   )}
+
                 </div>
               </>
             ) : (
@@ -1257,23 +1276,43 @@
           />
 
           {/* Botón Flotante Hamburger de Acciones Rápidas */}
-          <div className="fixed bottom-6 left-6 z-40 group">
-            {/* Acciones del menú (se revelan al hacer hover en el contenedor) */}
-            <div className="absolute bottom-16 left-0 flex flex-col gap-3 scale-0 group-hover:scale-100 origin-bottom-left transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
-              <button
-                type="button"
-                onClick={handleGitPush}
-                className="bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap text-xs font-bold leading-none w-12 h-12 border-2 border-white/20"
-                title="Subir commits a GitHub (Git Push)"
-              >
-                🚀
-              </button>
-            </div>
+          <div className="fixed bottom-6 left-6 z-45" ref={quickActionsRef}>
+            {/* Acciones del menú (se revelan al hacer click) */}
+            {quickActionsOpen && (
+              <div className="absolute bottom-16 left-0 flex flex-col gap-2.5 animate-scale-up z-50">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleGitPush();
+                    setQuickActionsOpen(false);
+                  }}
+                  className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/80 rounded-xl shadow-lg px-4 py-3 transition-all cursor-pointer flex items-center gap-3.5 whitespace-nowrap text-xs font-black uppercase tracking-widest border-l-4 border-l-[#d88a75]"
+                >
+                  <span className="text-base select-none">🚀</span>
+                  <span>Enviar cambios (Git Push)</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewModal(true);
+                    setQuickActionsOpen(false);
+                  }}
+                  className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/80 rounded-xl shadow-lg px-4 py-3 transition-all cursor-pointer flex items-center gap-3.5 whitespace-nowrap text-xs font-black uppercase tracking-widest border-l-4 border-l-[#d88a75]"
+                >
+                  <span className="text-base select-none">📝</span>
+                  <span>Nueva Entrada</span>
+                </button>
+              </div>
+            )}
             
             {/* Hamburguesa principal */}
             <button
               type="button"
-              className="bg-[#d88a75] hover:bg-[#c27c69] text-white w-14 h-14 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center text-xl font-bold cursor-pointer transition-all duration-300 transform group-hover:rotate-90 select-none border-2 border-white/30"
+              onClick={() => setQuickActionsOpen(!quickActionsOpen)}
+              className={`bg-[#d88a75] hover:bg-[#c27c69] text-white w-14 h-14 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center text-xl font-bold cursor-pointer transition-all duration-300 select-none border-2 border-white/30 ${
+                quickActionsOpen ? 'rotate-90 bg-[#c27c69]' : ''
+              }`}
             >
               ☰
             </button>

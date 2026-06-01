@@ -1,0 +1,60 @@
+{
+  "components": [
+    {
+      "name": "Badge",
+      "icon": "🏷️",
+      "description": "Etiqueta visual pequeña para destacar categorías, estados, etiquetas o tecnologías de forma compacta.",
+      "properties": [
+        { "name": "text", "type": "string", "required": true, "description": "Texto visible dentro de la etiqueta." },
+        { "name": "type", "type": "string", "required": false, "description": "Estilo visual: info (celeste), success (verde), warning (amarillo), danger (rojo)." }
+      ],
+      "template": "<Badge text=\"Astro\" type=\"info\" />",
+      "example": "<Badge text=\"Tailwind CSS\" type=\"success\" />"
+    },
+    {
+      "name": "Alert",
+      "icon": "🚨",
+      "description": "Caja destacada con bordes redondeados y fondo de color para resaltar advertencias, notas o consejos especiales.",
+      "properties": [
+        { "name": "type", "type": "string", "required": false, "description": "Nivel de alerta: note (azul), tip (verde), warning (amarillo), caution (rojo)." },
+        { "name": "title", "type": "string", "required": false, "description": "Título opcional en negrita para la cabecera." }
+      ],
+      "template": "<Alert type=\"warning\" title=\"Nota Importante\">\n  Este es un mensaje de alerta destacado para el lector.\n</Alert>",
+      "example": "<Alert type=\"tip\" title=\"Consejo Pro\">\n  Usa HMR en caliente para ver cambios en tiempo real.\n</Alert>"
+    },
+    {
+      "name": "Card",
+      "icon": "🎴",
+      "description": "Tarjeta de diseño limpio con cabecera y enlaces integrados, ideal para agrupar bloques de información estructurada.",
+      "properties": [
+        { "name": "title", "type": "string", "required": true, "description": "Título de la tarjeta." },
+        { "name": "link", "type": "string", "required": false, "description": "URL destino si es una tarjeta interactiva." },
+        { "name": "linkText", "type": "string", "required": false, "description": "Texto del botón de enlace." }
+      ],
+      "template": "<Card title=\"Mi Tarjeta de Proyecto\" link=\"https://astro.build\" linkText=\"Ver sitio\">\n  Describe aquí los detalles o características clave de esta sección.\n</Card>",
+      "example": "<Card title=\"Guía de Configuración\" link=\"/posts/setup\">\n  Aprende cómo configurar tu entorno local en 5 minutos.\n</Card>"
+    },
+    {
+      "name": "Grid",
+      "icon": "📊",
+      "description": "Rejilla adaptable (CSS Grid) para organizar elementos internos en múltiples columnas en pantallas de escritorio.",
+      "properties": [
+        { "name": "cols", "type": "string", "required": false, "description": "Número de columnas en pantallas grandes (1, 2, 3 o 4). Por defecto es 2." }
+      ],
+      "template": "<Grid cols=\"2\">\n  <div>\n    ### Sección Izquierda\n    Contenido de la primera columna.\n  </div>\n  <div>\n    ### Sección Derecha\n    Contenido de la segunda columna.\n  </div>\n</Grid>",
+      "example": "<Grid cols=\"3\">\n  <div>Columna A</div>\n  <div>Columna B</div>\n  <div>Columna C</div>\n</Grid>"
+    },
+    {
+      "name": "Button",
+      "icon": "🖱️",
+      "description": "Botón de llamada a la acción (CTA) con micro-animación en hover y diseño estético alineado al blog.",
+      "properties": [
+        { "name": "href", "type": "string", "required": true, "description": "Ruta o enlace externo de destino." },
+        { "name": "text", "type": "string", "required": true, "description": "Etiqueta de texto visible del botón." },
+        { "name": "target", "type": "string", "required": false, "description": "Destino de apertura: _blank (nueva pestaña) o _self (misma pestaña)." }
+      ],
+      "template": "<Button href=\"https://github.com\" text=\"Ver Repositorio\" target=\"_blank\" />",
+      "example": "<Button href=\"/contacto\" text=\"Escríbeme\" />"
+    }
+  ]
+}
