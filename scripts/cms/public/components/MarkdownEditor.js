@@ -242,15 +242,35 @@ export function MarkdownEditor({ value, onChange, entryId, saveTrigger = 0, t })
   };
 
   // Calcular URL de previsualización real de Astro
-  let entrySlug = '';
-  let collectionName = '';
+  let subPath = '';
   if (entryId) {
     const parts = entryId.split('/');
-    collectionName = parts[0];
-    entrySlug = parts.slice(1).join('/').replace(/\.(md|mdx)$/, '');
+    const collectionName = parts[0];
+    
+    if (collectionName === 'journal') {
+      // Formato: journal/proyecto/slug.mdx
+      const projectSlug = parts[1];
+      const filename = parts.slice(2).join('/').replace(/\.(md|mdx)$/, '');
+      if (filename) {
+        subPath = `proyectos/${projectSlug}/diario/${filename}`;
+      } else {
+        const singleFile = parts[1].replace(/\.(md|mdx)$/, '');
+        subPath = `proyectos/diario/${singleFile}`;
+      }
+    } else if (collectionName === 'projects') {
+      const filename = parts.slice(1).join('/').replace(/\.(md|mdx)$/, '');
+      subPath = `proyectos/${filename}`;
+    } else if (collectionName === 'pages') {
+      const filename = parts.slice(1).join('/').replace(/\.(md|mdx)$/, '');
+      subPath = filename;
+    } else {
+      // blog, posts, etc.
+      const filename = parts.slice(1).join('/').replace(/\.(md|mdx)$/, '');
+      subPath = `${collectionName}/${filename}`;
+    }
   }
   const hasUnsavedChanges = text !== value;
-  const astroPreviewUrl = `http://localhost:4321/${collectionName === 'pages' ? '' : collectionName + '/'}${entrySlug}`;
+  const astroPreviewUrl = `http://localhost:4321/${subPath}`;
 
   return (
     <div className="cms-card p-4 md:p-6 rounded-2xl flex flex-col gap-4">
@@ -472,11 +492,25 @@ export function MarkdownEditor({ value, onChange, entryId, saveTrigger = 0, t })
               <button 
                 type="button"
                 onClick={() => setIframeReloadTime(Date.now())}
-                className="text-[#d88a75] hover:underline"
+                className="text-[#d88a75] hover:underline cursor-pointer font-bold animate-pulse"
               >
                 🔄 Forzar Recarga
               </button>
             </div>
+            
+            {/* Barra de dirección estilo Navegador (MacOS aesthetic) */}
+            <div className="bg-gray-50/50 border-b border-gray-200/60 px-3 py-1.5 flex items-center gap-2.5 shrink-0 select-none">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 rounded-full bg-red-400/80"></span>
+                <span className="w-2 h-2 rounded-full bg-yellow-400/80"></span>
+                <span className="w-2 h-2 rounded-full bg-green-400/80"></span>
+              </div>
+              <div className="flex-1 bg-white border border-gray-200/50 rounded-lg px-2.5 py-0.5 text-[10px] font-mono text-gray-500 flex items-center justify-between truncate select-all">
+                <span className="truncate">{astroPreviewUrl}</span>
+                <span className="text-[8px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-sm uppercase tracking-wider shrink-0 ml-2">En Vivo</span>
+              </div>
+            </div>
+
             <iframe
               src={`${astroPreviewUrl}?t=${iframeReloadTime}`}
               className="w-full flex-1 border-0"
