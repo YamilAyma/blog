@@ -53,7 +53,19 @@ export const translations = {
     // General
     generic_metadata: "Metadatos Genéricos",
     markdown_body: "Cuerpo de la Publicación (Markdown Editor)",
-    md_placeholder: "Escribe el cuerpo de tu publicación utilizando Markdown..."
+    md_placeholder: "Escribe el cuerpo de tu publicación utilizando Markdown...",
+
+    // Segunda Iteración (Nuevas)
+    loading: "Iniciando panel modular...",
+    img_not_found: "Imagen no encontrada",
+    img_alt: "Descripción Alternativa (alt)",
+    add_image: "+ Agregar Imagen",
+    youtube_preview: "Reproductor de YouTube",
+    invalid_assets_warn: "⚠️ Imágenes no encontradas",
+    invalid_assets_desc: "Las siguientes imágenes locales no existen físicamente en tu repositorio: ",
+    close: "Cerrar",
+    remove: "Eliminar",
+    upload_pc: "📂 Subir PC"
   },
   en: {
     cms_title: "My Blog",
@@ -109,6 +121,18 @@ export const translations = {
     // General
     generic_metadata: "Generic Metadata",
     markdown_body: "Publication Body (Markdown Editor)",
-    md_placeholder: "Write the body of your publication using Markdown..."
+    md_placeholder: "Write the body of your publication using Markdown...",
+
+    // Segunda Iteración (Nuevas)
+    loading: "Loading modular panel...",
+    img_not_found: "Image not found",
+    img_alt: "Alternative Description (alt)",
+    add_image: "+ Add Image",
+    youtube_preview: "YouTube Player",
+    invalid_assets_warn: "⚠️ Images not found",
+    invalid_assets_desc: "The following local images do not physically exist in your repository: ",
+    close: "Close",
+    remove: "Remove",
+    upload_pc: "📂 Upload PC"
   }
 };

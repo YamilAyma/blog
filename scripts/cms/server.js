@@ -2,23 +2,32 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import yaml from 'yaml';
 import open from 'open';
+
+// Importar submódulos de la API modularizada
+import { scanDir, readEntry, saveEntry, createEntry, deleteEntry, getDefaultTemplate } from './api/content.js';
+import { scanFolders, createFolder, uploadMedia } from './api/media.js';
+import { gitCommit, gitPush } from './api/git.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 43210; // Puerto específico para evitar colisiones con Astro
+const PORT = 43210; // Puerto del CMS local
 
 const BLOG_ROOT = path.join(__dirname, '..', '..');
 const CONTENT_DIR = path.join(BLOG_ROOT, 'src', 'content');
+const ASSETS_DIR = path.join(BLOG_ROOT, 'src', 'assets');
 
-// Incrementar límite de tamaño para poder recibir imágenes en Base64 grandes
+// Middleware para cuerpos JSON grandes
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Servir favicon.svg real del blog
+// Mapear carpetas físicas de assets para previsualizar de inmediato
+app.use('/assets', express.static(ASSETS_DIR));
+app.use('/src/assets', express.static(ASSETS_DIR));
+
+// Endpoint: Favicon real
 app.get('/favicon.svg', (req, res) => {
   const favPath = path.join(BLOG_ROOT, 'public', 'favicon.svg');
   if (fs.existsSync(favPath)) {
@@ -28,85 +37,27 @@ app.get('/favicon.svg', (req, res) => {
   }
 });
 
-// Helper: sanitizar slugs y extensiones de archivos
+// Endpoint: Loader dinámico
+app.get('/loader.gif', (req, res) => {
+  const loaderCmsPath = path.join(__dirname, 'public', 'loader.gif');
+  const loaderBlogPath = path.join(BLOG_ROOT, 'public', 'loader.gif');
+  if (fs.existsSync(loaderCmsPath)) {
+    res.sendFile(loaderCmsPath);
+  } else if (fs.existsSync(loaderBlogPath)) {
+    res.sendFile(loaderBlogPath);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+// Helper: Sanitizar rutas y evitar Directory Traversal
 function sanitizePath(col, filename) {
   const safeCol = path.basename(col);
   const safeFile = filename.replace(/\.\./g, '');
   return path.join(CONTENT_DIR, safeCol, safeFile);
 }
 
-// Helper: separar frontmatter y markdown body
-function parseFileContent(rawText) {
-  const match = rawText.match(/^---\r?\n([\s\S]+?)\r?\n---([\s\S]*)/);
-  if (!match) {
-    return { metadata: {}, content: rawText };
-  }
-  
-  const yamlText = match[1];
-  const markdownBody = match[2];
-  
-  try {
-    const metadata = yaml.parse(yamlText) || {};
-    return { metadata, content: markdownBody.trim() };
-  } catch (err) {
-    console.error('Error parseando YAML:', err);
-    return { metadata: {}, content: rawText, error: 'Error al parsear metadatos frontmatter' };
-  }
-}
-
-// Escaneo recursivo para construir el árbol jerárquico de subcarpetas físicas
-function scanDir(baseDir, currentDir = '') {
-  const fullPath = path.join(baseDir, currentDir);
-  if (!fs.existsSync(fullPath)) return [];
-
-  const items = fs.readdirSync(fullPath);
-  const nodes = [];
-
-  items.forEach(item => {
-    const relativeItemPath = currentDir ? path.join(currentDir, item) : item;
-    const itemFullPath = path.join(baseDir, relativeItemPath);
-    const stat = fs.statSync(itemFullPath);
-
-    // Reemplazar diagonales inversas en Windows para normalizar a '/'
-    const safeRelativePath = relativeItemPath.replace(/\\/g, '/');
-
-    if (stat.isDirectory()) {
-      const children = scanDir(baseDir, safeRelativePath);
-      // Sumar conteo total de archivos
-      let filesCount = 0;
-      children.forEach(c => {
-        if (c.type === 'file') filesCount++;
-        else filesCount += c.filesCount;
-      });
-
-      nodes.push({
-        name: item,
-        type: 'directory',
-        relativePath: safeRelativePath,
-        filesCount,
-        children
-      });
-    } else if (item.endsWith('.md') || item.endsWith('.mdx')) {
-      nodes.push({
-        name: item,
-        type: 'file',
-        filename: safeRelativePath,
-        slug: safeRelativePath.replace(/\.(md|mdx)$/, ''),
-        updatedAt: stat.mtime
-      });
-    }
-  });
-
-  // Ordenar directorios primero, luego archivos alfabéticamente
-  return nodes.sort((a, b) => {
-    if (a.type !== b.type) {
-      return a.type === 'directory' ? -1 : 1;
-    }
-    return a.name.localeCompare(b.name);
-  });
-}
-
-// 1. Endpoint: Listar contenidos jerárquicos por colección
+// 1. Endpoint: Listar contenidos jerárquicos recursivos por colección
 app.get('/api/content', (req, res) => {
   try {
     if (!fs.existsSync(CONTENT_DIR)) {
@@ -125,91 +76,64 @@ app.get('/api/content', (req, res) => {
 
     res.json(result);
   } catch (err) {
-    res.status(500).json({ error: 'Error al escanear directorio', details: err.message });
+    res.status(500).json({ error: 'Error al escanear contenidos', details: err.message });
   }
 });
 
-// 2. Endpoint: Leer una entrada específica (admite subcarpetas vía expresión regular)
+// 2. Endpoint GET: Leer entrada (comodín RegExp universal)
 app.get(/\/api\/content\/([^\/]+)\/(.+)/, (req, res) => {
   try {
     const collection = req.params[0];
     const filename = req.params[1];
     const filePath = sanitizePath(collection, filename);
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Archivo no encontrado' });
-    }
-
-    const rawText = fs.readFileSync(filePath, 'utf-8');
-    const parsedData = parseFileContent(rawText);
-
-    res.json(parsedData);
+    const data = readEntry(filePath);
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Error al leer el archivo', details: err.message });
   }
 });
 
-// 3. Endpoint: Guardar cambios en archivo existente (admite subcarpetas vía expresión regular)
-app.post(/\/api\/content\/([^\/]+)\/(.+)/, (req, res) => {
+// 3. Endpoint POST: Guardar cambios y auto-comitear (RegExp universal)
+app.post(/\/api\/content\/([^\/]+)\/(.+)/, async (req, res) => {
   try {
     const collection = req.params[0];
     const filename = req.params[1];
     const { metadata, content } = req.body;
     const filePath = sanitizePath(collection, filename);
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Archivo no encontrado' });
-    }
-
-    if (!metadata || typeof content === 'undefined') {
-      return res.status(400).json({ error: 'Faltan datos requeridos (metadata o content)' });
-    }
-
-    // Limpieza de metadatos según especificaciones
-    const cleanMeta = { ...metadata };
+    const slug = filename.replace(/\.(md|mdx)$/, '');
     
-    // Forzar que el campo 'description' esté en una sola línea
-    if (cleanMeta.description) {
-      cleanMeta.description = cleanMeta.description.toString().replace(/\r?\n|\r/g, ' ').trim();
-    }
-
-    // Crear Documento AST de YAML para forzar serialización estricta y limpia
-    const doc = new yaml.Document(cleanMeta);
-    
-    // Forzar que los arrays simples se rendericen inline como [a, b] y todos los strings lleven comillas dobles
-    yaml.visit(doc, {
-      Seq(key, node) {
-        node.flow = true; // Modo flujo (inline)
-      },
-      Scalar(key, node) {
-        if (typeof node.value === 'string') {
-          node.type = 'QUOTE_DOUBLE'; // Forzar comillas dobles en strings
-        }
-      }
-    });
-
-    const yamlString = doc.toString({
-      lineWidth: 0, // Evitar que salte de línea para textos largos como la descripción
-      doubleQuotedAsJSON: true // Forzar comillas dobles estilo JSON en strings
-    }).trim();
-
-    // Reconstruir archivo markdown con frontmatter
-    const fileContent = `---\n${yamlString}\n---\n\n${content.trim()}\n`;
-
-    fs.writeFileSync(filePath, fileContent, 'utf-8');
-    console.log(`✓ Archivo guardado y formateado por el CMS: ${filePath}`);
-
-    res.json({ success: true, message: 'Archivo guardado con éxito' });
+    // Guardar y auto-comitear
+    const result = await saveEntry(filePath, metadata, content, slug, collection);
+    res.json(result);
   } catch (err) {
-    res.status(500).json({ error: 'Error al escribir el archivo', details: err.message });
+    res.status(500).json({ error: 'Error al guardar el archivo', details: err.message });
   }
 });
 
-// 4. Endpoint: Crear un nuevo archivo en una colección
-app.post('/api/content/:collection', (req, res) => {
+// 4. Endpoint DELETE: Eliminar físicamente y auto-comitear (RegExp universal)
+app.delete(/\/api\/content\/([^\/]+)\/(.+)/, async (req, res) => {
+  try {
+    const collection = req.params[0];
+    const filename = req.params[1];
+    const filePath = sanitizePath(collection, filename);
+
+    const slug = filename.replace(/\.(md|mdx)$/, '');
+
+    // Borrar y auto-comitear
+    const result = await deleteEntry(filePath, slug, collection);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al borrar el archivo', details: err.message });
+  }
+});
+
+// 5. Endpoint POST: Crear nuevo recurso en subcarpeta elegida
+app.post('/api/content/:collection', async (req, res) => {
   try {
     const { collection } = req.params;
-    const { filename, metadata = {}, content = '' } = req.body;
+    const { filename, targetDir = '', metadata = {}, content = '' } = req.body;
 
     if (!filename) {
       return res.status(400).json({ error: 'El nombre de archivo (filename) es requerido' });
@@ -220,16 +144,19 @@ app.post('/api/content/:collection', (req, res) => {
       safeFilename += '.md';
     }
 
-    const filePath = sanitizePath(collection, safeFilename);
+    // Calcular subcarpeta elegida en caliente
+    const cleanTargetDir = targetDir.replace(/\.\./g, '');
+    const relativeFilePath = cleanTargetDir ? path.join(cleanTargetDir, safeFilename) : safeFilename;
+    const filePath = sanitizePath(collection, relativeFilePath);
 
     if (fs.existsSync(filePath)) {
-      return res.status(409).json({ error: 'El archivo ya existe' });
+      return res.status(409).json({ error: 'El archivo ya existe en esa ubicación' });
     }
 
     const defaultMeta = { ...metadata };
     const today = new Date().toISOString().split('T')[0];
 
-    // Pre-poblar frontmatter según la colección
+    // Pre-poblar frontmatter por defecto si está vacío
     if (Object.keys(defaultMeta).length === 0) {
       if (collection === 'blog') {
         defaultMeta.title = 'Nuevo Artículo';
@@ -239,20 +166,22 @@ app.post('/api/content/:collection', (req, res) => {
         defaultMeta.category = 'General';
         defaultMeta.image = '';
         defaultMeta.tags = ['general'];
-        defaultMeta.layout = '';
+        defaultMeta.layout = '../../layouts/BlogPost.astro';
       } else if (collection === 'posts') {
         defaultMeta.date = today;
         defaultMeta.published = true;
         defaultMeta.category = 'General';
         defaultMeta.tags = [];
         defaultMeta.image = '';
-        defaultMeta.copy = 'Mensaje corto de la bitácora...';
+        defaultMeta.imageAlt = 'Descripción de la imagen';
+        defaultMeta.copy = 'Copy corto del post...';
       } else if (collection === 'projects') {
         defaultMeta.title = 'Nuevo Proyecto';
         defaultMeta.description = 'Descripción detallada del proyecto';
         defaultMeta.periodo = '2026';
         defaultMeta.order = 0;
         defaultMeta.image = '';
+        defaultMeta.imagenes = [];
         defaultMeta.tags = [];
         defaultMeta.videoYoutube = '';
       } else if (collection === 'journal') {
@@ -269,94 +198,131 @@ app.post('/api/content/:collection', (req, res) => {
       }
     }
 
-    // Forzar línea única en descripción
-    if (defaultMeta.description) {
-      defaultMeta.description = defaultMeta.description.toString().replace(/\r?\n|\r/g, ' ').trim();
-    }
+    // Inyectar cuerpo Markdown inicial enriquecido
+    const defaultContent = content.trim() || getDefaultTemplate(collection, defaultMeta.title);
+    const slug = relativeFilePath.replace(/\.(md|mdx)$/, '').replace(/\\/g, '/');
 
-    const doc = new yaml.Document(defaultMeta);
-    yaml.visit(doc, {
-      Seq(key, node) {
-        node.flow = true; // Modo flujo (inline)
-      },
-      Scalar(key, node) {
-        if (typeof node.value === 'string') {
-          node.type = 'QUOTE_DOUBLE'; // Forzar comillas dobles en strings
-        }
-      }
-    });
-
-    const yamlString = doc.toString({
-      lineWidth: 0,
-      doubleQuotedAsJSON: true
-    }).trim();
-
-    const fileContent = `---\n${yamlString}\n---\n\n${content.trim() || '# ' + (defaultMeta.title || 'Nueva entrada')}\n`;
-
-    const collectionPath = path.dirname(filePath);
-    if (!fs.existsSync(collectionPath)) {
-      fs.mkdirSync(collectionPath, { recursive: true });
-    }
-
-    fs.writeFileSync(filePath, fileContent, 'utf-8');
-    console.log(`✓ Archivo nuevo creado por el CMS: ${filePath}`);
-
-    res.status(201).json({ success: true, message: 'Archivo creado con éxito', filename: safeFilename });
+    // Crear y auto-comitear
+    const result = await createEntry(filePath, defaultMeta, defaultContent, slug, collection);
+    res.json({ ...result, filename: relativeFilePath.replace(/\\/g, '/') });
   } catch (err) {
     res.status(500).json({ error: 'Error al crear el archivo', details: err.message });
   }
 });
 
-// 5. Endpoint POST: Subida de imágenes locales decodificando Base64
-app.post('/api/media', (req, res) => {
+// 6. Endpoint GET: Escanear subcarpetas dentro de una colección física
+app.get('/api/content-folders/:collection', (req, res) => {
+  try {
+    const { collection } = req.params;
+    const baseColDir = path.join(CONTENT_DIR, path.basename(collection));
+    if (!fs.existsSync(baseColDir)) {
+      return res.json([]);
+    }
+    const folders = scanFolders(baseColDir);
+    res.json(folders);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al listar subcarpetas', details: err.message });
+  }
+});
+
+// 7. Endpoint POST: Crear una subcarpeta física dentro de una colección
+app.post('/api/content-folders/:collection', (req, res) => {
+  try {
+    const { collection } = req.params;
+    const { parentPath, newFolderName } = req.body;
+    const baseColDir = path.join(CONTENT_DIR, path.basename(collection));
+
+    const relativePath = createFolder(baseColDir, parentPath, newFolderName);
+    res.json({ success: true, relativePath });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al crear subcarpeta', details: err.message });
+  }
+});
+
+// 8. Endpoint GET: Obtener el árbol de carpetas de assets/
+app.get('/api/media-folders', (req, res) => {
+  try {
+    if (!fs.existsSync(ASSETS_DIR)) {
+      return res.json([]);
+    }
+    const folderTree = scanFolders(ASSETS_DIR);
+    res.json(folderTree);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al escanear assets', details: err.message });
+  }
+});
+
+// 9. Endpoint POST: Crear una carpeta física en assets/
+app.post('/api/media-folders', (req, res) => {
+  try {
+    const { parentPath, newFolderName } = req.body;
+    const relativePath = createFolder(ASSETS_DIR, parentPath, newFolderName);
+    res.json({ success: true, relativePath });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al crear carpeta de assets', details: err.message });
+  }
+});
+
+// 10. Endpoint POST: Subir imagen Base64 y ejecutar Git Auto-Commit
+app.post('/api/media', async (req, res) => {
   try {
     const { filename, targetDir, image } = req.body;
-    if (!filename || !image) {
-      return res.status(400).json({ error: 'Faltan datos requeridos (filename o image)' });
-    }
+    const uploadResult = uploadMedia(BLOG_ROOT, filename, targetDir, image);
 
-    // Extraer el base64 del Data URL
-    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
-      return res.status(400).json({ error: 'Formato de imagen inválido' });
-    }
+    // Auto-commit para la imagen subida en assets
+    await gitCommit(uploadResult.destFilePath, 'media', uploadResult.safeFilename, 'assets');
 
-    const buffer = Buffer.from(matches[2], 'base64');
-    
-    // Carpeta física destino en assets
-    let relativeDestDir = path.join('src', 'assets', 'images');
-    if (targetDir === 'projects') {
-      relativeDestDir = path.join('src', 'assets', 'images', 'projects');
-    } else if (targetDir === 'blog') {
-      relativeDestDir = path.join('src', 'assets', 'images', 'blog');
-    }
-
-    const destDir = path.join(BLOG_ROOT, relativeDestDir);
-
-    // Asegurar existencia de la carpeta
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-
-    const safeFilename = path.basename(filename).replace(/\s+/g, '_');
-    const destFilePath = path.join(destDir, safeFilename);
-
-    // Guardar archivo binario
-    fs.writeFileSync(destFilePath, buffer);
-    console.log(`✓ Imagen física guardada por el CMS: ${destFilePath}`);
-
-    // Calcular la ruta relativa que se guardará en el Frontmatter
-    // Desde src/content/[colección]/ el acceso a src/assets/images/ es:
-    let relativeUrl = '../../assets/images/' + safeFilename;
-    if (targetDir === 'projects') {
-      relativeUrl = '../../assets/images/projects/' + safeFilename;
-    } else if (targetDir === 'blog') {
-      relativeUrl = '../../assets/images/blog/' + safeFilename;
-    }
-
-    res.json({ success: true, url: relativeUrl });
+    res.json({ success: true, url: uploadResult.relativeUrl });
   } catch (err) {
-    res.status(500).json({ error: 'Error al subir la imagen', details: err.message });
+    res.status(500).json({ error: 'Error al subir imagen', details: err.message });
+  }
+});
+
+// 11. Endpoint GET: Validar la existencia física de imágenes locales
+app.get('/api/validate-assets', (req, res) => {
+  try {
+    const pathsQuery = req.query.paths;
+    if (!pathsQuery) return res.json({});
+
+    const pathsToCheck = pathsQuery.split(',');
+    const result = {};
+
+    pathsToCheck.forEach(imgUrl => {
+      const cleanUrl = imgUrl.trim();
+      if (!cleanUrl) return;
+
+      if (/^https?:\/\//i.test(cleanUrl)) {
+        result[cleanUrl] = true;
+        return;
+      }
+
+      let absoluteImgPath = '';
+      if (cleanUrl.startsWith('/src/assets/')) {
+        absoluteImgPath = path.join(BLOG_ROOT, cleanUrl);
+      } else {
+        const normalPath = cleanUrl
+          .replace(/^\.\.\/\.\.\/\.\.\//, '')
+          .replace(/^\.\.\/\.\.\//, '')
+          .replace(/^src\//, '');
+        absoluteImgPath = path.join(BLOG_ROOT, 'src', normalPath);
+      }
+
+      result[cleanUrl] = fs.existsSync(absoluteImgPath);
+    });
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Error en validación', details: err.message });
+  }
+});
+
+// 12. Endpoint POST: Ejecutar Git Push asíncronamente
+app.post('/api/git-push', async (req, res) => {
+  try {
+    const result = await gitPush();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Fallo al ejecutar Git Push', details: err.message });
   }
 });
 

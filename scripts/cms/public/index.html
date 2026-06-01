@@ -67,6 +67,30 @@
       outline: none;
       box-shadow: 0 0 0 2px rgba(216, 138, 117, 0.2);
     }
+
+    /* Animaciones suaves para el Lightbox, Toasts y borrados */
+    .animate-fade-in {
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .animate-scale-up {
+      animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .animate-slide-in {
+      animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; backdrop-filter: blur(0); }
+      to { opacity: 1; backdrop-filter: blur(4px); }
+    }
+    @keyframes scaleUp {
+      from { transform: scale(0.9) translateY(10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%) translateY(10px); opacity: 0; }
+      to { transform: translateX(0) translateY(0); opacity: 1; }
+    }
   </style>
 </head>
 <body class="min-h-screen">
@@ -102,13 +126,152 @@
       }
     }
 
-    // Modal de Carga de Imágenes Multimodal
-    function ImageUploaderModal({ isOpen, onClose, onUploadSuccess, t }) {
+    // Componente de nodo individual de carpeta de media en el árbol recursivo
+    function MediaFolderNode({ node, selectedPath, onSelect, depth = 0 }) {
+      const [isOpen, setIsOpen] = useState(true);
+      const isSelected = selectedPath === node.relativePath;
+      const paddingLeft = `${depth * 14 + 8}px`;
+
+      return (
+        <div className="flex flex-col w-full text-xs">
+          <div className="flex items-center w-full">
+            {node.children && node.children.length > 0 && (
+              <button 
+                type="button" 
+                onClick={() => setIsOpen(!isOpen)}
+                className="px-1 text-gray-400 hover:text-gray-600 text-[10px] cursor-pointer"
+              >
+                {isOpen ? '▼' : '▶'}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onSelect(node.relativePath)}
+              style={{ paddingLeft: node.children && node.children.length > 0 ? '4px' : paddingLeft }}
+              className={`flex-1 text-left py-1.5 px-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all truncate cursor-pointer ${
+                isSelected 
+                  ? 'bg-[#d88a75]/10 text-[#d88a75] border-l-2 border-[#d88a75]' 
+                  : 'hover:bg-gray-50 text-gray-600'
+              }`}
+            >
+              <span>{isSelected ? '📂' : '📁'}</span>
+              <span className="truncate">{node.name}</span>
+            </button>
+          </div>
+
+          {isOpen && node.children && node.children.length > 0 && (
+            <div className="flex flex-col gap-0.5 mt-0.5 border-l border-gray-100 ml-4">
+              {node.children.map((child, idx) => (
+                <MediaFolderNode
+                  key={idx}
+                  node={child}
+                  selectedPath={selectedPath}
+                  onSelect={onSelect}
+                  depth={depth + 1}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Modal de Carga de Imágenes Multimodal (con soporte de árbol y creación de carpetas)
+    function ImageUploaderModal({ isOpen, onClose, onUploadSuccess, activeCollection, t }) {
       const [file, setFile] = useState(null);
       const [targetDir, setTargetDir] = useState('images');
       const [isUploading, setIsUploading] = useState(false);
       const [error, setError] = useState('');
       const [dragActive, setDragActive] = useState(false);
+
+      // Árbol de carpetas de assets
+      const [foldersTree, setFoldersTree] = useState([]);
+      const [showNewFolderInput, setShowNewFolderInput] = useState(false);
+      const [newFolderName, setNewFolderName] = useState('');
+      const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+
+      useEffect(() => {
+        if (isOpen) {
+          fetchFolders();
+          setFile(null);
+          setError('');
+        }
+      }, [isOpen]);
+
+      const fetchFolders = () => {
+        fetch('/api/media-folders')
+          .then(res => res.json())
+          .then(data => {
+            setFoldersTree(data);
+            
+            // Pre-selección inteligente por defecto basada en la colección activa
+            let defaultFolder = 'images';
+            if (activeCollection === 'projects') {
+              defaultFolder = 'images/projects';
+            } else if (activeCollection === 'blog') {
+              defaultFolder = 'images/blog';
+            } else if (activeCollection === 'posts') {
+              defaultFolder = 'images/posts';
+            } else if (activeCollection === 'journal') {
+              defaultFolder = 'images/journal';
+            }
+
+            const findPath = (nodes, path) => {
+              for (const n of nodes) {
+                if (n.relativePath === path) return true;
+                if (n.children && findPath(n.children, path)) return true;
+              }
+              return false;
+            };
+
+            if (findPath(data, defaultFolder)) {
+              setTargetDir(defaultFolder);
+            } else if (data.length > 0) {
+              setTargetDir(data[0].relativePath);
+            } else {
+              setTargetDir('images');
+            }
+          })
+          .catch(err => console.error('Error al cargar carpetas:', err));
+      };
+
+      const handleCreateFolder = (e) => {
+        e.preventDefault();
+        if (!newFolderName.trim()) return;
+        setIsCreatingFolder(true);
+
+        fetch('/api/media-folders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            parentPath: targetDir,
+            newFolderName: newFolderName
+          })
+        })
+          .then(res => {
+            if (res.status === 409) {
+              alert('La carpeta ya existe.');
+              throw new Error('Duplicada');
+            }
+            return res.json();
+          })
+          .then(data => {
+            setIsCreatingFolder(false);
+            setNewFolderName('');
+            setShowNewFolderInput(false);
+            // Recargar árbol de carpetas y seleccionar la nueva
+            fetch('/api/media-folders')
+              .then(res => res.json())
+              .then(tree => {
+                setFoldersTree(tree);
+                setTargetDir(data.relativePath);
+              });
+          })
+          .catch(err => {
+            setIsCreatingFolder(false);
+            console.error('Error creando carpeta:', err);
+          });
+      };
 
       if (!isOpen) return null;
 
@@ -174,14 +337,14 @@
       };
 
       return (
-        <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 flex flex-col gap-4">
-            <h3 className="text-xl font-bold text-gray-800">Subir Imagen</h3>
+        <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 border border-gray-100 flex flex-col gap-4 max-h-[90vh] overflow-hidden animate-scale-up">
+            <h3 className="text-xl font-bold text-gray-800">Subir Imagen a Assets/</h3>
             
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 overflow-y-auto pr-1">
               {/* Drag and Drop Area */}
               <div 
-                className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
+                className={`border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center text-center transition-all cursor-pointer shrink-0 ${
                   dragActive ? 'border-[#d88a75] bg-[#d88a75]/5' : 'border-gray-200 hover:border-gray-300'
                 }`}
                 onDragEnter={handleDrag}
@@ -197,47 +360,200 @@
                   className="hidden" 
                   onChange={handleFileChange}
                 />
-                <span className="text-3xl mb-2">📸</span>
+                <span className="text-2xl mb-1">📸</span>
                 {file ? (
-                  <span className="text-xs font-semibold text-green-600 truncate max-w-64">{file.name}</span>
+                  <span className="text-xs font-semibold text-green-600 truncate max-w-sm">{file.name}</span>
                 ) : (
                   <span className="text-xs text-gray-400 font-semibold uppercase">Arrastra una imagen o haz clic para buscar</span>
                 )}
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">Directorio de Destino</label>
-                <select 
-                  className="w-full cms-input px-3 py-2 rounded-xl text-xs" 
-                  value={targetDir} 
-                  onChange={e => setTargetDir(e.target.value)}
-                >
-                  <option value="images">src/assets/images/</option>
-                  <option value="projects">src/assets/images/projects/</option>
-                  <option value="blog">src/assets/images/blog/</option>
-                </select>
+              {/* Selector de Árbol de Carpetas físicas de Assets */}
+              <div className="flex flex-col gap-1.5 border border-gray-100 rounded-xl p-3 bg-gray-50/50">
+                <div className="flex items-center justify-between border-b pb-1">
+                  <label className="text-xs font-bold text-gray-500">Seleccionar Carpeta de Assets</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewFolderInput(!showNewFolderInput)}
+                    className="text-[10px] font-bold bg-[#d88a75]/10 text-[#d88a75] border border-[#d88a75]/20 px-2 py-0.5 rounded-lg hover:bg-[#d88a75]/20 transition-all cursor-pointer"
+                  >
+                    + Nueva Carpeta
+                  </button>
+                </div>
+
+                {/* Formulario rápido para crear subdirectorio físico */}
+                {showNewFolderInput && (
+                  <div className="flex gap-2 items-center bg-white p-2 rounded-lg border border-[#d88a75]/20 mt-1">
+                    <span className="text-[10px] text-gray-400 font-bold max-w-40 truncate">
+                      /{targetDir}/
+                    </span>
+                    <input
+                      type="text"
+                      className="flex-1 cms-input px-2 py-1 rounded-lg text-xs"
+                      placeholder="Nombre (ej: posts-2026)"
+                      value={newFolderName}
+                      onChange={e => setNewFolderName(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      disabled={isCreatingFolder || !newFolderName}
+                      onClick={handleCreateFolder}
+                      className="bg-[#d88a75] text-white px-3 py-1 rounded-lg text-xs font-bold disabled:opacity-50 cursor-pointer"
+                    >
+                      {isCreatingFolder ? 'Creando...' : 'Crear'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowNewFolderInput(false); setNewFolderName(''); }}
+                      className="text-xs text-gray-400 hover:text-gray-600 font-bold px-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
+                {/* Ruta activa */}
+                <div className="text-[10px] font-bold text-[#d88a75] bg-[#d88a75]/5 px-2 py-1 rounded-lg truncate mt-1">
+                  Ruta destino: <span className="font-mono text-gray-700">src/assets/{targetDir || '(raíz)'}</span>
+                </div>
+
+                {/* Contenedor del árbol colapsable */}
+                <div className="max-h-48 overflow-y-auto flex flex-col gap-1 border border-gray-200/60 rounded-lg p-2 bg-white mt-1">
+                  {foldersTree.map((node, idx) => (
+                    <MediaFolderNode
+                      key={idx}
+                      node={node}
+                      selectedPath={targetDir}
+                      onSelect={setTargetDir}
+                    />
+                  ))}
+                  {foldersTree.length === 0 && (
+                    <span className="text-[10px] text-gray-400 italic text-center py-2">Cargando árbol de carpetas...</span>
+                  )}
+                </div>
               </div>
 
-              {error && <span className="text-xs text-red-500 font-bold">{error}</span>}
+              {error && <span className="text-xs text-red-500 font-bold shrink-0">{error}</span>}
 
-              <div className="flex justify-end gap-3 mt-2">
+              <div className="flex justify-end gap-3 mt-2 shrink-0">
                 <button 
                   type="button" 
                   onClick={onClose}
-                  className="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all"
+                  className="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit"
                   disabled={!file || isUploading}
-                  className="px-4 py-2 bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                  className="px-4 py-2 bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {isUploading ? 'Subiendo...' : 'Subir Imagen'}
                 </button>
               </div>
             </form>
           </div>
+        </div>
+      );
+    }
+
+    // Modal Lightbox interactivo animado para zoom de imagen
+    function LightboxModal({ src, onClose, t }) {
+      if (!src) return null;
+
+      // Cerrar con tecla Escape
+      useEffect(() => {
+        const handleEsc = (e) => {
+          if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+      }, [onClose]);
+
+      return (
+        <div 
+          onClick={onClose}
+          className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 animate-fade-in cursor-zoom-out"
+        >
+          <div className="relative max-w-4xl w-full max-h-[85vh] flex items-center justify-center animate-scale-up">
+            <img 
+              src={src} 
+              alt="Zoomed Image" 
+              className="max-w-full max-h-[85vh] rounded-xl object-contain shadow-2xl border border-white/10" 
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button 
+              onClick={onClose}
+              className="absolute top-[-40px] right-0 text-white font-bold bg-[#d88a75] hover:bg-[#c27c69] px-3 py-1 rounded-xl text-xs shadow-md transition-all cursor-pointer"
+            >
+              {t.close || 'Cerrar'} ✕
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Modal de Confirmación de Borrado Físico
+    function DeleteConfirmationModal({ isOpen, filename, onConfirm, onClose, t }) {
+      if (!isOpen) return null;
+
+      return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 animate-fade-in backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-red-50 flex flex-col gap-4 animate-scale-up">
+            <div className="flex items-center gap-3 text-red-500 border-b pb-2 border-red-50">
+              <span className="text-3xl">⚠️</span>
+              <h3 className="text-xl font-bold text-gray-800">¿Eliminar Recurso?</h3>
+            </div>
+            
+            <p className="text-xs font-semibold text-gray-500 leading-relaxed">
+              ¿Estás completamente seguro de que deseas eliminar físicamente el archivo <span className="font-mono text-red-500 bg-red-50 px-1.5 py-0.5 rounded font-bold">{filename}</span> de tu repositorio? Esta acción es irreversible y realizará un commit de eliminación de forma automática en Git.
+            </p>
+
+            <div className="flex justify-end gap-3 mt-2 border-t pt-3 border-gray-50">
+              <button 
+                type="button" 
+                onClick={onClose}
+                className="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button"
+                onClick={onConfirm}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer"
+              >
+                Confirmar Borrado ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Contenedor estético de Toasts en esquina
+    function ToastContainer({ toasts, onClose }) {
+      return (
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+          {toasts.map(toast => {
+            const isWarn = toast.type === 'warn';
+            const borderCol = isWarn ? 'border-yellow-500' : 'border-green-500';
+            const titleCol = isWarn ? 'text-yellow-500' : 'text-green-600';
+            return (
+              <div 
+                key={toast.id}
+                className={`pointer-events-auto w-full bg-white border-l-4 ${borderCol} rounded-xl shadow-xl p-4 flex flex-col gap-1 border border-gray-100 animate-slide-in relative`}
+              >
+                <h4 className={`text-xs font-black ${titleCol} uppercase tracking-widest`}>{toast.title}</h4>
+                <p className="text-xs font-semibold text-gray-500 leading-normal">{toast.message}</p>
+                <button 
+                  onClick={() => onClose(toast.id)}
+                  className="absolute top-2 right-2 text-gray-300 hover:text-gray-500 text-[10px] font-bold cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            );
+          })}
         </div>
       );
     }
@@ -264,6 +580,13 @@
       // Estado para crear un archivo nuevo
       const [showNewModal, setShowNewModal] = useState(false);
       const [newFilename, setNewFilename] = useState('');
+
+      // Árbol y creación de subcarpetas de CONTENIDOS
+      const [contentFolders, setContentFolders] = useState([]);
+      const [targetContentDir, setTargetContentDir] = useState('');
+      const [showNewContentFolder, setShowNewContentFolder] = useState(false);
+      const [newContentFolderName, setNewContentFolderName] = useState('');
+      const [isCreatingContentFolder, setIsCreatingContentFolder] = useState(false);
       
       // Estado del cargador de imágenes
       const [uploaderOpen, setUploaderOpen] = useState(false);
@@ -272,8 +595,43 @@
       // Control del Sidebar responsivo en móviles
       const [sidebarOpen, setSidebarOpen] = useState(false);
 
+      // Loader centralizado e interactivo
+      const [isLoading, setIsLoading] = useState(true);
+
+      // Lightbox global de imágenes
+      const [lightboxImg, setLightboxImg] = useState(null);
+
+      // Modal de Confirmación de Borrado
+      const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+      // Sistema de Toasts en esquina
+      const [toasts, setToasts] = useState([]);
+
+      const addToast = (type, title, message) => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, type, title, message }]);
+        setTimeout(() => {
+          setToasts(prev => prev.filter(t => t.id !== id));
+        }, 6000);
+      };
+
+      const handleCloseToast = (id) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+      };
+
+      // Exponer el Lightbox en el objeto window para comunicación modular
+      useEffect(() => {
+        window.openLightbox = (src) => {
+          setLightboxImg(src);
+        };
+        return () => {
+          delete window.openLightbox;
+        };
+      }, []);
+
       // Cargar componentes de forma modular en caliente
       useEffect(() => {
+        setIsLoading(true);
         Promise.all([
           loadComponent('./components/i18n.js'),
           loadComponent('./components/Sidebar.js'),
@@ -284,8 +642,10 @@
           setSidebarComp(() => sidebarMod.Sidebar);
           setFormFieldsComp(() => formFieldsMod.FormFields);
           setMarkdownEditorComp(() => mdEditorMod.MarkdownEditor);
+          setIsLoading(false);
         }).catch(err => {
           console.error("Fallo al inicializar los componentes modulares del CMS:", err);
+          setIsLoading(false);
         });
       }, []);
 
@@ -295,7 +655,6 @@
           .then(res => res.json())
           .then(data => {
             setCollections(data);
-            // Auto-seleccionar primer archivo de projects si existe
             if (data.projects && data.projects.length > 0) {
               selectEntry('projects', data.projects[0].filename);
             }
@@ -303,50 +662,108 @@
           .catch(err => console.error('Error al cargar contenidos:', err));
       }, []);
 
+      // Cargar árbol de carpetas de contenidos al abrir modal de nueva entrada
+      useEffect(() => {
+        if (showNewModal) {
+          fetchContentFolders();
+          setNewFilename('');
+          setTargetContentDir('');
+          setShowNewContentFolder(false);
+        }
+      }, [showNewModal, activeCollection]);
+
+      const fetchContentFolders = () => {
+        fetch(`/api/content-folders/${activeCollection}`)
+          .then(res => res.json())
+          .then(data => {
+            setContentFolders(data);
+          })
+          .catch(err => console.error('Error cargando carpetas de contenido:', err));
+      };
+
       // Obtener traducción activa
       const t = translationsDict ? translationsDict[lang] : {};
 
       // Seleccionar una entrada del listado
       const selectEntry = (col, filename) => {
+        setIsLoading(true);
         fetch(`/api/content/${col}/${filename}`)
           .then(res => res.json())
           .then(data => {
             setActiveEntry({ collection: col, filename });
             setEntryData(data);
             setMessage('');
-            setSidebarOpen(false); // Cerrar sidebar en móviles tras seleccionar
+            setSidebarOpen(false);
+            setIsLoading(false);
           })
-          .catch(err => console.error('Error al cargar entrada:', err));
+          .catch(err => {
+            console.error('Error al cargar entrada:', err);
+            setIsLoading(false);
+          });
       };
 
-      // Guardar cambios
+      // Guardar cambios con validación de assets y auto-commit
       const handleSave = () => {
         if (!activeEntry) return;
         setIsSaving(true);
         setMessage('');
 
-        fetch(`/api/content/${activeEntry.collection}/${activeEntry.filename}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(entryData)
-        })
-          .then(res => res.json())
-          .then(data => {
-            setIsSaving(false);
-            if (data.success) {
-              setMessage('✓ Guardado con éxito');
-              setTimeout(() => setMessage(''), 3000);
-            } else {
-              setMessage('Error: ' + data.error);
-            }
-          })
-          .catch(err => {
-            setIsSaving(false);
-            setMessage('Error al conectar con el servidor');
+        const pathsToValidate = [];
+        const meta = entryData.metadata || {};
+        
+        if (meta.image) pathsToValidate.push(meta.image);
+        if (Array.isArray(meta.imagenes)) {
+          meta.imagenes.forEach(img => {
+            if (img) pathsToValidate.push(img);
           });
+        }
+
+        const performSave = () => {
+          fetch(`/api/content/${activeEntry.collection}/${activeEntry.filename}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entryData)
+          })
+            .then(res => res.json())
+            .then(data => {
+              setIsSaving(false);
+              if (data.success) {
+                setMessage('✓ ' + (t.success_save || 'Guardado con éxito'));
+                addToast('info', t.cms_title || 'CMS', '✓ Archivo persistido y comiteado localmente.');
+                setTimeout(() => setMessage(''), 3000);
+              } else {
+                setMessage('Error: ' + data.error);
+              }
+            })
+            .catch(err => {
+              setIsSaving(false);
+              setMessage('Error al conectar con el servidor');
+            });
+        };
+
+        if (pathsToValidate.length > 0) {
+          fetch(`/api/validate-assets?paths=${encodeURIComponent(pathsToValidate.join(','))}`)
+            .then(res => res.json())
+            .then(validationResult => {
+              const missingImages = Object.keys(validationResult).filter(p => !validationResult[p]);
+              if (missingImages.length > 0) {
+                addToast('warn', t.invalid_assets_warn || '⚠️ Imágenes no encontradas', 
+                  (t.invalid_assets_desc || 'Las siguientes imágenes no existen: ') + 
+                  missingImages.map(p => p.split('/').pop()).join(', ')
+                );
+              }
+              performSave();
+            })
+            .catch(err => {
+              console.error('Error validando assets:', err);
+              performSave();
+            });
+        } else {
+          performSave();
+        }
       };
 
-      // Crear nueva entrada
+      // Crear nueva entrada en la subcarpeta física seleccionada
       const handleCreateEntry = (e) => {
         e.preventDefault();
         if (!newFilename) return;
@@ -354,11 +771,14 @@
         fetch(`/api/content/${activeCollection}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: newFilename })
+          body: JSON.stringify({ 
+            filename: newFilename,
+            targetDir: targetContentDir
+          })
         })
           .then(res => {
             if (res.status === 409) {
-              alert('El archivo ya existe.');
+              alert('El archivo ya existe en esa ubicación.');
               throw new Error('Duplicado');
             }
             return res.json();
@@ -366,6 +786,7 @@
           .then(data => {
             setShowNewModal(false);
             setNewFilename('');
+            addToast('info', t.cms_title || 'CMS', '✓ Nueva entrada creada y comiteada localmente.');
             // Refrescar listados
             fetch('/api/content')
               .then(res => res.json())
@@ -377,15 +798,180 @@
           .catch(err => console.error(err));
       };
 
+      // Crear subcarpeta de contenidos en caliente
+      const handleCreateContentFolder = (e) => {
+        e.preventDefault();
+        if (!newContentFolderName.trim()) return;
+        setIsCreatingContentFolder(true);
+
+        fetch(`/api/content-folders/${activeCollection}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            parentPath: targetContentDir,
+            newFolderName: newContentFolderName
+          })
+        })
+          .then(res => {
+            if (res.status === 409) {
+              alert('La carpeta ya existe.');
+              throw new Error('Duplicada');
+            }
+            return res.json();
+          })
+          .then(data => {
+            setIsCreatingContentFolder(false);
+            setNewContentFolderName('');
+            setShowNewContentFolder(false);
+            fetchContentFolders();
+            setTargetContentDir(data.relativePath);
+          })
+          .catch(err => {
+            setIsCreatingContentFolder(false);
+            console.error(err);
+          });
+      };
+
+      // Eliminar físicamente el recurso y comitear
+      const handleDeleteEntry = () => {
+        if (!activeEntry) return;
+        setIsLoading(true);
+        setShowDeleteModal(false);
+
+        fetch(`/api/content/${activeEntry.collection}/${activeEntry.filename}`, {
+          method: 'DELETE'
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              addToast('info', t.cms_title || 'CMS', '✕ Entrada eliminada y comiteada en Git.');
+              // Refrescar listados
+              fetch('/api/content')
+                .then(res => res.json())
+                .then(cols => {
+                  setCollections(cols);
+                  if (cols[activeCollection] && cols[activeCollection].length > 0) {
+                    // Auto-seleccionar primer archivo de la colección si existe
+                    // Pero ojo, con estructura de árbol el primer nodo puede ser directorio o archivo.
+                    // Para simplificar, buscaremos el primer archivo real.
+                    const findFirstFile = (nodes) => {
+                      for (const n of nodes) {
+                        if (n.type === 'file') return n.filename;
+                        if (n.children) {
+                          const f = findFirstFile(n.children);
+                          if (f) return f;
+                        }
+                      }
+                      return null;
+                    };
+                    const firstFile = findFirstFile(cols[activeCollection]);
+                    if (firstFile) {
+                      selectEntry(activeCollection, firstFile);
+                    } else {
+                      setActiveEntry(null);
+                      setIsLoading(false);
+                    }
+                  } else {
+                    setActiveEntry(null);
+                    setIsLoading(false);
+                  }
+                });
+            } else {
+              alert('Error al borrar: ' + data.error);
+              setIsLoading(false);
+            }
+          })
+          .catch(err => {
+            alert('Fallo de conexión');
+            setIsLoading(false);
+          });
+      };
+
+      // Ejecutar Git Push asíncronamente con Toast interactivo
+      const handleGitPush = () => {
+        const toastId = Date.now();
+        setToasts(prev => [...prev, {
+          id: toastId,
+          type: 'info',
+          title: '🚀 Git Push',
+          message: 'Enviando commits locales a GitHub (origin/main)...'
+        }]);
+
+        fetch('/api/git-push', {
+          method: 'POST'
+        })
+          .then(res => res.json())
+          .then(data => {
+            setToasts(prev => prev.map(t => {
+              if (t.id === toastId) {
+                if (data.success) {
+                  return {
+                    ...t,
+                    type: 'info',
+                    title: '✅ Git Push Exitoso',
+                    message: 'Commits locales empujados a GitHub correctamente.'
+                  };
+                } else {
+                  return {
+                    ...t,
+                    type: 'warn',
+                    title: '❌ Fallo en Git Push',
+                    message: 'Fallo: ' + (data.error || 'Fallo en origin')
+                  };
+                }
+              }
+              return t;
+            }));
+            setTimeout(() => {
+              setToasts(prev => prev.filter(t => t.id !== toastId));
+            }, 8000);
+          })
+          .catch(err => {
+            setToasts(prev => prev.map(t => {
+              if (t.id === toastId) {
+                return {
+                  ...t,
+                  type: 'warn',
+                  title: '❌ Fallo en Git Push',
+                  message: 'Fallo al conectar con el servidor CMS.'
+                };
+              }
+              return t;
+            }));
+            setTimeout(() => {
+              setToasts(prev => prev.filter(t => t.id !== toastId));
+            }, 8000);
+          });
+      };
+
       // Actualizar campos frontmatter
       const updateMeta = (key, val) => {
-        setEntryData(prev => ({
-          ...prev,
-          metadata: {
-            ...prev.metadata,
-            [key]: val
-          }
-        }));
+        const matchArray = key.match(/^([a-zA-Z0-9_]+)\[([0-9]+)\]$/);
+        
+        if (matchArray) {
+          const fieldName = matchArray[1];
+          const index = parseInt(matchArray[2]);
+          
+          setEntryData(prev => {
+            const currentList = Array.isArray(prev.metadata[fieldName]) ? [...prev.metadata[fieldName]] : [];
+            currentList[index] = val;
+            return {
+              ...prev,
+              metadata: {
+                ...prev.metadata,
+                [fieldName]: currentList
+              }
+            };
+          });
+        } else {
+          setEntryData(prev => ({
+            ...prev,
+            metadata: {
+              ...prev.metadata,
+              [key]: val
+            }
+          }));
+        }
       };
 
       // Abrir modal de carga de imágenes
@@ -399,20 +985,32 @@
         updateMeta(activeImageField, imageUrl);
       };
 
-      if (!SidebarComp || !FormFieldsComp || !MarkdownEditorComp || !translationsDict) {
-        return (
-          <div className="flex h-screen w-screen items-center justify-center bg-[#FFFBEF]">
-            <div className="flex flex-col items-center gap-3">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d88a75]"></div>
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Iniciando Mi Blog CMS...</span>
-            </div>
-          </div>
-        );
-      }
-
       return (
-        <div className="flex flex-col md:flex-row h-screen overflow-hidden">
+        <div className="flex flex-col md:flex-row h-screen overflow-hidden relative">
           
+          {/* Overlay de Carga Centralizado */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-[#FFFBEF]/80 flex items-center justify-center z-50 backdrop-blur-xs flex-col gap-3">
+              <img 
+                src="/loader.gif" 
+                alt="Loading..." 
+                className="w-16 h-16 object-contain animate-pulse" 
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  const spinner = document.getElementById('loading-spinner-fallback');
+                  if (spinner) spinner.style.display = 'block';
+                }}
+              />
+              <div 
+                id="loading-spinner-fallback" 
+                className="hidden animate-spin rounded-full h-10 w-10 border-b-2 border-[#d88a75]"
+              ></div>
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                {t.loading || 'Iniciando panel modular...'}
+              </span>
+            </div>
+          )}
+
           {/* Botón flotante para abrir Sidebar en móviles */}
           <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-[var(--color-border)] w-full shrink-0">
             <div className="flex items-center gap-2">
@@ -429,19 +1027,21 @@
 
           {/* Sidebar Izquierdo */}
           <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block shrink-0 h-[calc(100vh-60px)] md:h-full z-40 bg-white`}>
-            <SidebarComp
-              collections={collections}
-              activeCollection={activeCollection}
-              setActiveCollection={setActiveCollection}
-              activeEntry={activeEntry}
-              onSelectEntry={selectEntry}
-              onOpenNewModal={() => setShowNewModal(true)}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              lang={lang}
-              setLang={setLang}
-              t={t}
-            />
+            {SidebarComp && (
+              <SidebarComp
+                collections={collections}
+                activeCollection={activeCollection}
+                setActiveCollection={setActiveCollection}
+                activeEntry={activeEntry}
+                onSelectEntry={selectEntry}
+                onOpenNewModal={() => setShowNewModal(true)}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                lang={lang}
+                setLang={setLang}
+                t={t}
+              />
+            )}
           </div>
 
           {/* Área de Trabajo Principal */}
@@ -465,9 +1065,15 @@
                   <div className="flex items-center gap-3">
                     {message && <span className="text-xs md:text-sm font-bold text-green-600 transition-all">{message}</span>}
                     <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className="bg-red-50 hover:bg-red-100 text-red-500 border border-red-200 px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
+                    >
+                      Eliminar Recurso ✕
+                    </button>
+                    <button
                       onClick={handleSave}
                       disabled={isSaving}
-                      className="bg-[#d88a75] hover:bg-[#c27c69] text-white px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                      className="bg-[#d88a75] hover:bg-[#c27c69] text-white px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 cursor-pointer"
                     >
                       {isSaving ? t.saving : t.save_changes}
                     </button>
@@ -478,22 +1084,26 @@
                 <div className="flex flex-col gap-6 md:gap-8">
                   
                   {/* Formulario de Metadatos */}
-                  <FormFieldsComp
-                    entry={activeEntry}
-                    entryData={entryData}
-                    updateMeta={updateMeta}
-                    onOpenUploader={handleOpenUploader}
-                    collections={collections}
-                    t={t}
-                  />
+                  {FormFieldsComp && (
+                    <FormFieldsComp
+                      entry={activeEntry}
+                      entryData={entryData}
+                      updateMeta={updateMeta}
+                      onOpenUploader={handleOpenUploader}
+                      collections={collections}
+                      t={t}
+                    />
+                  )}
 
                   {/* Markdown Editor */}
-                  <MarkdownEditorComp
-                    value={entryData.content}
-                    onChange={val => setEntryData(prev => ({ ...prev, content: val }))}
-                    entryId={`${activeEntry.collection}/${activeEntry.filename}`}
-                    t={t}
-                  />
+                  {MarkdownEditorComp && (
+                    <MarkdownEditorComp
+                      value={entryData.content}
+                      onChange={val => setEntryData(prev => ({ ...prev, content: val }))}
+                      entryId={`${activeEntry.collection}/${activeEntry.filename}`}
+                      t={t}
+                    />
+                  )}
                 </div>
               </>
             ) : (
@@ -505,38 +1115,113 @@
             )}
           </main>
 
-          {/* Modal de Nueva Entrada */}
+          {/* Modal de Nueva Entrada con Árbol de Carpetas */}
           {showNewModal && (
-            <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 backdrop-blur-xs">
-              <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 flex flex-col gap-4">
+            <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 backdrop-blur-xs animate-fade-in">
+              <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-gray-100 flex flex-col gap-4 max-h-[90vh] overflow-hidden animate-scale-up">
                 <h3 className="text-xl font-bold text-gray-800">{t.new_entry_title}</h3>
-                <p className="text-[10px] text-gray-400 font-bold uppercase">{t.collections}: <span className="text-[#d88a75]">{activeCollection}</span></p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{t.collections}: <span className="text-[#d88a75]">{activeCollection}</span></p>
                 
-                <form onSubmit={handleCreateEntry} className="flex flex-col gap-4">
+                <form onSubmit={handleCreateEntry} className="flex flex-col gap-4 overflow-y-auto pr-1">
                   <div>
                     <label className="block text-xs font-bold text-gray-500 mb-1">{t.filename_label}</label>
                     <input 
                       type="text" 
                       placeholder="ej: mi-nuevo-post" 
                       required
-                      className="w-full cms-input px-3 py-2 rounded-xl text-xs"
+                      className="w-full cms-input px-3 py-2 rounded-xl text-xs font-medium"
                       value={newFilename}
                       onChange={e => setNewFilename(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, ''))}
                     />
                     <span className="text-[10px] text-gray-400 mt-1 block">{t.filename_desc}</span>
                   </div>
+
+                  {/* Selector de Árbol de Carpetas de Contenidos */}
+                  <div className="flex flex-col gap-1.5 border border-gray-100 rounded-xl p-3 bg-gray-50/50">
+                    <div className="flex items-center justify-between border-b pb-1">
+                      <label className="text-xs font-bold text-gray-500">Seleccionar Carpeta de Contenido</label>
+                      <button
+                        type="button"
+                        onClick={() => setShowNewContentFolder(!showNewContentFolder)}
+                        className="text-[10px] font-bold bg-[#d88a75]/10 text-[#d88a75] border border-[#d88a75]/20 px-2 py-0.5 rounded-lg hover:bg-[#d88a75]/20 transition-all cursor-pointer"
+                      >
+                        + Nueva Carpeta
+                      </button>
+                    </div>
+
+                    {/* Crear subcarpeta física de contenidos */}
+                    {showNewContentFolder && (
+                      <div className="flex gap-2 items-center bg-white p-2 rounded-lg border border-[#d88a75]/20 mt-1">
+                        <span className="text-[10px] text-gray-400 font-bold max-w-40 truncate">
+                          /{targetContentDir || '(raíz)'}/
+                        </span>
+                        <input
+                          type="text"
+                          className="flex-1 cms-input px-2 py-1 rounded-lg text-xs"
+                          placeholder="Nombre (ej: dev)"
+                          value={newContentFolderName}
+                          onChange={e => setNewContentFolderName(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          disabled={isCreatingContentFolder || !newContentFolderName}
+                          onClick={handleCreateContentFolder}
+                          className="bg-[#d88a75] text-white px-3 py-1 rounded-lg text-xs font-bold disabled:opacity-50 cursor-pointer"
+                        >
+                          {isCreatingContentFolder ? 'Creando...' : 'Crear'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setShowNewContentFolder(false); setNewContentFolderName(''); }}
+                          className="text-xs text-gray-400 hover:text-gray-600 font-bold px-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="text-[10px] font-bold text-[#d88a75] bg-[#d88a75]/5 px-2 py-1 rounded-lg truncate mt-1">
+                      Ubicación final: <span className="font-mono text-gray-700">src/content/{activeCollection}/{targetContentDir || '(raíz)'}</span>
+                    </div>
+
+                    {/* Contenedor del árbol colapsable de carpetas */}
+                    <div className="max-h-40 overflow-y-auto flex flex-col gap-1 border border-gray-200/60 rounded-lg p-2 bg-white mt-1">
+                      {/* Nodo Raíz de la Colección */}
+                      <button
+                        type="button"
+                        onClick={() => setTargetContentDir('')}
+                        className={`text-left py-1.5 px-2 rounded-lg font-bold flex items-center gap-1.5 transition-all text-xs cursor-pointer ${
+                          targetContentDir === '' 
+                            ? 'bg-[#d88a75]/10 text-[#d88a75] border-l-2 border-[#d88a75]' 
+                            : 'hover:bg-gray-50 text-gray-600'
+                        }`}
+                      >
+                        <span>📂</span>
+                        <span>(Raíz de la colección)</span>
+                      </button>
+
+                      {contentFolders.map((node, idx) => (
+                        <MediaFolderNode
+                          key={idx}
+                          node={node}
+                          selectedPath={targetContentDir}
+                          onSelect={setTargetContentDir}
+                        />
+                      ))}
+                    </div>
+                  </div>
                   
-                  <div className="flex justify-end gap-3 mt-2">
+                  <div className="flex justify-end gap-3 mt-2 shrink-0">
                     <button 
                       type="button" 
                       onClick={() => { setShowNewModal(false); setNewFilename(''); }}
-                      className="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all"
+                      className="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all cursor-pointer"
                     >
                       {t.cancel}
                     </button>
                     <button 
                       type="submit"
-                      className="px-4 py-2 bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                      className="px-4 py-2 bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer"
                     >
                       {t.create_resource}
                     </button>
@@ -551,7 +1236,53 @@
             isOpen={uploaderOpen}
             onClose={() => setUploaderOpen(false)}
             onUploadSuccess={handleUploadSuccess}
+            activeCollection={activeCollection}
             t={t}
+          />
+
+          {/* Modal Lightbox Animado */}
+          <LightboxModal
+            src={lightboxImg}
+            onClose={() => setLightboxImg(null)}
+            t={t}
+          />
+
+          {/* Modal de Confirmación de Borrado Físico */}
+          <DeleteConfirmationModal
+            isOpen={showDeleteModal}
+            filename={activeEntry?.filename}
+            onConfirm={handleDeleteEntry}
+            onClose={() => setShowDeleteModal(false)}
+            t={t}
+          />
+
+          {/* Botón Flotante Hamburger de Acciones Rápidas */}
+          <div className="fixed bottom-6 left-6 z-40 group">
+            {/* Acciones del menú (se revelan al hacer hover en el contenedor) */}
+            <div className="absolute bottom-16 left-0 flex flex-col gap-3 scale-0 group-hover:scale-100 origin-bottom-left transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
+              <button
+                type="button"
+                onClick={handleGitPush}
+                className="bg-[#d88a75] hover:bg-[#c27c69] text-white rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap text-xs font-bold leading-none w-12 h-12 border-2 border-white/20"
+                title="Subir commits a GitHub (Git Push)"
+              >
+                🚀
+              </button>
+            </div>
+            
+            {/* Hamburguesa principal */}
+            <button
+              type="button"
+              className="bg-[#d88a75] hover:bg-[#c27c69] text-white w-14 h-14 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center text-xl font-bold cursor-pointer transition-all duration-300 transform group-hover:rotate-90 select-none border-2 border-white/30"
+            >
+              ☰
+            </button>
+          </div>
+
+          {/* Sistema de Notificaciones Toasts */}
+          <ToastContainer 
+            toasts={toasts} 
+            onClose={handleCloseToast} 
           />
 
         </div>
