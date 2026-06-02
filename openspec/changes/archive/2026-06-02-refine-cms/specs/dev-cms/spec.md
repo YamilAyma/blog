@@ -62,6 +62,6 @@ El CMS DEBE proveer un panel interactivo compuesto por un Sidebar izquierdo y un
 
 ## REMOVED Requirements
 
-### Requirement: Vista Previa del editor Markdown
+### Requirement: Vista Previa en Tiempo Real Sincronizada (Live Preview)
 **Reason**: Se remueve para optimizar el espacio de edición del texto en pantalla y evitar sobrecarga visual redundante, delegando la vista de previsualización al entorno local de desarrollo de Astro en caliente.
 **Migration**: Ninguna.

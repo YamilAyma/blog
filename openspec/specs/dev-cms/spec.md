@@ -3,6 +3,60 @@
 ## Purpose
 TBD - created by archiving change refine-cms-3. Update Purpose after archive.
 ## Requirements
+### Requirement: Servidor Local del CMS
+El sistema DEBE proveer un script en `package.json` ejecutable mediante `npm run cms` que inicialice de forma local un servidor ligero del CMS únicamente en el entorno de desarrollo local. Este servidor DEBE detenerse inmediatamente al finalizar el proceso en la terminal de comandos.
+
+#### Scenario: Lanzamiento exitoso del CMS
+- **WHEN** el desarrollador ejecuta el comando `npm run cms` en la terminal
+- **THEN** el sistema inicializa el servidor en un puerto local (ej: `http://localhost:3000` o similar) y abre de manera automática la interfaz web interactiva en el navegador
+
+#### Scenario: Detención del CMS
+- **WHEN** el desarrollador cierra el proceso en la terminal utilizando el atajo de teclado Ctrl+C
+- **THEN** el servidor web local del CMS se apaga inmediatamente y libera el puerto de red asignado
+
+---
+
+### Requirement: Edición Visual y Persistencia en Tiempo Real
+El sistema DEBE proveer una interfaz web interactiva con formularios estructurados basados en los esquemas de frontmatter (Zod) de cada colección y un editor de texto enriquecido para el cuerpo Markdown. El CMS DEBE escribir directamente los cambios en los archivos físicos `.md` y `.mdx` en tiempo real sin base de datos.
+**Formateo Estricto de YAML**:
+1.  El campo `description` DEBE guardarse estrictamente en una sola línea y envuelto en comillas dobles (`"description"`) para evitar roturas de sintaxis multilínea.
+2.  Las propiedades de texto general DEBE serializarse como cadenas de comillas dobles (`"texto"`).
+3.  El campo `tags` de todas las colecciones DEBE guardarse como un array clásico de strings YAML (`tags: ["ia", "seo"]`), omitiendo el formato de lista con guiones.
+4.  El campo `imagenes` de proyectos DEBE guardarse como un array clásico de strings YAML (`imagenes: ["ruta1", "ruta2"]`).
+
+#### Scenario: Guardado estricto de YAML
+- **WHEN** el desarrollador edita la descripción o tags de una entrada y hace clic en "Guardar"
+- **THEN** el CMS reescribe el archivo físico en `src/content/` formateando la descripción en una sola línea con comillas dobles, los tags como un array de strings en una línea (`tags: ["a", "b"]`) y los textos entre comillas dobles
+
+### Requirement: Interfaz Modular y Consistencia Estética
+La interfaz del CMS DEBE ser modular y construirse utilizando **Radix UI** primitives para garantizar un comportamiento accesible de los diálogos, modales, menús y popovers. Para asegurar una experiencia visual consistente con la identidad del blog, el CMS DEBE heredar dinámicamente las variables de color CSS globales del tema actualmente activo (`soft`, `tech`, `dark`).
+
+#### Scenario: Adaptación cromática dinámica del CMS al tema activo
+- **WHEN** el desarrollador cambia la preferencia de tema en el blog o visualiza un post con categoría dinámica y accede a la interfaz de administración del CMS
+- **THEN** el CMS renderiza sus paneles, botones y fondos heredando de forma transparente las variables CSS globales (`--color-background`, `--color-primary`, `--color-accent`, etc.) asociadas al tema activo del blog
+
+---
+
+### Requirement: Lienzo de Edición CRUD Adaptativo
+El CMS DEBE proveer un panel interactivo compuesto por un Sidebar izquierdo y un Canvas central que adapta dinámicamente su formulario de metadatos.
+**Campos Faltantes y de Control**:
+*   Si una colección no cuenta con un atributo declarado en su frontmatter (como el campo `layout` en blog, o `image` en una entrada), el CMS DEBE de todas formas renderizar el campo de texto vacío en el formulario de la UI listo para rellenarse y ser autoguardado.
+*   El logotipo visual principal del Sidebar DEBE renombrarse de "Yamil Ayma" a "Mi Blog".
+*   La app del CMS DEBE cargar e integrar el archivo `/favicon.svg` del blog como el icono del CMS.
+
+#### Scenario: Autocompletado de campos omitidos
+- **WHEN** el desarrollador abre una entrada del blog que carece del campo `layout` en su frontmatter original
+- **THEN** la interfaz del CMS expone de todas formas el input editable correspondiente a `layout` vacío para su inserción
+
+### Requirement: Aislamiento del Entorno de Producción
+La aplicación web del CMS DEBE ser una herramienta aislada y exclusiva del entorno de desarrollo local. Su código fuente, dependencias exclusivas y vistas NO DEBEN compilarse ni incluirse en el empaquetado del directorio de producción final `dist/` al ejecutar el build.
+
+#### Scenario: Exclusión del CMS en compilación final
+- **WHEN** el desarrollador ejecuta el comando de empaquetado `npm run build`
+- **THEN** el compilador de Astro construye el blog estático en `/dist` omitiendo en su totalidad cualquier recurso, código de interfaz o script relacionado con la aplicación del CMS
+
+---
+
 ### Requirement: Borrado físico de entradas de contenido
 El sistema SHALL permitir la eliminación física y permanente de archivos `.md` o `.mdx` de contenidos del blog a través de la interfaz web, protegida por un modal de confirmación interactivo.
 
@@ -69,15 +123,6 @@ El sistema SHALL proveer una especificación en formato JSON que liste y documen
 #### Scenario: Visualización de ayuda de componente
 - **WHEN** el usuario hace clic en el botón `?` de ayuda junto a un componente seleccionado.
 - **THEN** el sistema abre un modal animado mostrando la descripción, las propiedades del componente y un ejemplo real de su código MDX de uso.
-
----
-
-### Requirement: Vista Previa en Tiempo Real Sincronizada (Live Preview)
-El CMS SHALL ofrecer un modo de "Vista Previa" mediante un panel dividido (Split Pane) de dos columnas (Editor / Preview) que renderice el contenido del editor en tiempo real. 
-
-#### Scenario: Renderizado reactivo local
-- **WHEN** el usuario edita el texto Markdown o introduce un componente en el editor en tiempo real.
-- **THEN** el sistema procesa el texto mediante un parser liviano e interactivo en el cliente y renderiza visualmente el resultado de forma instantánea en la columna de la derecha, simulando la apariencia del componente.
 
 ---
 
@@ -162,4 +207,39 @@ El layout principal del CMS SHALL ser completamente responsivo para garantizar u
 #### Scenario: Adaptabilidad del layout a pantallas móviles
 - **WHEN** el ancho del viewport disminuye a un tamaño menor o igual a 1024px
 - **THEN** el layout principal del CMS SHALL cambiar de su diseño tradicional de dos columnas en fila (Sidebar / Formulario) a un diseño en columna apilada para optimizar la experiencia de usuario
+
+### Requirement: Atajos de Teclado en el Editor Markdown
+El editor Markdown del CMS DEBE dar soporte para atajos de teclado estándar: Ctrl+Z para deshacer (undo) y Ctrl+Y para rehacer (redo) la última edición de texto efectuada.
+
+#### Scenario: Deshacer texto con Ctrl+Z
+- **WHEN** el desarrollador pulsa el atajo de teclado Ctrl+Z dentro del área de texto del editor Markdown
+- **THEN** el editor revierte el texto al estado anterior de la última edición efectuada
+
+#### Scenario: Rehacer texto con Ctrl+Y
+- **WHEN** el desarrollador pulsa el atajo de teclado Ctrl+Y dentro del área de texto del editor Markdown
+- **THEN** el editor restablece el texto al estado posterior antes de la última operación de deshacer
+
+### Requirement: Explorador de Contenidos en Árbol (Folder-based)
+El Sidebar de navegación del CMS DEBE renderizar un árbol de contenidos jerárquico e interactivo en lugar de una lista plana. Este árbol DEBE respetar y reflejar las subcarpetas físicas dentro de `src/content/` de forma recursiva, mostrando carpetas como desplegables interactivos y exponiendo el conteo total consolidado de archivos.
+
+#### Scenario: Navegar por estructura de carpetas recursiva
+- **WHEN** el desarrollador despliega una subcarpeta en la UI del explorador en árbol del CMS
+- **THEN** el sistema revela de forma dinámica los archivos de contenido y subdirectorios anidados contenidos en ella, manteniendo el conteo de recursos del directorio padre intacto
+
+### Requirement: Internacionalización (i18n)
+La interfaz de usuario del CMS DEBE proveer soporte multilingüe nativo para los idiomas **Inglés** y **Español** mediante un selector interactivo.
+
+#### Scenario: Cambiar idioma de la UI en tiempo real
+- **WHEN** el desarrollador selecciona "EN" (English) en el selector de idioma de la UI
+- **THEN** todas las etiquetas, campos de formularios y encabezados del CMS cambian instantáneamente al inglés
+
+### Requirement: Carga Multimodal de Imágenes
+Para cada campo de imagen en los metadatos del frontmatter, el CMS DEBE proveer tres opciones interactivas de carga:
+1.  Escritura o pegado directo de la URL en el input.
+2.  Carga de un archivo local de la PC mediante un File Uploader, abriendo un modal que permite seleccionar la ruta física en el repositorio donde se guardará el archivo de imagen.
+3.  Ingreso de una URL externa absoluta.
+
+#### Scenario: Subir imagen local desde la PC
+- **WHEN** el desarrollador selecciona "Subir Imagen" e interactúa con el File Uploader del CMS
+- **THEN** el CMS abre un modal permitiendo definir la ruta de guardado (dentro de `src/assets/` o similar) y escribe físicamente el archivo de imagen en el repositorio local, actualizando la propiedad del frontmatter
 
