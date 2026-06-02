@@ -75,3 +75,12 @@ export function uploadMedia(blogRoot, filename, targetDir, image) {
 
   return { relativeUrl, destFilePath, safeFilename };
 }
+
+// Verificar existencia de archivo de imagen físicamente
+export function checkFileExists(blogRoot, targetDir, filename) {
+  const cleanTargetDir = (targetDir || '').replace(/\.\./g, '');
+  const safeFilename = path.basename(filename).replace(/\s+/g, '_');
+  const destDir = path.join(blogRoot, 'src', 'assets', cleanTargetDir);
+  const destFilePath = path.join(destDir, safeFilename);
+  return fs.existsSync(destFilePath);
+}

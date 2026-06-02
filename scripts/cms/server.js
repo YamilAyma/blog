@@ -6,8 +6,8 @@ import open from 'open';
 
 // Importar submódulos de la API modularizada
 import { scanDir, readEntry, saveEntry, createEntry, deleteEntry, getDefaultTemplate, getCustomComponents } from './api/content.js';
-import { scanFolders, createFolder, uploadMedia } from './api/media.js';
-import { gitCommit, gitPush } from './api/git.js';
+import { scanFolders, createFolder, uploadMedia, checkFileExists } from './api/media.js';
+import { gitCommit, gitPush, gitSquashAndPush } from './api/git.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -141,7 +141,7 @@ app.post('/api/content/:collection', async (req, res) => {
 
     let safeFilename = filename.trim();
     if (!safeFilename.endsWith('.md') && !safeFilename.endsWith('.mdx')) {
-      safeFilename += '.md';
+      safeFilename += '.mdx';
     }
 
     // Calcular subcarpeta elegida en caliente
@@ -168,13 +168,17 @@ app.post('/api/content/:collection', async (req, res) => {
         defaultMeta.tags = ['general'];
         defaultMeta.layout = '../../layouts/BlogPost.astro';
       } else if (collection === 'posts') {
+        defaultMeta.image = `../../../assets/images/posts/enlaces-para-desarrolladores/recursos-${today}.png`;
+        defaultMeta.imageAlt = `Recopilación de recursos - ${today}`;
+        defaultMeta.title = `Recursos para Desarrolladores - ${today}`;
+        defaultMeta.copy = 'Recursos de hoy: ';
         defaultMeta.date = today;
         defaultMeta.published = true;
         defaultMeta.category = 'General';
-        defaultMeta.tags = [];
-        defaultMeta.image = '';
-        defaultMeta.imageAlt = 'Descripción de la imagen';
-        defaultMeta.copy = 'Copy corto del post...';
+        defaultMeta.tags = ['posts', 'resources'];
+        defaultMeta.socials = {
+          linkedin: 'https://linkedin.com/in/yamilayma'
+        };
       } else if (collection === 'projects') {
         defaultMeta.title = 'Nuevo Proyecto';
         defaultMeta.description = 'Descripción detallada del proyecto';
@@ -263,7 +267,21 @@ app.post('/api/media-folders', (req, res) => {
   }
 });
 
-// 10. Endpoint POST: Subir imagen Base64 y ejecutar Git Auto-Commit
+// 10. Endpoint GET: Verificar si ya existe una imagen en la carpeta
+app.get('/api/media/check-exists', (req, res) => {
+  try {
+    const { targetDir, filename } = req.query;
+    if (!filename) {
+      return res.status(400).json({ error: 'Nombre de archivo requerido' });
+    }
+    const exists = checkFileExists(BLOG_ROOT, targetDir, filename);
+    res.json({ exists });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al validar existencia de imagen', details: err.message });
+  }
+});
+
+// 11. Endpoint POST: Subir imagen Base64 y ejecutar Git Auto-Commit
 app.post('/api/media', async (req, res) => {
   try {
     const { filename, targetDir, image } = req.body;
@@ -323,6 +341,16 @@ app.post('/api/git-push', async (req, res) => {
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: 'Fallo al ejecutar Git Push', details: err.message });
+  }
+});
+
+// 13. Endpoint POST: Ejecutar Git Squash y Push ("Finalizar Redacción")
+app.post('/api/git-squash', async (req, res) => {
+  try {
+    const result = await gitSquashAndPush();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Fallo al ejecutar Finalizar Redacción (Squash & Push)', details: err.message });
   }
 });
 

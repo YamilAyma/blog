@@ -51,13 +51,23 @@ const socialIcons: Record<string, string> = {
         </button>
 
         <div class="post-modal__content">
-            <div class="post-modal__image-container">
-                <Image
-                    src={image}
-                    alt={imageAlt || ""}
-                    class="post-modal__image"
-                />
-            </div>
+            {image && (
+                <div class="post-modal__image-container">
+                    {typeof image === 'string' ? (
+                        <img
+                            src={image}
+                            alt={imageAlt || ""}
+                            class="post-modal__image"
+                        />
+                    ) : (
+                        <Image
+                            src={image}
+                            alt={imageAlt || ""}
+                            class="post-modal__image"
+                        />
+                    )}
+                </div>
+            )}
 
             <div class="post-modal__info">
                 <div class="post-modal__copy prose prose-sm whitespace-pre-line">
