@@ -1,0 +1,67 @@
+@layer base {
+  :root {
+    /* Paleta de colores tema Everforest 'soft' */
+    --color-bg-light: #FFFBEF;
+    --color-bg-dark: #fffdf0;
+    --color-primary: #F2D2BD;
+    --color-accent: #FFB7B2;
+    --color-text: #694836;
+    --color-border: rgba(74, 64, 58, 0.1);
+    --font-heading: 'Comic Neue', cursive;
+    --font-body: 'Balsamiq Sans', sans-serif;
+  }
+  body {
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background-color: var(--color-bg-light);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+.cms-sidebar {
+  border-right: 1px solid var(--color-border);
+  background-color: #ffffff;
+}
+
+.cms-card {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.cms-input {
+  border: 1px solid var(--color-border);
+  background-color: #ffffff;
+  transition: all 0.2s;
+}
+.cms-input:focus {
+  border-color: #d88a75;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(216, 138, 117, 0.2);
+}
+
+/* Animaciones suaves para el Lightbox, Toasts y borrados */
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+.animate-scale-up {
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.animate-slide-in {
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(4px); }
+}
+@keyframes scaleUp {
+  from { transform: scale(0.9) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes slideIn {
+  from { transform: translateX(100%) translateY(10px); opacity: 0; }
+  to { transform: translateX(0) translateY(0); opacity: 1; }
+}
