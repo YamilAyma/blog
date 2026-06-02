@@ -40,7 +40,7 @@ export const translations = {
     // Posts (Micro-blog)
     micro_post: "Micro-Post",
     image_required: "Imagen (Obligatoria)",
-    copy_message: "Copy / Mensaje",
+    copy_message: "Copy / Mensaje a publicar",
     classification: "Clasificación",
     
     // Journal
@@ -108,7 +108,7 @@ export const translations = {
     // Posts (Micro-blog)
     micro_post: "Micro-Post",
     image_required: "Image (Required)",
-    copy_message: "Copy / Message",
+    copy_message: "Copy / Message to publish",
     classification: "Classification",
     
     // Journal

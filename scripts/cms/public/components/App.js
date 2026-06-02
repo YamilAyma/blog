@@ -491,7 +491,7 @@ export function App({ loadComponent }) {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden relative">
+    <div className="flex flex-col lg:flex-row h-screen overflow-hidden relative">
       
       {/* Overlay de Carga Centralizado */}
       {isLoading && (
@@ -517,7 +517,7 @@ export function App({ loadComponent }) {
       )}
 
       {/* Botón flotante para abrir Sidebar en móviles */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-[var(--color-border)] w-full shrink-0">
+      <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-[var(--color-border)] w-full shrink-0">
         <div className="flex items-center gap-2">
           <img src="/favicon.svg" alt="Favicon" className="w-6 h-6" />
           <span className="font-bold text-sm text-gray-700">{t.cms_title}</span>
@@ -531,7 +531,7 @@ export function App({ loadComponent }) {
       </div>
 
       {/* Sidebar Izquierdo */}
-      <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block shrink-0 h-[calc(100vh-60px)] md:h-full z-40 bg-white`}>
+      <div className={`${sidebarOpen ? 'block' : 'hidden'} lg:block shrink-0 h-[calc(100vh-60px)] lg:h-full z-40 bg-white`}>
         {SidebarComp && (
           <SidebarComp
             collections={collections}
@@ -550,7 +550,7 @@ export function App({ loadComponent }) {
       </div>
 
       {/* Área de Trabajo Principal */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-6 md:gap-8">
+      <main className="flex-1 overflow-y-auto p-4 lg:p-8 flex flex-col gap-6 lg:gap-8">
         
         {activeEntry ? (
           <>
@@ -747,6 +747,7 @@ export function App({ loadComponent }) {
           onClose={() => setUploaderOpen(false)}
           onUploadSuccess={handleUploadSuccess}
           activeCollection={activeCollection}
+          activeEntry={activeEntry}
           MediaFolderNode={MediaFolderNodeComp}
           t={t}
         />

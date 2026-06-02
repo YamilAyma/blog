@@ -163,6 +163,43 @@ function YouTubePreview({ videoId, t }) {
   );
 }
 
+// Componente controlado para tags que evita la pérdida de foco al digitar comas o espacios
+function TagsField({ label, value = [], onChange, t }) {
+  const [inputValue, setInputValue] = useState('');
+
+  // Sincronizar estado local cuando cambia el valor externo (por ejemplo, al cambiar de entrada)
+  useEffect(() => {
+    if (Array.isArray(value)) {
+      setInputValue(value.join(', '));
+    } else {
+      setInputValue('');
+    }
+  }, [value]);
+
+  const handleBlur = () => {
+    // Dividir por comas y espacios, limpiar cada tag y remover duplicados/vacíos
+    const tagsArray = inputValue
+      .split(/[\s,]+/)
+      .map(tag => tag.trim())
+      .filter(Boolean);
+    onChange(tagsArray);
+  };
+
+  return (
+    <div>
+      <label className="block text-xs font-bold text-gray-500 mb-1">{label}</label>
+      <input 
+        type="text" 
+        className="w-full cms-input px-3 py-2 rounded-xl text-xs font-medium" 
+        placeholder="ej: svelte, vite, sharp (separa con espacios o comas)"
+        value={inputValue}
+        onChange={e => setInputValue(e.target.value)} 
+        onBlur={handleBlur}
+      />
+    </div>
+  );
+}
+
 export function FormFields({ 
   entry = {}, 
   entryData = { metadata: {} }, 
@@ -238,16 +275,12 @@ export function FormFields({
               t={t}
             />
 
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">{t.tags}</label>
-              <input 
-                type="text" 
-                className="w-full cms-input px-3 py-2 rounded-xl text-xs font-medium" 
-                placeholder="ej: svelte, vite, sharp"
-                value={Array.isArray(meta.tags) ? meta.tags.join(', ') : ''} 
-                onChange={e => updateMeta('tags', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} 
-              />
-            </div>
+            <TagsField
+              label={t.tags}
+              value={meta.tags}
+              onChange={val => updateMeta('tags', val)}
+              t={t}
+            />
             
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-1">{t.video}</label>
@@ -318,15 +351,12 @@ export function FormFields({
               t={t}
             />
 
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">{t.tags}</label>
-              <input 
-                type="text" 
-                className="w-full cms-input px-3 py-2 rounded-xl text-xs font-medium" 
-                value={Array.isArray(meta.tags) ? meta.tags.join(', ') : ''} 
-                onChange={e => updateMeta('tags', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} 
-              />
-            </div>
+            <TagsField
+              label={t.tags}
+              value={meta.tags}
+              onChange={val => updateMeta('tags', val)}
+              t={t}
+            />
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-1">{t.layout}</label>
               <input 
@@ -396,15 +426,12 @@ export function FormFields({
                 onChange={e => updateMeta('category', e.target.value)} 
               />
             </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">{t.tags}</label>
-              <input 
-                type="text" 
-                className="w-full cms-input px-3 py-2 rounded-xl text-xs font-medium" 
-                value={Array.isArray(meta.tags) ? meta.tags.join(', ') : ''} 
-                onChange={e => updateMeta('tags', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} 
-              />
-            </div>
+            <TagsField
+              label={t.tags}
+              value={meta.tags}
+              onChange={val => updateMeta('tags', val)}
+              t={t}
+            />
             <div className="flex items-center gap-6 mt-2">
               <label className="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
                 <input 
@@ -464,15 +491,12 @@ export function FormFields({
               t={t}
             />
 
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">{t.tags}</label>
-              <input 
-                type="text" 
-                className="w-full cms-input px-3 py-2 rounded-xl text-xs font-medium" 
-                value={Array.isArray(meta.tags) ? meta.tags.join(', ') : ''} 
-                onChange={e => updateMeta('tags', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} 
-              />
-            </div>
+            <TagsField
+              label={t.tags}
+              value={meta.tags}
+              onChange={val => updateMeta('tags', val)}
+              t={t}
+            />
             <div className="flex items-center gap-6 mt-2">
               <label className="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
                 <input 

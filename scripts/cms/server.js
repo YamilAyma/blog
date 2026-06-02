@@ -281,6 +281,39 @@ app.get('/api/media/check-exists', (req, res) => {
   }
 });
 
+// 10.1 Endpoint GET: Listar archivos de imágenes reales dentro de una carpeta de assets seleccionada
+app.get('/api/media-files', (req, res) => {
+  try {
+    const { targetDir } = req.query;
+    const cleanTargetDir = (targetDir || '').replace(/\.\./g, '');
+    const fullPath = path.join(ASSETS_DIR, cleanTargetDir);
+
+    if (!fs.existsSync(fullPath)) {
+      return res.json([]);
+    }
+
+    const items = fs.readdirSync(fullPath);
+    const files = [];
+
+    items.forEach(item => {
+      const itemPath = path.join(fullPath, item);
+      const stat = fs.statSync(itemPath);
+
+      // Filtrar solo archivos con extensiones de imagen comunes
+      if (stat.isFile() && /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(item)) {
+        files.push({
+          name: item,
+          relativePath: cleanTargetDir ? `${cleanTargetDir.replace(/\/$/, '')}/${item}` : item
+        });
+      }
+    });
+
+    res.json(files.sort((a, b) => a.name.localeCompare(b.name)));
+  } catch (err) {
+    res.status(500).json({ error: 'Error al listar archivos de media', details: err.message });
+  }
+});
+
 // 11. Endpoint POST: Subir imagen Base64 y ejecutar Git Auto-Commit
 app.post('/api/media', async (req, res) => {
   try {
