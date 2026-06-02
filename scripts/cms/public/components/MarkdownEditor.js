@@ -198,44 +198,26 @@ export function MarkdownEditor({ value, onChange, entryId, saveTrigger = 0, t })
     // 6. Saltos de línea y párrafos sencillos
     html = html.replace(/\r?\n\r?\n/g, '<p class="my-2.5 leading-relaxed text-xs text-gray-600 font-semibold"></p>');
 
-    // 7. Decodificación simulada de Componentes Personalizados (MDX)
+    // 7. Decodificación simulada de Componentes Personalizados (MDX) del Blog
     
-    // <Badge text="..." type="..." />
-    html = html.replace(/&lt;Badge\s+text="([^"]*)"\s+type="([^"]*)"\s*\/&gt;/g, (match, text, type) => {
-      let colors = 'bg-blue-50 text-blue-600 border border-blue-200';
-      if (type === 'success') colors = 'bg-green-50 text-green-600 border border-green-200';
-      if (type === 'warning') colors = 'bg-yellow-50 text-yellow-600 border border-yellow-200';
-      if (type === 'danger') colors = 'bg-red-50 text-red-600 border border-red-200';
-      return `<span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${colors}">${text}</span>`;
+    // <TLDR>...</TLDR>
+    html = html.replace(/&lt;TLDR&gt;([\s\S]*?)&lt;\/TLDR&gt;/g, '<div class="p-4 bg-amber-50/50 border-l-4 border-amber-400 rounded-r-xl my-3 text-xs leading-normal font-semibold text-gray-700">💡 <strong>TL;DR (Resumen Rápido):</strong><div class="mt-1">$1</div></div>');
+
+    // <FAQItem question="...">...</FAQItem>
+    html = html.replace(/&lt;FAQItem\s+question="([^"]*)"&gt;([\s\S]*?)&lt;\/FAQItem&gt;/g, '<details class="border border-gray-100 rounded-xl bg-white p-3 shadow-xs my-2"><summary class="font-bold text-gray-800 text-xs cursor-pointer outline-hidden hover:text-[#d88a75] transition-colors select-none">❓ $1</summary><div class="mt-2 text-xs text-gray-500 font-semibold leading-relaxed">$2</div></details>');
+    
+    // <FAQs>...</FAQs>
+    html = html.replace(/&lt;FAQs&gt;([\s\S]*?)&lt;\/FAQs&gt;/g, '<div class="my-4 flex flex-col gap-2">$1</div>');
+
+    // <Quote cite="..." role="..." url="...">...</Quote> (soporta Quote, Cita, Opinion)
+    html = html.replace(/&lt;(Quote|Cita|Opinion)(?:\s+cite="([^"]*)")?(?:\s+role="([^"]*)")?(?:\s+url="([^"]*)")?&gt;([\s\S]*?)&lt;\/\1&gt;/g, (match, tag, cite, role, url, content) => {
+      const authorText = cite ? `<cite class="block font-bold text-gray-800 text-[11px] not-italic mt-2">— ${url ? `<a href="${url}" target="_blank" class="hover:underline text-[#d88a75] font-black">${cite}</a>` : cite}${role ? `, <span class="text-gray-400 font-medium">${role}</span>` : ''}</cite>` : '';
+      return `<blockquote class="border-l-4 border-[#d88a75] pl-4 italic text-gray-600 bg-gray-50/40 py-2.5 pr-3 rounded-r-xl my-3 text-xs font-semibold leading-relaxed">"${content.trim()}"${authorText}</blockquote>`;
     });
 
-    // <Alert type="..." title="...">...</Alert>
-    html = html.replace(/&lt;Alert\s+type="([^"]*)"(?:\s+title="([^"]*)")?&gt;([\s\S]*?)&lt;\/Alert&gt;/g, (match, type, title, content) => {
-      let colors = 'bg-blue-50/50 border-blue-200 text-blue-800';
-      let icon = 'ℹ️';
-      if (type === 'tip') { colors = 'bg-green-50/50 border-green-200 text-green-800'; icon = '💡'; }
-      if (type === 'warning') { colors = 'bg-yellow-50/50 border-yellow-200 text-yellow-800'; icon = '⚠️'; }
-      if (type === 'caution') { colors = 'bg-red-50/50 border-red-200 text-red-800'; icon = '🚨'; }
-      
-      const titleMarkup = title ? `<h4 class="font-bold text-xs uppercase tracking-wider mb-1">${icon} ${title}</h4>` : '';
-      return `<div class="p-4 border-l-4 rounded-r-xl my-3 ${colors}">${titleMarkup}<div class="text-xs leading-normal font-semibold">${content}</div></div>`;
-    });
-
-    // <Card title="..." link="..." linkText="...">...</Card>
-    html = html.replace(/&lt;Card\s+title="([^"]*)"(?:\s+link="([^"]*)")?(?:\s+linkText="([^"]*)")?&gt;([\s\S]*?)&lt;\/Card&gt;/g, (match, title, link, linkText, content) => {
-      const button = link ? `<a href="${link}" target="_blank" class="inline-block mt-3 bg-[#d88a75] text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-[#c27c69] transition-all">${linkText || 'Ver'}</a>` : '';
-      return `<div class="border rounded-xl p-4 bg-white shadow-xs my-3 flex flex-col gap-1 border-gray-100"><h4 class="font-bold text-gray-800 text-sm border-b pb-1 mb-2">🎴 ${title}</h4><div class="text-xs text-gray-500 font-semibold leading-relaxed">${content}</div>${button}</div>`;
-    });
-
-    // <Grid cols="...">...</Grid>
-    html = html.replace(/&lt;Grid(?:\s+cols="([^"]*)")?&gt;([\s\S]*?)&lt;\/Grid&gt;/g, (match, cols, content) => {
-      const colNum = cols || '2';
-      return `<div class="grid grid-cols-1 md:grid-cols-${colNum} gap-4 my-4">${content}</div>`;
-    });
-
-    // <Button href="..." text="..." target="..." />
-    html = html.replace(/&lt;Button\s+href="([^"]*)"\s+text="([^"]*)"(?:\s+target="([^"]*)")?\s*\/&gt;/g, (match, href, text, target) => {
-      return `<a href="${href}" target="${target || '_self'}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-black uppercase tracking-widest rounded-xl shadow-xs text-white bg-[#d88a75] hover:bg-[#c27c69] transition-all my-2">${text}</a>`;
+    // <References title="..." references={...} />
+    html = html.replace(/&lt;References\s+[^&gt;]*\/&gt;/g, (match) => {
+      return `<div class="my-4 border border-gray-100 rounded-xl p-4 bg-white shadow-xs font-semibold text-xs text-gray-600"><h4 class="font-bold text-gray-800 text-xs uppercase tracking-widest border-b pb-1 mb-2">📚 Fuentes y Referencias</h4><p class="text-gray-400 italic text-[10px]">Consulta las referencias académicas e hipervínculos estructurados en el visor en vivo de Astro.</p></div>`;
     });
 
     return html;
@@ -386,6 +368,14 @@ export function MarkdownEditor({ value, onChange, entryId, saveTrigger = 0, t })
             title="Insertar Enlace"
           >
             Enlace
+          </button>
+          <button 
+            type="button" 
+            onClick={() => insertFormat('![Descripción de la imagen](url)')} 
+            className="px-2 py-1 text-xs rounded hover:bg-gray-200 transition-all cursor-pointer" 
+            title="Insertar Imagen"
+          >
+            📷 Imagen
           </button>
           <button 
             type="button" 

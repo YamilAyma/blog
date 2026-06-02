@@ -114,3 +114,54 @@ export async function gitSquashAndPush() {
     return { success: false, error: err.message };
   }
 }
+
+export async function gitGetCommits() {
+  try {
+    let upstreamBranch = 'origin/main';
+    try {
+      const { stdout } = await execPromise('git rev-parse --abbrev-ref @{u}');
+      if (stdout && stdout.trim()) {
+        upstreamBranch = stdout.trim();
+      }
+    } catch (e) {
+      // Fallback a origin/main si no hay upstream configurado
+    }
+    const { stdout } = await execPromise(`git log ${upstreamBranch}..HEAD --format="%h|%s|%cr"`);
+    const commits = stdout.trim().split('\n').filter(Boolean).map(line => {
+      const [hash, message, date] = line.split('|');
+      return { hash, message, date };
+    });
+    return { success: true, commits };
+  } catch (err) {
+    console.error('❌ Error en gitGetCommits:', err.message);
+    return { success: false, error: err.message, commits: [] };
+  }
+}
+
+export async function gitUndoLastCommit() {
+  try {
+    let upstreamBranch = 'origin/main';
+    try {
+      const { stdout } = await execPromise('git rev-parse --abbrev-ref @{u}');
+      if (stdout && stdout.trim()) {
+        upstreamBranch = stdout.trim();
+      }
+    } catch (e) {
+      // Fallback
+    }
+    const { stdout: commitsCheck } = await execPromise(`git log ${upstreamBranch}..HEAD --oneline`);
+    if (!commitsCheck.trim()) {
+      return { success: false, error: 'No hay acciones locales no enviadas para deshacer.' };
+    }
+
+    console.log('↩️ Ejecutando Git Reset Hard...');
+    const { stdout, stderr } = await execPromise('git reset --hard HEAD~1');
+    const logs = stdout.trim() + (stderr ? '\n' + stderr.trim() : '');
+    console.log(`✓ Git Undo exitoso:\n${logs}`);
+    return { success: true, logs };
+  } catch (err) {
+    console.error('❌ Error en gitUndoLastCommit:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+

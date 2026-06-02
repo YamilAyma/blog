@@ -1,60 +1,43 @@
 {
   "components": [
     {
-      "name": "Badge",
-      "icon": "🏷️",
-      "description": "Etiqueta visual pequeña para destacar categorías, estados, etiquetas o tecnologías de forma compacta.",
-      "properties": [
-        { "name": "text", "type": "string", "required": true, "description": "Texto visible dentro de la etiqueta." },
-        { "name": "type", "type": "string", "required": false, "description": "Estilo visual: info (celeste), success (verde), warning (amarillo), danger (rojo)." }
-      ],
-      "template": "<Badge text=\"Astro\" type=\"info\" />",
-      "example": "<Badge text=\"Tailwind CSS\" type=\"success\" />"
+      "name": "TLDR",
+      "icon": "💡",
+      "description": "Resumen rápido al inicio de un artículo. Ideal para dar un resumen ejecutivo al lector con una animación suave.",
+      "properties": [],
+      "template": "<TLDR>\n  Aquí va el resumen rápido de lo que el lector aprenderá o los puntos clave del artículo.\n</TLDR>",
+      "example": "<TLDR>\n  En esta entrada aprenderemos a configurar un CMS local y modularizar los componentes clave del blog.\n</TLDR>"
     },
     {
-      "name": "Alert",
-      "icon": "🚨",
-      "description": "Caja destacada con bordes redondeados y fondo de color para resaltar advertencias, notas o consejos especiales.",
-      "properties": [
-        { "name": "type", "type": "string", "required": false, "description": "Nivel de alerta: note (azul), tip (verde), warning (amarillo), caution (rojo)." },
-        { "name": "title", "type": "string", "required": false, "description": "Título opcional en negrita para la cabecera." }
-      ],
-      "template": "<Alert type=\"warning\" title=\"Nota Importante\">\n  Este es un mensaje de alerta destacado para el lector.\n</Alert>",
-      "example": "<Alert type=\"tip\" title=\"Consejo Pro\">\n  Usa HMR en caliente para ver cambios en tiempo real.\n</Alert>"
+      "name": "FAQs",
+      "icon": "❓",
+      "description": "Sección interactiva de Preguntas Frecuentes con formato de acordeones colapsables.",
+      "properties": [],
+      "template": "<FAQs>\n  <FAQItem question=\"¿Qué es este proyecto?\">\n    Es un sistema de gestión de contenido estático optimizado para velocidad.\n  </FAQItem>\n  <FAQItem question=\"¿Cómo puedo contribuir?\">\n    Haciendo un fork del repositorio y enviando un Pull Request.\n  </FAQItem>\n</FAQs>",
+      "example": "<FAQs>\n  <FAQItem question=\"¿Requiere base de datos?\">\n    No, opera directamente leyendo archivos físicos del repositorio local.\n  </FAQItem>\n</FAQs>"
     },
     {
-      "name": "Card",
-      "icon": "🎴",
-      "description": "Tarjeta de diseño limpio con cabecera y enlaces integrados, ideal para agrupar bloques de información estructurada.",
+      "name": "Quote",
+      "icon": "💬",
+      "description": "Destaca testimonios, pensamientos o referencias importantes con un diseño limpio. Soporta alias <Quote>, <Cita> y <Opinion>.",
       "properties": [
-        { "name": "title", "type": "string", "required": true, "description": "Título de la tarjeta." },
-        { "name": "link", "type": "string", "required": false, "description": "URL destino si es una tarjeta interactiva." },
-        { "name": "linkText", "type": "string", "required": false, "description": "Texto del botón de enlace." }
+        { "name": "cite", "type": "string", "required": false, "description": "Nombre de la persona o entidad citada." },
+        { "name": "role", "type": "string", "required": false, "description": "Rol o cargo de la persona." },
+        { "name": "url", "type": "string", "required": false, "description": "Enlace a la fuente original o perfil." }
       ],
-      "template": "<Card title=\"Mi Tarjeta de Proyecto\" link=\"https://astro.build\" linkText=\"Ver sitio\">\n  Describe aquí los detalles o características clave de esta sección.\n</Card>",
-      "example": "<Card title=\"Guía de Configuración\" link=\"/posts/setup\">\n  Aprende cómo configurar tu entorno local en 5 minutos.\n</Card>"
+      "template": "<Quote cite=\"Yamil Ayma\" role=\"Desarrollador\" url=\"https://github.com/yamilayma\">\n  La modularización no es solo separar archivos, es definir cómo conversan las partes de un todo.\n</Quote>",
+      "example": "<Quote cite=\"Yamil Ayma\" role=\"Ingeniero de Software\">\n  Asegurar modularidad extrema al inicio evita dolores de cabeza al escalar.\n</Quote>"
     },
     {
-      "name": "Grid",
-      "icon": "📊",
-      "description": "Rejilla adaptable (CSS Grid) para organizar elementos internos en múltiples columnas en pantallas de escritorio.",
+      "name": "References",
+      "icon": "📚",
+      "description": "Lista estructurada y profesional de fuentes bibliográficas o enlaces de interés.",
       "properties": [
-        { "name": "cols", "type": "string", "required": false, "description": "Número de columnas en pantallas grandes (1, 2, 3 o 4). Por defecto es 2." }
+        { "name": "title", "type": "string", "required": false, "description": "Título de la sección bibliográfica (por defecto 'Fuentes Consultadas')." },
+        { "name": "references", "type": "array", "required": true, "description": "Listado de referencias con campos 'text' y 'link'." }
       ],
-      "template": "<Grid cols=\"2\">\n  <div>\n    ### Sección Izquierda\n    Contenido de la primera columna.\n  </div>\n  <div>\n    ### Sección Derecha\n    Contenido de la segunda columna.\n  </div>\n</Grid>",
-      "example": "<Grid cols=\"3\">\n  <div>Columna A</div>\n  <div>Columna B</div>\n  <div>Columna C</div>\n</Grid>"
-    },
-    {
-      "name": "Button",
-      "icon": "🖱️",
-      "description": "Botón de llamada a la acción (CTA) con micro-animación en hover y diseño estético alineado al blog.",
-      "properties": [
-        { "name": "href", "type": "string", "required": true, "description": "Ruta o enlace externo de destino." },
-        { "name": "text", "type": "string", "required": true, "description": "Etiqueta de texto visible del botón." },
-        { "name": "target", "type": "string", "required": false, "description": "Destino de apertura: _blank (nueva pestaña) o _self (misma pestaña)." }
-      ],
-      "template": "<Button href=\"https://github.com\" text=\"Ver Repositorio\" target=\"_blank\" />",
-      "example": "<Button href=\"/contacto\" text=\"Escríbeme\" />"
+      "template": "<References \n  title=\"Fuentes Consultadas\"\n  references={[\n    { \n      text: \"Doe, J. R. (2023). Understanding Minimalist Tech: A Gentle Introduction. Ayma Press.\", \n      link: \"https://example.com/tech-intro\" \n    },\n    { \n      text: \"Smith, A. L. (2022). 'Designing for Accessibility'. Journal of Soft Technology.\", \n      link: \"https://doi.org/10.1000/j.st.2022\" \n    }\n  ]} \n/>",
+      "example": "<References \n  references={[\n    { text: \"Astro v5 Documentation. Official Astro Guides.\", link: \"https://docs.astro.build\" }\n  ]} \n/>"
     }
   ]
 }

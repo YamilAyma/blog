@@ -18,7 +18,9 @@ export function App({ loadComponent }) {
   const [apiService, setApiService] = useState(null);
 
   // Estados de UI de Biblioteca de Recursos
-  const [viewMode, setViewMode] = useState('editor'); // 'editor' o 'resources'
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('cms_view_mode') || 'editor';
+  }); // 'editor' o 'resources'
   const [transitioning, setTransitioning] = useState(false);
 
   // Estados de UI e idioma
@@ -96,11 +98,78 @@ export function App({ loadComponent }) {
   const handleToggleViewMode = () => {
     setTransitioning(true);
     setTimeout(() => {
-      setViewMode(prev => prev === 'editor' ? 'resources' : 'editor');
+      setViewMode(prev => {
+        const nextMode = prev === 'editor' ? 'resources' : 'editor';
+        localStorage.setItem('cms_view_mode', nextMode);
+        return nextMode;
+      });
     }, 1000);
     setTimeout(() => {
       setTransitioning(false);
     }, 2000);
+  };
+
+  // Estados para panel de Actividad de la Sesión y Git Undo Stack
+  const [showActivityModal, setShowActivityModal] = useState(false);
+  const [gitCommits, setGitCommits] = useState([]);
+  const [isLoadingCommits, setIsLoadingCommits] = useState(false);
+  const [isUndoing, setIsUndoing] = useState(false);
+
+  const loadGitCommits = async () => {
+    setIsLoadingCommits(true);
+    try {
+      const res = await fetch('/api/git-commits');
+      const data = await res.json();
+      if (res.ok) {
+        setGitCommits(data.commits || []);
+      } else {
+        console.error('Error fetching commits:', data.error);
+      }
+    } catch (err) {
+      console.error('Error fetching commits:', err);
+    } finally {
+      setIsLoadingCommits(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showActivityModal) {
+      loadGitCommits();
+    }
+  }, [showActivityModal]);
+
+  const handleGitUndo = async () => {
+    if (gitCommits.length === 0) return;
+    if (!confirm('⚠️ ¿Estás completamente seguro de que deseas deshacer la última acción?\n\nEsto ejecutará un Hard Reset en Git al commit anterior y se perderán todos los cambios no comiteados y el último commit local de forma permanente.')) {
+      return;
+    }
+    setIsUndoing(true);
+    try {
+      const res = await fetch('/api/git-undo', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        addToast('success', 'Acción Deshecha', 'El último commit local se ha revertido físicamente con éxito.');
+        
+        // Refrescar contenidos del CMS en caliente
+        if (apiService) {
+          apiService.fetchAllContent()
+            .then(cols => {
+              setCollections(cols);
+              if (activeEntry) {
+                // Intentar recargar el archivo activo
+                selectEntry(activeEntry.collection, activeEntry.filename);
+              }
+            });
+        }
+        loadGitCommits();
+      } else {
+        addToast('error', 'Fallo al Deshacer', data.error || 'No se pudo deshacer la acción.');
+      }
+    } catch (err) {
+      addToast('error', 'Fallo al Deshacer', err.message);
+    } finally {
+      setIsUndoing(false);
+    }
   };
 
   // Exponer el Lightbox en el objeto window para comunicación modular
@@ -813,6 +882,18 @@ export function App({ loadComponent }) {
         />
       )}
 
+      {/* Botón Flotante de Actividad */}
+      {!quickActionsOpen && (
+        <button
+          type="button"
+          onClick={() => setShowActivityModal(true)}
+          className="fixed bottom-6 right-40 bg-white text-gray-700 w-14 h-14 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center text-xl font-bold cursor-pointer transition-all duration-300 select-none border-2 border-[#d88a75]/30 hover:scale-105 z-45"
+          title="Ver Actividad de la Sesión"
+        >
+          📋
+        </button>
+      )}
+
       {/* Botón Selector de Vista Biblioteca / Editor */}
       {ResourceLibraryComp && !quickActionsOpen && (
         <button
@@ -874,6 +955,82 @@ export function App({ loadComponent }) {
           toasts={toasts} 
           onClose={handleCloseToast} 
         />
+      )}
+
+      {/* Modal de Actividad (Git Stack) */}
+      {showActivityModal && (
+        <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-gray-100 flex flex-col gap-4 max-h-[80vh] overflow-hidden animate-scale-up">
+            {/* Header del Modal */}
+            <div className="flex items-center justify-between border-b pb-3 select-none">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📋</span>
+                <h3 className="text-lg font-bold text-gray-800">Actividad de la Sesión (Git)</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowActivityModal(false)}
+                className="text-gray-300 hover:text-gray-500 font-bold text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Cuerpo del Modal */}
+            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4 text-xs font-semibold leading-normal text-gray-600">
+              <p className="text-gray-500 text-[11px] select-none">
+                Lista de acciones locales registradas en esta sesión. Los commits se ordenan del más reciente al más antiguo y solo muestran cambios locales no empujados.
+              </p>
+
+              {isLoadingCommits ? (
+                <div className="flex items-center justify-center py-8 text-gray-400 gap-2 select-none">
+                  <span className="animate-spin">⏳</span> Cargando historial local...
+                </div>
+              ) : gitCommits.length === 0 ? (
+                <div className="text-center py-8 text-gray-400 border border-dashed rounded-xl border-gray-200 select-none">
+                  <span className="text-2xl block mb-1">🌿</span> No hay commits locales no empujados.
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {/* Botón de Quitar Última Acción */}
+                  <button
+                    type="button"
+                    onClick={handleGitUndo}
+                    disabled={isUndoing}
+                    className="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  >
+                    <span>↩️</span> {isUndoing ? 'Deshaciendo...' : 'Quitar última acción'}
+                  </button>
+
+                  <div className="border border-gray-100 rounded-xl overflow-hidden bg-gray-50/50">
+                    <div className="divide-y divide-gray-100 font-mono text-[10px]">
+                      {gitCommits.map((c, i) => (
+                        <div key={i} className="p-3 hover:bg-white flex items-start gap-2.5 transition-colors">
+                          <span className="bg-[#d88a75]/10 text-[#d88a75] px-1.5 py-0.5 rounded font-bold shrink-0">{c.hash}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-gray-700 font-semibold truncate" title={c.message}>{c.message}</div>
+                            {c.date && <div className="text-[9px] text-gray-400 mt-0.5 select-none">{c.date}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end border-t pt-3 border-gray-50 shrink-0 select-none">
+              <button
+                type="button"
+                onClick={() => setShowActivityModal(false)}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

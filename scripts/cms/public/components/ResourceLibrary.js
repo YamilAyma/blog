@@ -14,6 +14,8 @@ export function ResourceLibrary({ loadComponent, onClose, addToast, t }) {
   const [editingNameValue, setEditingNameValue] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [resourceToDelete, setResourceToDelete] = useState(null);
 
   // Reproducir chime tierno con Web Audio API
   const playTenderChime = () => {
@@ -144,18 +146,19 @@ export function ResourceLibrary({ loadComponent, onClose, addToast, t }) {
     reader.readAsDataURL(file);
   };
 
-  // Eliminar un archivo multimedia
-  const handleDelete = async (resource) => {
-    if (!confirm(`¿Estás seguro de que deseas eliminar físicamente ${resource.name}? Esto podría romper referencias si se está usando en algún post.`)) {
-      return;
-    }
+  const confirmDelete = (resource) => {
+    setResourceToDelete(resource);
+    setDeleteModalOpen(true);
+  };
 
+  const executeDelete = async () => {
+    if (!resourceToDelete) return;
     try {
       const res = await fetch('/api/resources', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fullRelativePath: resource.fullRelativePath
+          fullRelativePath: resourceToDelete.fullRelativePath
         })
       });
 
@@ -163,8 +166,10 @@ export function ResourceLibrary({ loadComponent, onClose, addToast, t }) {
       if (!res.ok) throw new Error(data.error);
 
       playTenderChime();
-      addToast('success', 'Recurso Eliminado', `El recurso ${resource.name} fue eliminado físicamente de forma exitosa.`);
+      addToast('success', 'Recurso Eliminado', `El recurso ${resourceToDelete.name} fue eliminado físicamente de forma exitosa.`);
       setActiveResource(null);
+      setDeleteModalOpen(false);
+      setResourceToDelete(null);
       loadResources();
     } catch (err) {
       addToast('error', 'Eliminar Recurso', err.message);
@@ -372,19 +377,24 @@ export function ResourceLibrary({ loadComponent, onClose, addToast, t }) {
           }}
         >
           {/* Banner de Ayuda / Indicador */}
-          <div className="flex justify-between items-center bg-amber-50 border border-amber-200/60 p-3 rounded-xl mb-4 text-xs text-amber-800">
-            <div>
-              💡 <strong>Tip Contextual:</strong> Doble click sobre el nombre de una tarjeta para editar su archivo. Da <strong>Click Derecho</strong> en cualquier parte para activar marcadores de remoción rápida.
+          <div className="flex flex-col gap-2 bg-amber-50 border border-amber-200/60 p-4 rounded-xl mb-4 text-xs text-amber-800">
+            <div className="flex justify-between items-center w-full gap-4">
+              <div>
+                💡 <strong>Tip Contextual:</strong> Doble click sobre el nombre de una tarjeta para renombrar en caliente. Da <strong>Click Derecho</strong> en cualquier parte de la cuadrícula para activar marcadores de remoción rápida.
+              </div>
+              {rightClickDeleteMode && (
+                <button 
+                  type="button"
+                  onClick={() => setRightClickDeleteMode(false)}
+                  className="bg-amber-800 text-white font-bold px-2 py-1 rounded-lg text-[10px] select-none hover:bg-amber-900 shrink-0"
+                >
+                  Apagar Marcadores ✕
+                </button>
+              )}
             </div>
-            {rightClickDeleteMode && (
-              <button 
-                type="button"
-                onClick={() => setRightClickDeleteMode(false)}
-                className="bg-amber-800 text-white font-bold px-2 py-1 rounded-lg text-[10px] select-none hover:bg-amber-900"
-              >
-                Apagar Marcadores ✕
-              </button>
-            )}
+            <div className="text-[11px] font-bold text-amber-900/80 border-t border-amber-200/40 pt-2 mt-1">
+              ⚠️ <strong>Advertencia:</strong> Las imágenes escritas directamente en el cuerpo del contenido en formato Markdown (ej: `![Alt](url)`) no se auto-renombran por el Dependency Tracker. Procura usarlas con precaución para evitar enlaces rotos.
+            </div>
           </div>
 
           {loading ? (
@@ -411,13 +421,12 @@ export function ResourceLibrary({ loadComponent, onClose, addToast, t }) {
                 } else if (isWarn || isCriticalSystem) {
                   borderClass = 'border-warn-radiactive';
                 }
-
                 const isEditing = editingNameId === res.fullRelativePath;
 
                 return (
                   <div 
                     key={idx} 
-                    className={`cms-card flex flex-col rounded-2xl overflow-hidden relative group transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 border ${borderClass}`}
+                    className={`cms-card flex flex-col rounded-2xl relative group transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 border ${borderClass}`}
                   >
                     {/* Botón de Eliminación Rápida */}
                     {rightClickDeleteMode && (
@@ -425,7 +434,7 @@ export function ResourceLibrary({ loadComponent, onClose, addToast, t }) {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(res);
+                          confirmDelete(res);
                         }}
                         className="absolute top-2.5 left-2.5 bg-red-500 hover:bg-red-600 text-white w-7 h-7 rounded-full shadow-lg flex items-center justify-center font-bold text-xs cursor-pointer z-20 animate-scale-up select-none"
                         title="Borrado Rápido Físico"
@@ -456,7 +465,7 @@ export function ResourceLibrary({ loadComponent, onClose, addToast, t }) {
                     {/* Previsualización de Imagen */}
                     <div 
                       onClick={() => setActiveResource(res)}
-                      className="h-32 bg-gray-50 flex items-center justify-center overflow-hidden border-b border-gray-100 cursor-pointer relative"
+                      className="h-32 bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-2xl border-b border-gray-100 cursor-pointer relative"
                     >
                       <img
                         src={res.url}
@@ -593,12 +602,62 @@ export function ResourceLibrary({ loadComponent, onClose, addToast, t }) {
 
                 <button
                   type="button"
-                  onClick={() => handleDelete(activeResource)}
+                  onClick={() => confirmDelete(activeResource)}
                   className="flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all border border-red-100"
                 >
                   🗑️ Eliminar Físicamente
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación de Borrado Personalizado */}
+      {deleteModalOpen && resourceToDelete && (
+        <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-gray-100 flex flex-col gap-4 text-center animate-scale-up">
+            {/* Cabecera con delete-resource.png */}
+            <div className="flex flex-col items-center select-none">
+              <img
+                src="/delete-resource.png"
+                alt="Eliminar"
+                className="w-16 h-16 object-contain mb-3"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  const fallback = document.getElementById('delete-modal-fallback-icon');
+                  if (fallback) fallback.style.display = 'block';
+                }}
+              />
+              <span id="delete-modal-fallback-icon" className="text-4xl mb-3 hidden">🗑️</span>
+              <h3 className="text-base font-black text-gray-800">Confirmar Eliminación</h3>
+            </div>
+
+            {/* Mensaje */}
+            <div className="text-xs font-semibold text-gray-500 leading-relaxed">
+              ¿Estás seguro de que deseas eliminar físicamente <strong className="text-red-500">{resourceToDelete.name}</strong>?<br/>
+              Esto podría romper referencias de forma irreversible si se está usando en algún post.
+            </div>
+
+            {/* Botones de Decisión */}
+            <div className="flex gap-3 justify-center mt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setResourceToDelete(null);
+                }}
+                className="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all cursor-pointer text-gray-500"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={executeDelete}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer"
+              >
+                Sí, eliminar
+              </button>
             </div>
           </div>
         </div>

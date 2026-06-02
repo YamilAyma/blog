@@ -7,7 +7,7 @@ import open from 'open';
 // Importar submódulos de la API modularizada
 import { scanDir, readEntry, saveEntry, createEntry, deleteEntry, getDefaultTemplate, getCustomComponents } from './api/content.js';
 import { scanFolders, createFolder, uploadMedia, checkFileExists, scanAllResources, renameResource, replaceResource, deleteResource } from './api/media.js';
-import { gitCommit, gitPush, gitSquashAndPush } from './api/git.js';
+import { gitCommit, gitPush, gitSquashAndPush, gitGetCommits, gitUndoLastCommit } from './api/git.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +22,7 @@ const ASSETS_DIR = path.join(BLOG_ROOT, 'src', 'assets');
 // Middleware para cuerpos JSON grandes
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(BLOG_ROOT, 'public')));
 
 // Mapear carpetas físicas de assets para previsualizar de inmediato
 app.use('/assets', express.static(ASSETS_DIR));
@@ -469,6 +470,30 @@ app.post('/api/git-squash', async (req, res) => {
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: 'Fallo al ejecutar Finalizar Redacción (Squash & Push)', details: err.message });
+  }
+});
+
+// Endpoint GET: Obtener commits locales no empujados
+app.get('/api/git-commits', async (req, res) => {
+  try {
+    const result = await gitGetCommits();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al leer historial de Git local', details: err.message });
+  }
+});
+
+// Endpoint POST: Deshacer la última acción (Hard Reset HEAD~1)
+app.post('/api/git-undo', async (req, res) => {
+  try {
+    const result = await gitUndoLastCommit();
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Fallo al deshacer la última acción de Git', details: err.message });
   }
 });
 
