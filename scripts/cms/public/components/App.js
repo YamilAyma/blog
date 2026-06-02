@@ -14,7 +14,12 @@ export function App({ loadComponent }) {
   const [DeleteConfirmationModalComp, setDeleteConfirmationModalComp] = useState(null);
   const [ImageUploaderModalComp, setImageUploaderModalComp] = useState(null);
   const [FinalizarRedaccionModalComp, setFinalizarRedaccionModalComp] = useState(null);
+  const [ResourceLibraryComp, setResourceLibraryComp] = useState(null);
   const [apiService, setApiService] = useState(null);
+
+  // Estados de UI de Biblioteca de Recursos
+  const [viewMode, setViewMode] = useState('editor'); // 'editor' o 'resources'
+  const [transitioning, setTransitioning] = useState(false);
 
   // Estados de UI e idioma
   const [lang, setLang] = useState('es');
@@ -88,6 +93,16 @@ export function App({ loadComponent }) {
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
+  const handleToggleViewMode = () => {
+    setTransitioning(true);
+    setTimeout(() => {
+      setViewMode(prev => prev === 'editor' ? 'resources' : 'editor');
+    }, 1000);
+    setTimeout(() => {
+      setTransitioning(false);
+    }, 2000);
+  };
+
   // Exponer el Lightbox en el objeto window para comunicación modular
   useEffect(() => {
     window.openLightbox = (src) => {
@@ -112,8 +127,9 @@ export function App({ loadComponent }) {
       loadComponent('./components/DeleteConfirmationModal.js'),
       loadComponent('./components/ImageUploaderModal.js'),
       loadComponent('./components/FinalizarRedaccionModal.js'),
+      loadComponent('./components/ResourceLibrary.js'),
       loadComponent('./services/api.js')
-    ]).then(([i18nMod, sidebarMod, formFieldsMod, mdEditorMod, mediaFolderMod, toastMod, lightboxMod, deleteMod, uploaderMod, finalizarMod, apiMod]) => {
+    ]).then(([i18nMod, sidebarMod, formFieldsMod, mdEditorMod, mediaFolderMod, toastMod, lightboxMod, deleteMod, uploaderMod, finalizarMod, resourceMod, apiMod]) => {
       setTranslationsDict(i18nMod.translations);
       setSidebarComp(() => sidebarMod.Sidebar);
       setFormFieldsComp(() => formFieldsMod.FormFields);
@@ -124,6 +140,7 @@ export function App({ loadComponent }) {
       setDeleteConfirmationModalComp(() => deleteMod.DeleteConfirmationModal);
       setImageUploaderModalComp(() => uploaderMod.ImageUploaderModal);
       setFinalizarRedaccionModalComp(() => finalizarMod.FinalizarRedaccionModal);
+      setResourceLibraryComp(() => resourceMod.ResourceLibrary);
       setApiService(apiMod);
       setIsLoading(false);
     }).catch(err => {
@@ -490,8 +507,10 @@ export function App({ loadComponent }) {
     updateMeta(activeImageField, imageUrl);
   };
 
+  const transitionClass = transitioning ? 'transition-dreamy' : '';
+
   return (
-    <div className="flex flex-col lg:flex-row h-screen overflow-hidden relative">
+    <div className={`flex flex-col lg:flex-row h-screen overflow-hidden relative ${transitionClass}`}>
       
       {/* Overlay de Carga Centralizado */}
       {isLoading && (
@@ -516,111 +535,122 @@ export function App({ loadComponent }) {
         </div>
       )}
 
-      {/* Botón flotante para abrir Sidebar en móviles */}
-      <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-[var(--color-border)] w-full shrink-0">
-        <div className="flex items-center gap-2">
-          <img src="/favicon.svg" alt="Favicon" className="w-6 h-6" />
-          <span className="font-bold text-sm text-gray-700">{t.cms_title}</span>
-        </div>
-        <button 
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="px-3 py-1.5 bg-[#d88a75]/10 text-[#d88a75] border border-[#d88a75]/20 rounded-xl text-xs font-bold transition-all"
-        >
-          {sidebarOpen ? '✕ Cerrar' : '☰ Menú'}
-        </button>
-      </div>
-
-      {/* Sidebar Izquierdo */}
-      <div className={`${sidebarOpen ? 'block' : 'hidden'} lg:block shrink-0 h-[calc(100vh-60px)] lg:h-full z-40 bg-white`}>
-        {SidebarComp && (
-          <SidebarComp
-            collections={collections}
-            activeCollection={activeCollection}
-            setActiveCollection={setActiveCollection}
-            activeEntry={activeEntry}
-            onSelectEntry={selectEntry}
-            onOpenNewModal={() => setShowNewModal(true)}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            lang={lang}
-            setLang={setLang}
-            t={t}
-          />
-        )}
-      </div>
-
-      {/* Área de Trabajo Principal */}
-      <main className="flex-1 overflow-y-auto p-4 lg:p-8 flex flex-col gap-6 lg:gap-8">
-        
-        {activeEntry ? (
-          <>
-            {/* Header del CMS */}
-            <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 shrink-0">
-              <div>
-                <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase mb-1">
-                  <span className="capitalize">{activeEntry.collection}</span>
-                  <span>/</span>
-                  <span>{activeEntry.filename}</span>
-                </div>
-                <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                  {t.edit_label} <span className="text-[#d88a75]">{entryData.metadata?.title || activeEntry.filename.replace(/\.(md|mdx)$/, '')}</span>
-                </h2>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                {message && <span className="text-xs md:text-sm font-bold text-green-600 transition-all">{message}</span>}
-                <button
-                  onClick={() => setShowDeleteModal(true)}
-                  className="bg-red-50 hover:bg-red-100 text-red-500 border border-red-200 px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
-                >
-                  Eliminar Recurso ✕
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="bg-[#d88a75] hover:bg-[#c27c69] text-white px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  {isSaving ? t.saving : t.save_changes}
-                </button>
-              </div>
-            </header>
-
-            {/* Formulario Adaptativo & Markdown Editor */}
-            <div className="flex flex-col gap-6 md:gap-8">
-              
-              {/* Formulario de Metadatos */}
-              {FormFieldsComp && (
-                <FormFieldsComp
-                  entry={activeEntry}
-                  entryData={entryData}
-                  updateMeta={updateMeta}
-                  onOpenUploader={handleOpenUploader}
-                  collections={collections}
-                  t={t}
-                />
-              )}
-
-              {/* Markdown Editor */}
-              {MarkdownEditorComp && (
-                <MarkdownEditorComp
-                  value={entryData.content}
-                  onChange={val => setEntryData(prev => ({ ...prev, content: val }))}
-                  entryId={`${activeEntry.collection}/${activeEntry.filename}`}
-                  saveTrigger={saveTrigger}
-                  t={t}
-                />
-              )}
-
+      {viewMode === 'resources' && ResourceLibraryComp ? (
+        <ResourceLibraryComp
+          loadComponent={loadComponent}
+          onClose={handleToggleViewMode}
+          addToast={addToast}
+          t={t}
+        />
+      ) : (
+        <>
+          {/* Botón flotante para abrir Sidebar en móviles */}
+          <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-[var(--color-border)] w-full shrink-0">
+            <div className="flex items-center gap-2">
+              <img src="/favicon.svg" alt="Favicon" className="w-6 h-6" />
+              <span className="font-bold text-sm text-gray-700">{t.cms_title}</span>
             </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center flex-1 py-12 md:py-20 text-center">
-            <div className="text-5xl md:text-6xl mb-4">✍️</div>
-            <h2 className="text-xl md:text-2xl font-bold mb-2">{t.welcome_title}</h2>
-            <p className="text-xs md:text-sm text-gray-500 max-w-md px-4">{t.welcome_desc}</p>
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="px-3 py-1.5 bg-[#d88a75]/10 text-[#d88a75] border border-[#d88a75]/20 rounded-xl text-xs font-bold transition-all"
+            >
+              {sidebarOpen ? '✕ Cerrar' : '☰ Menú'}
+            </button>
           </div>
-        )}
-      </main>
+
+          {/* Sidebar Izquierdo */}
+          <div className={`${sidebarOpen ? 'block' : 'hidden'} lg:block shrink-0 h-[calc(100vh-60px)] lg:h-full z-40 bg-white`}>
+            {SidebarComp && (
+              <SidebarComp
+                collections={collections}
+                activeCollection={activeCollection}
+                setActiveCollection={setActiveCollection}
+                activeEntry={activeEntry}
+                onSelectEntry={selectEntry}
+                onOpenNewModal={() => setShowNewModal(true)}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                lang={lang}
+                setLang={setLang}
+                t={t}
+              />
+            )}
+          </div>
+
+          {/* Área de Trabajo Principal */}
+          <main className="flex-1 overflow-y-auto p-4 lg:p-8 flex flex-col gap-6 lg:gap-8">
+            
+            {activeEntry ? (
+              <>
+                {/* Header del CMS */}
+                <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 shrink-0">
+                  <div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase mb-1">
+                      <span className="capitalize">{activeEntry.collection}</span>
+                      <span>/</span>
+                      <span>{activeEntry.filename}</span>
+                    </div>
+                    <h2 className="text-xl md:text-3xl font-black text-gray-800">
+                      {t.edit_label} <span className="text-[#d88a75]">{entryData.metadata?.title || activeEntry.filename.replace(/\.(md|mdx)$/, '')}</span>
+                    </h2>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    {message && <span className="text-xs md:text-sm font-bold text-green-600 transition-all">{message}</span>}
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className="bg-red-50 hover:bg-red-100 text-red-500 border border-red-200 px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
+                    >
+                      Eliminar Recurso ✕
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className="bg-[#d88a75] hover:bg-[#c27c69] text-white px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSaving ? t.saving : t.save_changes}
+                    </button>
+                  </div>
+                </header>
+
+                {/* Formulario Adaptativo & Markdown Editor */}
+                <div className="flex flex-col gap-6 md:gap-8">
+                  
+                  {/* Formulario de Metadatos */}
+                  {FormFieldsComp && (
+                    <FormFieldsComp
+                      entry={activeEntry}
+                      entryData={entryData}
+                      updateMeta={updateMeta}
+                      onOpenUploader={handleOpenUploader}
+                      collections={collections}
+                      t={t}
+                    />
+                  )}
+
+                  {/* Markdown Editor */}
+                  {MarkdownEditorComp && (
+                    <MarkdownEditorComp
+                      value={entryData.content}
+                      onChange={val => setEntryData(prev => ({ ...prev, content: val }))}
+                      entryId={`${activeEntry.collection}/${activeEntry.filename}`}
+                      saveTrigger={saveTrigger}
+                      t={t}
+                    />
+                  )}
+
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center flex-1 py-12 md:py-20 text-center">
+                <div className="text-5xl md:text-6xl mb-4">✍️</div>
+                <h2 className="text-xl md:text-2xl font-bold mb-2">{t.welcome_title}</h2>
+                <p className="text-xs md:text-sm text-gray-500 max-w-md px-4">{t.welcome_desc}</p>
+              </div>
+            )}
+          </main>
+        </>
+      )}
 
       {/* Modal de Nueva Entrada con Árbol de Carpetas */}
       {showNewModal && MediaFolderNodeComp && (
@@ -783,18 +813,30 @@ export function App({ loadComponent }) {
         />
       )}
 
+      {/* Botón Selector de Vista Biblioteca / Editor */}
+      {ResourceLibraryComp && !quickActionsOpen && (
+        <button
+          type="button"
+          onClick={handleToggleViewMode}
+          className="fixed bottom-6 right-24 bg-white text-gray-700 w-14 h-14 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center text-xl font-bold cursor-pointer transition-all duration-300 select-none border-2 border-[#d88a75]/30 hover:scale-105 z-45"
+          title={viewMode === 'editor' ? 'Ir a Biblioteca de Recursos' : 'Volver al Editor'}
+        >
+          {viewMode === 'editor' ? '🖼️' : '✍️'}
+        </button>
+      )}
+
       {/* Botón Flotante Hamburger de Acciones Rápidas */}
-      <div className="fixed bottom-6 left-6 z-45" ref={quickActionsRef}>
+      <div className="fixed bottom-6 right-6 z-45" ref={quickActionsRef}>
         {/* Acciones del menú (se revelan al hacer click) */}
         {quickActionsOpen && (
-          <div className="absolute bottom-16 left-0 flex flex-col gap-2.5 animate-scale-up z-50">
+          <div className="absolute bottom-16 right-0 flex flex-col gap-2.5 items-end animate-scale-up z-50">
             <button
               type="button"
               onClick={() => {
                 setShowSquashModal(true);
                 setQuickActionsOpen(false);
               }}
-              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/80 rounded-xl shadow-lg px-4 py-3 transition-all cursor-pointer flex items-center gap-3.5 whitespace-nowrap text-xs font-black uppercase tracking-widest border-l-4 border-l-[#d88a75]"
+              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/80 rounded-xl shadow-lg px-4 py-3 transition-all cursor-pointer flex items-center gap-3.5 whitespace-nowrap text-xs font-black uppercase tracking-widest border-r-4 border-r-[#d88a75]"
             >
               <span className="text-base select-none">🗜️</span>
               <span>Finalizar Redacción</span>
@@ -806,7 +848,7 @@ export function App({ loadComponent }) {
                 setShowNewModal(true);
                 setQuickActionsOpen(false);
               }}
-              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/80 rounded-xl shadow-lg px-4 py-3 transition-all cursor-pointer flex items-center gap-3.5 whitespace-nowrap text-xs font-black uppercase tracking-widest border-l-4 border-l-[#d88a75]"
+              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/80 rounded-xl shadow-lg px-4 py-3 transition-all cursor-pointer flex items-center gap-3.5 whitespace-nowrap text-xs font-black uppercase tracking-widest border-r-4 border-r-[#d88a75]"
             >
               <span className="text-base select-none">📝</span>
               <span>Nueva Entrada</span>

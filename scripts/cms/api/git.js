@@ -14,6 +14,16 @@ export async function gitCommit(filePath, action, slug, collection) {
       msg = `docs (Contenido) - Eliminar entrada ${slug} en ${collection}`;
     } else if (action === 'media') {
       msg = `feat (Assets) - Agregar imagen ${slug} en assets`;
+    } else if (action === 'resource_add') {
+      msg = `feat (Recurso) - Agregar recurso ${slug}`;
+    } else if (action === 'resource_delete') {
+      msg = `docs (Recurso) - Eliminar recurso ${slug}`;
+    } else if (action === 'resource_rename') {
+      msg = `docs (Recurso) - Renombrar recurso ${slug}`;
+    } else if (action === 'resource_replace') {
+      msg = `docs (Recurso) - Reemplazar recurso ${slug}`;
+    } else if (action === 'resource_update_ref') {
+      msg = `docs (Contenido) - Actualizar referencias de ${slug}`;
     } else {
       msg = `chore (CMS) - Operación automática en ${filePath}`;
     }

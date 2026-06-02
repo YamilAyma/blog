@@ -65,3 +65,38 @@
   from { transform: translateX(100%) translateY(10px); opacity: 0; }
   to { transform: translateX(0) translateY(0); opacity: 1; }
 }
+
+/* Transición Onírica de Desenfoque y Opacidad (2s) */
+.transition-dreamy {
+  animation: dreamyEffect 2s ease-in-out forwards;
+}
+
+@keyframes dreamyEffect {
+  0% { filter: blur(0px) opacity(1); }
+  50% { filter: blur(12px) opacity(0.3); }
+  100% { filter: blur(0px) opacity(1); }
+}
+
+/* Marcos Radiactivos Diagonales Animados */
+.border-warn-radiactive {
+  position: relative;
+  border: 3px solid transparent;
+  background-image: linear-gradient(white, white), repeating-linear-gradient(45deg, #f5c23d, #f5c23d 10px, #2e282a 10px, #2e282a 20px);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  animation: radioactiveBorderMove 20s linear infinite;
+}
+
+.border-danger-radiactive {
+  position: relative;
+  border: 3px solid transparent;
+  background-image: linear-gradient(white, white), repeating-linear-gradient(45deg, #f7768e, #f7768e 10px, #2e282a 10px, #2e282a 20px);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  animation: radioactiveBorderMove 20s linear infinite;
+}
+
+@keyframes radioactiveBorderMove {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 0 0, 400px 0; }
+}

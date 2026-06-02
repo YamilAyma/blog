@@ -6,7 +6,7 @@ import open from 'open';
 
 // Importar submódulos de la API modularizada
 import { scanDir, readEntry, saveEntry, createEntry, deleteEntry, getDefaultTemplate, getCustomComponents } from './api/content.js';
-import { scanFolders, createFolder, uploadMedia, checkFileExists } from './api/media.js';
+import { scanFolders, createFolder, uploadMedia, checkFileExists, scanAllResources, renameResource, replaceResource, deleteResource } from './api/media.js';
 import { gitCommit, gitPush, gitSquashAndPush } from './api/git.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -326,6 +326,91 @@ app.post('/api/media', async (req, res) => {
     res.json({ success: true, url: uploadResult.relativeUrl });
   } catch (err) {
     res.status(500).json({ error: 'Error al subir imagen', details: err.message });
+  }
+});
+
+// 11.1 Endpoint GET: Obtener todos los recursos para la Biblioteca de Recursos
+app.get('/api/resources', (req, res) => {
+  try {
+    const data = scanAllResources(BLOG_ROOT);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al escanear la biblioteca de recursos', details: err.message });
+  }
+});
+
+// 11.2 Endpoint POST: Renombrar un recurso y actualizar referencias en posts (Dependency Tracker)
+app.post('/api/resources/rename', async (req, res) => {
+  try {
+    const { fullRelativePath, newName } = req.body;
+    if (!fullRelativePath || !newName) {
+      return res.status(400).json({ error: 'Ruta completa y nuevo nombre son requeridos' });
+    }
+    const result = await renameResource(BLOG_ROOT, fullRelativePath, newName);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al renombrar el recurso', details: err.message });
+  }
+});
+
+// 11.3 Endpoint POST: Reemplazar un recurso existente
+app.post('/api/resources/replace', async (req, res) => {
+  try {
+    const { fullRelativePath, image } = req.body;
+    if (!fullRelativePath || !image) {
+      return res.status(400).json({ error: 'Ruta completa e imagen Base64 son requeridos' });
+    }
+    const result = await replaceResource(BLOG_ROOT, fullRelativePath, image);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al reemplazar el recurso', details: err.message });
+  }
+});
+
+// 11.4 Endpoint DELETE: Eliminar físicamente un recurso
+app.delete('/api/resources', async (req, res) => {
+  try {
+    const { fullRelativePath } = req.body;
+    if (!fullRelativePath) {
+      return res.status(400).json({ error: 'Ruta completa del recurso requerida' });
+    }
+    const result = await deleteResource(BLOG_ROOT, fullRelativePath);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al eliminar el recurso', details: err.message });
+  }
+});
+
+// 11.5 Endpoint POST: Carga genérica en subcarpetas específicas (assets/public)
+app.post('/api/resources/upload', async (req, res) => {
+  try {
+    const { filename, targetDir, image } = req.body;
+    if (!filename || !targetDir || !image) {
+      return res.status(400).json({ error: 'Nombre de archivo, carpeta destino e imagen Base64 son requeridos' });
+    }
+    const cleanTargetDir = targetDir.replace(/\.\./g, '');
+    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return res.status(400).json({ error: 'Formato de imagen Base64 inválido' });
+    }
+    const buffer = Buffer.from(matches[2], 'base64');
+    const safeFilename = path.basename(filename).replace(/\s+/g, '_');
+    
+    const destDir = path.join(BLOG_ROOT, cleanTargetDir);
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+    const destFilePath = path.join(destDir, safeFilename);
+    fs.writeFileSync(destFilePath, buffer);
+
+    const relativeFilePath = path.join(cleanTargetDir, safeFilename).replace(/\\/g, '/');
+
+    // Auto-commit
+    await gitCommit(destFilePath, 'resource_add', safeFilename, 'assets');
+
+    res.json({ success: true, relativePath: relativeFilePath });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al subir el recurso', details: err.message });
   }
 });
 

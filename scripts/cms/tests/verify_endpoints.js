@@ -67,6 +67,17 @@ async function runTests() {
     assert.ok(Array.isArray(data.components), 'Debería retornar un array de componentes');
   });
 
+  // Test 6: Verificar el nuevo endpoint de Biblioteca de Recursos
+  await test('GET /api/resources', async () => {
+    const res = await fetch(`${BASE_URL}/api/resources`);
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.ok(data.assetsTree, 'Debe contener el árbol de assets');
+    assert.ok(data.publicTree, 'Debe contener el árbol de public');
+    assert.ok(Array.isArray(data.resources), 'Los recursos deben ser un array');
+    assert.ok(data.config, 'Debe contener la configuración de límites');
+  });
+
   console.log('\n--- RESUMEN DE PRUEBAS ---');
   console.log(`Pruebas Exitosas: ${passed}`);
   console.log(`Pruebas Fallidas: ${failed}`);
