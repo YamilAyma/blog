@@ -372,7 +372,7 @@ export function ImageUploaderModal({
                 
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 max-h-48 overflow-y-auto border border-gray-250/60 rounded-xl p-2.5 bg-white shadow-inner min-h-24">
                   {existingFiles.map((f, idx) => {
-                    const imgUrl = `/src/${f.relativePath}`;
+                    const imgUrl = `/assets/${f.relativePath}`;
                     const isSelected = selectedExistingFile && selectedExistingFile.relativePath === f.relativePath;
                     return (
                       <div
@@ -408,7 +408,7 @@ export function ImageUploaderModal({
                 <div className="flex gap-3.5 items-center border border-[#d88a75]/20 bg-[#d88a75]/5 p-2.5 rounded-xl animate-fade-in shrink-0">
                   <div className="w-14 h-14 rounded-lg overflow-hidden border border-white shrink-0 bg-white shadow-md flex items-center justify-center select-none">
                     <img 
-                      src={`/src/${selectedExistingFile.relativePath}`} 
+                      src={`/assets/${selectedExistingFile.relativePath}`} 
                       alt="Vista Previa" 
                       className="h-full w-full object-cover" 
                     />
