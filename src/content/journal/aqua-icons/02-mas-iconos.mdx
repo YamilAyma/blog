@@ -1,0 +1,51 @@
+---
+title: Más iconos y uniformidad
+date: 2026-06-02
+description: He notado que este tipo de proyectos tiene patrones que podemos extraer para facilitarme en creación de más cosas similares.
+project: aqua-icons
+published: true
+image: https://i.imgur.com/lxp4dtQ.png
+tags: [ aquaicons, icons, ai, "2026" ]
+---
+
+Saludos estimados compañeros digitales, espero que se encuentren bien desde sus casas.
+**Aqua Icons** ha vuelto para completarse el primer pack de iconos principal que estrenará nuestra publicación en **Figma Community**, y por cierto, esta es la primera entrada completamente escrita desde el CMS de mi blog por lo que me cuesta un poco acostumbrarme pero es natural en todo lo nuevo ^^.
+
+## Facilitando lo importante
+
+El repositorio donde alojamos los recursos para todos tenía carencias de automatización respecto al control de versiones e integración, pasos extra al agregar imágenes y además que cuando tuviéramos bastantes sería insostenible.
+
+Para comenzar, planeamos en reducir los pasos ya que antes era así:
+
+1. Preparar el prompt para el icon.
+2. Generarlo y descargarlo.
+3. Remover el fondo con Adobe Express, función de remover fondo y volver a descargarlo.
+4. Guardarlo en la carpeta de iconos correspondiente.
+5. Ejecutar el script para actualizar la tabla de iconos.
+6. Enviar todos los cambios al repositorio remoto.
+
+Uff son varios pasos y a esta velocidad me dificultaría y se volvería agotador realizarlo, para ello, exploramos una alternativa para remover fondo en lote (hey la función de Adobe Express es excelente pero para estos casos de uso, no mucho).
+
+### **rembg** - Remueve fondos de imágenes
+
+Esta valiosa herramienta que integraré de ahora en adelante a mi stack, nos eliminó como 2 pasos, al ser utilizable desde comandos (y por lo tanto, ejecutada en un script) elimina todos los fondos de las imágenes generadas que dejamos en una carpeta que se comporta como una bandeja de entrada, iniciamos con un script que se encargará de asumir todas las tareas de imágenes, remover fondos, mover recursos crudos(generados desde IA), actualizar nuestro README.md y listo, accesible desde un script.
+
+- rembg: https://github.com/danielgatis/rembg
+
+### Valiosas utilidades
+
+Comento que ahora llevo realizando el desarrollo de todo esto con los agentes de IA, ellos saben muy bien como crear scripts de JS y Python, para facilitarle tareas de listado de archivo y edición de archivos, le dimos unos superpoderes prácticos que usará para depurar y retroalimentar sus resultados. Si también trabajas con agentes, no dudes en pausar un poco el desarrollo principal para ganar velocidad, tu agente te lo agradecerá.
+
+Por otra parte, dejé el prompt con unas indicaciones por si deseas extender con más ideas, y por cierto, no dudes en compartir ;)
+
+### Para todos
+
+La razón por la que inicio este tipo de proyectos es para que todos tengamos alternativas, busqué en Internet este tipo de iconos pero no vi algún resultado que me anime a usarlo, por eso trato de que sea sencillo contribuir y utilizar. Reconozco que los diseñadores usan Figma, si lo publico allí al igual que nuestro proyectito **Cozy Badges**, podría tener más alcance y búsqueda.
+
+Preparé un diseño inspirado en las interfaces de **Aqua Design** por parte de Apple, de las cuales nació como inspiración para esta colección, así se sentirá más especial y personalizado que dejar solamente los iconos.
+
+No pienso en crearle un sitio web por el momento porque quiero experimentar y obtener resultados. Gracias a todos ustedes por estar allí presentes, si te gustaron los iconos, puedes usarlo con libertad, ya sea una presentación, proyecto académico o usarlo en ilustraciones tuyas, verás que tienen usos fabulosos.
+
+Ya verás que deseo que estén allí, para ahorrarte tiempo de búsqueda y otorgarle un toque más cercano (jeje parecen reales) a las cosas que vemos y abstraemos. Un saludo :)
+
+![Un regalo rojo](https://github.com/YamilAyma/aqua-icons/raw/main/icons/pack1/gift.png)
