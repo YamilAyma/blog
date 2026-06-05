@@ -1,0 +1,52 @@
+---
+title: Para unificar la demanda y producción
+date: 2026-06-05
+description: Comentarios sobre como fuimos diseñando para Icon Pack Framework, estas notas son para el recuerdo :)
+project: icon-pack-framework
+published: true
+image: ""
+tags: [ iconpackframework, "2026", ia, diseño ]
+---
+
+Bienvenido a esta nueva bitácora, es dedicado para el proyecto de Icon Pack Framework del cual escribo aquí.
+
+---
+
+Tengo muchas ideas para ir desarrollando, pero busco que tengan utilidad para un público objetivo, y también a largo plazo o si no lo logro con lo primero, que me ayude a acelerar la producción.
+
+De la colección de Aqua Icons, aprendí que si salto la fase de estandarizar, la próxima vez que vaya por un proyecto o caso de uso similar, me encontraría de nuevo con los mismos detalles.
+
+Había comentado hace unos días en [Más iconos y uniformidad](https://yamilayma.github.io/proyectos/aqua-icons/diario/02-mas-iconos/) los avances que tuvimos para Aqua Icons, y logramos completar el primer pack junto con su plantilla en Figma :D
+
+En él, identifiqué y construimos junto con Antigravity(Gemini). scripts que nos facilitarían la producción, porque ese el detalle final. Pasamos de usar herramientas web a incorporar módulos en un pipeline de procesamiento de imágenes, asimismo scripts para actualizar un catálogo y demás funcionalidades menos resaltadas, razón que vi en una oportunidad para unificar estas utilidades en un conjunto listo para uso, de paso, en el futuro próximo podré hacer muchos más iconos. ¡Yujuy! 
+
+### Diseñando en pares
+
+Al inicio tuve la idea de tener una plantilla, eso involucraría volverlo reutilizable solamente, pero quería un framework que otorgue valor más allá de lo reutilizable, porque, mientras nuestra herramienta esté más alineada con los objetivos que nos planteamos, nos produce un sentimiento de importancia que es dificil de quitar y por lo tanto nuestra.
+
+Uno de los problemas que tuve es tener un sitio web listo para compartir, donde estén tus iconos y tenga presencia en algún buscador web, Aqua Icons no tiene uno, y quiero que sea especial, no me agradan mucho los diseños generados por defecto de la IA, sé que les cuesta, en solución, brindamos un sitio web con un estilo neutral, tratamos de que sea personalizable al considerar unicamente CSS para los estilos por lo que con conocimientos de frontend puedes pulirlo.
+
+Oh y como en todo framework, la accesibilidad de la información es de vitalidad, sin ella nuestro contrato de valor hacia ello sería como poner una venda en los ojos y que firmen, no queremos eso.
+
+### Un archivo contrato
+
+Hablamos de un archivo de configuración, podrás editar la web, ponerle un icono y demás contenido, si buscas modificar la optimización dejamos parametros configurables para remover el fondo.
+
+Un framework se vuelve opinado cuando decimos como hacer las cosas, pero imponer sin cuidad es limitar, por ello el código puede ser parcialmente modificado para tus propias necesidades (tampoco rompan lo que funciona jeje), además que al centralizar la información, la responsabilidad se disueve desde A a B en solamente A, porque si todo está en un solo lugar, es sencillo.
+
+### Los generosos recursos
+
+Tenemos un pipeline basado en scripts de Python y Javascript que se encargarán de hacer el trabajo pesado, están dirigidos para que cuando lo instales sea leve, de hecho, no hay muchos comandos por aprender y todo se reduce a un tutorial que puedes seguir en compañia de tu asistente de IA favorito, ¡es estupendo!
+
+Pero eso no es todo, también pensamos en la reproducibilidad y facilidad de contribución, solamente dejarías el prompt en un archivo de texto que lleve el nombre del icono(pc.png/pc.txt) y el framework sabrá que su prompt existe y lo mostrará al público, en segundo lugar, la web posee una sección que invita a contribuir brindándole el prompt maestro.
+
+## Detalles Técnicos
+Por ahora está pensado para la generación de imágenescon IA, pero si ya tienes recursos orgánicos pero quieres aprovechar las bondades de esta herramienta, podrás configurarlo con una sola bandera. Esto último no está implementado pero lo estará porque comprendo las posturas y opiniones.
+
+### Próximos pasos
+
+Quiero ser transparente contigo, esto no lo he programado yo, tampoco me encargué en escribir cada línea de código, sino que lo diseño a cabo la IA, pero el resultado y dirección fueron compartidos, por otra parte, hacer esto es un gran ejercicio para mí, me compromete a cuidar de quien lo usará, pensar un nivel más alto y eso no es tan sencillo ahora. 
+
+Para el futuro pienso expandir y facilitar el arranque (que todavía es algo técnico), para que desde una simple aplicación o página web lo tengas listo. 
+
+¡Pronto nos veremos compañero!
