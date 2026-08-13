@@ -40,15 +40,20 @@
         
         // Transpilar el código del componente convirtiendo exports de ES6 a UMD/CommonJS
         const transformed = Babel.transform(code, {
-          presets: ['react'],
+          presets: [['react', { runtime: 'classic' }]],
           plugins: ['transform-modules-umd']
         }).code;
         
         // Ejecutar en un sandbox local
         const exports = {};
         const module = { exports };
-        const fn = new Function('React', 'exports', 'module', transformed);
-        fn(React, exports, module);
+        const requireShim = (mod) => {
+          if (mod === 'react') return window.React;
+          if (mod === 'react-dom') return window.ReactDOM;
+          return window[mod];
+        };
+        const fn = new Function('React', 'exports', 'module', 'require', transformed);
+        fn(React, exports, module, requireShim);
         
         return module.exports;
       } catch (err) {
