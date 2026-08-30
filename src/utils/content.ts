@@ -4,8 +4,8 @@
  * @param content The text content to analyze.
  * @returns The estimated reading time in minutes.
  */
-export function calculateReadingTime(content: string): number {
-  if (!content) return 0;
+export function calculateReadingTime(content?: string | null): number {
+  if (!content || typeof content !== "string") return 0;
   const words = content.trim().split(/\s+/).length;
   const wordsPerMinute = 200;
   return Math.ceil(words / wordsPerMinute);

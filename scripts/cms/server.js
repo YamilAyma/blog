@@ -165,9 +165,7 @@ app.post('/api/content/:collection', async (req, res) => {
         defaultMeta.date = today;
         defaultMeta.published = true;
         defaultMeta.category = 'General';
-        defaultMeta.image = '';
         defaultMeta.tags = ['general'];
-        defaultMeta.layout = '../../layouts/BlogPost.astro';
       } else if (collection === 'posts') {
         defaultMeta.image = `../../../assets/images/posts/enlaces-para-desarrolladores/recursos-${today}.png`;
         defaultMeta.imageAlt = `Recopilación de recursos - ${today}`;

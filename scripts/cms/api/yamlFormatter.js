@@ -29,6 +29,14 @@ export function serializeYaml(metadata) {
     cleanMeta.imageAlt = cleanMeta.imageAlt.toString().replace(/\r?\n|\r/g, ' ').trim();
   }
 
+  // Limpiar campos vacíos que puedan generar conflictos en Astro
+  if (cleanMeta.layout === '' || cleanMeta.layout === undefined || cleanMeta.layout === '../../layouts/BlogPost.astro') {
+    delete cleanMeta.layout;
+  }
+  if (cleanMeta.image === '' || cleanMeta.image === undefined) {
+    delete cleanMeta.image;
+  }
+
   // Crear Documento AST de YAML
   const doc = new yaml.Document(cleanMeta);
 

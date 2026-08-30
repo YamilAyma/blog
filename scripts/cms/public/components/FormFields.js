@@ -357,16 +357,6 @@ export function FormFields({
               onChange={val => updateMeta('tags', val)}
               t={t}
             />
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">{t.layout}</label>
-              <input 
-                type="text" 
-                className="w-full cms-input px-3 py-2 rounded-xl text-xs font-medium" 
-                placeholder="ej: ../../layouts/BlogPost.astro"
-                value={meta.layout || ''} 
-                onChange={e => updateMeta('layout', e.target.value)} 
-              />
-            </div>
           </div>
         </div>
       );
