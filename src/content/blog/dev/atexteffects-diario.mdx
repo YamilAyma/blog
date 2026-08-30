@@ -1,0 +1,55 @@
+---
+title: Mira ese efecto, lo quiero
+description: Comentarios y diario del desarrollo del sitio de atexteffects. Seré algo breve jeje
+date: 2026-08-30
+published: true
+category: General
+tags: [ dev, web, opensource, atexteffects, "2026" ]
+image: https://atexteffects.vercel.app/banner.png
+---
+
+Ha pasado mucho tiempo desde que no publico por aquí, volvemos con todo con 'atexteffects' 
+
+---
+
+# Recurso para todos
+
+Has visto esas páginas que compilan todo sobre algo, ya sean emojis, imágenes de gatos o palabras técnicas de algo, más o menos a ello apuntaba esta pequeña idea que tuve durante una sesión de madrugada y me animó a realizar algo que buscaba poner a prueba con algo que diseñé hace mucho.
+
+Reconozco que hay varios sitios encargados de cosas similares y posiblemente encuentres alguno, pero traté de ser directo y simple en la forma de presentarlos y con el matiz de buscar reproducibilidad sin importar la herramienta de IA que uses (oh la IA, ya está en todas partes jeje).
+
+**Explora, elige y llévate el prompt**, esos son los pasos que sigues para tener lo que buscas. Verás que es dificil describir algo con palabras que verlo y señalarlo, las herramientas de IA agenticas pueden ver pero no percibir como nosotros el movimiento, esto trata de traducir eso y llevarlo a texto.
+
+---
+
+## Planeación
+
+Tengo un **prompt especializado en planes iniciales** de proyectos orientados a usar solamente un stack frontend(omito el backend porque no es prioridad para empezar algo y pienso que es la manera ágil de empezar), entonces al ser la idea reproducible y lo suficiente para explicar en palabras, creamos un plan listo de implementación, destaco que respecto a lo visual dí indicaciones y referencias que extraigo de sitios que me gustan o de algunas páginas de inspiración que guardo en [Enlaces para Desarrolladores](https://enlaces-para-desarrolladores.netlify.app/). **Fue genial empezar y sentirte dentro.**
+
+Luego, quería visualizar mi plan para saber si está alineado a lo que me imaginé, **así que compartí el plan a ChatGPT para que genere una imagen del sitio en acción(ChatGPT tiene actualmente el mejor modelo de generación de imágenes**, por lo que la fidelidad es mayor). Al verlo
+me gustó, jaja tiene esa vibra de Vercel.
+
+![Imagen generada por GPT Image 2.0 como idea del sitio](https://i.imgur.com/ERQQet0.png)
+
+Terminado la planificación y vista previa pasamos al desarrollo, comentar esto suena sencillo pero también toma su tiempo de analizarlo y verificarlo no olvidarlo 😉. (Omito los detalles especiales como el footer que quería e incluso algunos auxiliares que realicé al vuelo por brevedad, pero esencialmente es esto).
+
+## Stack técnologico
+
+Ahora el stack es lo de menos en cuanto a desarrollo, por lo que usamos Vite con React para un **boostrap realizado en Google AI Studio usando la función de Build** (existen varias opciones, Lovable, Bolt, base44 y varias herramientas que arman sitios, pero no deberías quedarte con lo que entregan).
+
+Este paso fue el más satisfactorio, compartí el plan y la expectativa a tener(la imagen generada por ChatGPT) para que pueda validarlo, el plan también asumió la parte técnica por lo que el código fue mantenible. Te animo a usar estas apps para tus MVPs ⭐.
+
+Aquí dejo una captura de pantalla como verificación wooo
+
+![Captura de pantalla de la sesión en Google AI Studio](https://i.imgur.com/bOGRUqd.png)
+
+Finalmente realicé algunos ajustes que fueron huérfanos en el plan y expandimos un poco más la colección aprovechando que estuvimos allí.
+
+## Exportando
+
+Algo que me gusta de AI Studio es que te permite exportar el proyecto como zip, por lo que llevármelo a mi zona de trabajo era sencillo, luego desarrollamos unos ajustes y preparativos puntuales a nivel de repositorio respecto al proyecto con el agente de Antigravity, de paso realizamos pruebas en local, finalmente lo desplegamos en **Vercel** y ¡listo para todos!
+
+Me ha agradado este flujo de trabajo, la sinergia de las herramientas fue cómoda y quería compartirla con un ejemplo real como este. Tenemos la publicación de este proyecto en LinkedIn también, quizás nos viste desde allí. Un saludito 👋
+
+- **Sitio web**: https://atexteffects.vercel.app/
+- **Repositorio (ánimo, puede contribuir a esta iniciativa)**: https://github.com/YamilAyma/atexteffects
